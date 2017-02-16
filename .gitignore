@@ -1,3 +1,14 @@
+#web2py
+cache/*
+private/*
+uploads/*
+databases/*
+sessions/*
+errors/*
+.pythonhistory
+.hg/
+.hgignore
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

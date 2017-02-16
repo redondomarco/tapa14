@@ -1,0 +1,14 @@
+{{extend 'layout.html'}}
+{{=form_ingreso}}
+{{=H4('Ulitmos ingresos')}}
+{{=session.ultimosingresos}}
+{{block page_js}}
+<script type="text/javascript">
+
+jQuery(function(){
+            jQuery('input[type=submit]').click(
+               function(){return confirm('Confirma?');
+                });
+        });
+</script>
+{{end page_js}}

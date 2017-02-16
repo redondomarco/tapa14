@@ -1,0 +1,80 @@
+{{extend 'layout.html'}}
+{{=form}}
+
+{{block page_js}}
+<script type="text/javascript">
+        // Cada vez que se pulse/suelte una tecla click mouse sobre la tabla con id #suma llamamos a calcular()
+        $("#formventa").keypress(function(event) { calcular() });
+        $("#formventa").click(function(event) {calcular() });
+        $("#formventa").keyup(function(event) { calcular(); });
+        
+        // Calculamos la suma de los dos valores
+        function calcular()
+        {
+            //var valor1=validarNumero('#cdc18t14');
+            //var valor2 = $("#vdc18t14").html();
+            
+            //var subt1 = $("#suma #vdc18t14").html();
+            
+            //$("#sdc18t14").val(valor1*valor2);
+            //$("#totalt").val(subt1);
+            
+            //obtengo cliente seleccionado en combo
+            //var e = document.getElementById("clienteinput");
+            //var cliente = e.options[e.selectedIndex].value;
+            //console.log(cliente);
+            
+            
+            
+            //obtengo la lista del cliente
+            //for (i = 0; i < clientes.length; i++) {
+            //  if (cliente==clientes[i].nombre) {
+            //    var lista=clientes[i].lista;
+                //console.log(clientes[i].lista);
+            //  }
+            //};
+
+            //determino el descuento
+            //var listas = {{=XML(listas_json)}};
+            //for (i = 0; i < listas.length; i++) {
+            //  if (lista==listas[i].id) {
+            //    var dto=listas[i].valor
+                //console.log(dto)
+            //  }
+            //};
+
+            var idsform = {{=XML(ids_json)}};
+            var precios = {{=XML(precios_json)}};
+            //console.log(precios);
+            var dto = {{=descuento}}
+            //console.log(dto);
+            totalc=0;
+            for (i = 0; i < idsform.length; i++) {
+              var cantidad=validarNumero("#"+idsform[i][0]);
+              //var valor=$("#"+idsform[i][1]).html();
+              var valor=precios[i]
+              $("#"+idsform[i][2]).val(cantidad*roundToTwo(valor*dto));
+              var totalc=totalc+(roundToTwo(cantidad*valor*dto));
+              $("#totalt").val(roundToTwo(totalc));
+            };
+        }
+        
+        // Funcion para validar que el numero sea correcto, y para cambiar el color
+        // del marco en caso de error
+        function validarNumero(id) {
+            if($.isNumeric($(id).val()))
+            {$(id).css('border-color','#808080'); return parseFloat($(id).val());
+            }else if($(id).val()==""){ $(id).css('border-color','#808080'); return 0;
+            }else{ $(id).css('border-color','#f00'); return 0;}
+        }
+        function roundToTwo(num) {    
+            return +(Math.round(num + "e+2")  + "e-2");
+        }
+
+        jQuery(function(){
+            jQuery('input[type=submit]').click(
+               function(){return confirm('Confirma?');
+                });
+        });
+</script>
+{{end page_js}}
