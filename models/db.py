@@ -80,7 +80,14 @@ def log(palabra):
     else:
         logger.info('usuario: admin '+str(palabra))
 
-
+def debug(palabra):
+    if hasattr(auth.user, 'email'):
+        mensaje='DEBUG-'+str(palabra)+'-FIN'
+        for i in log_remove:
+            mensaje = mensaje.replace(str(i),'')
+        logger.info(mensaje)
+    else:
+        logger.info('usuario: admin '+str(palabra))
 ## configure auth policy
 auth.settings.registration_requires_verification = True
 auth.settings.registration_requires_approval = True
@@ -151,12 +158,13 @@ db.define_table(
     Field('preciou', 'double'),
     Field('total', 'double')
     )
+#requires = IS_DATE(format=('%d/%m/%Y %H:%M:%S')
 db.define_table(
     'ingresos',
     Field('fecha', 'datetime'),
     Field('fecha_prod', 'datetime'),
+    Field('vto', 'datetime'),
     Field('lote', 'integer'),
-    Field('vencimiento', 'datetime'),
     Field('usuario', default=auth.user_id),
     Field('cantidad', 'integer'),
     Field('producto', 'reference producto')
@@ -174,9 +182,27 @@ db.define_table(
     Field('total', 'double')
     )
 db.define_table(
+    'es_caja',
+    Field('nombre'),
+    Field('tipo')
+    )
+db.define_table(
+    'movimientos',
+    Field('fecha', 'datetime'),
+    Field('vendedor', 'reference auth_user'),
+    Field('comprobante', 'integer'),
+    Field('descripcion', 'reference es_caja'),
+    Field('total', 'double')
+    )
+db.define_table(
     'comprobante',
     Field('nombre'),
     Field('lastid', 'integer')
+    )
+db.define_table(
+    'dinero',
+    Field('nombre'),
+    Field('valor','double')
     )
 def fecha_vto(lote):
     diasvto=30

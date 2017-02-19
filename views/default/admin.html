@@ -1,22 +1,2 @@
 {{extend 'layout.html'}}
-{{
-=CENTER(
-    H3('Administrar'),
-    TABLE(
-        TR(
-            H4('ABM'),
-            A('productos',_class="btn btn-primary", _href=URL('productos')),
-            A('clientes',_class="btn btn-primary", _href=URL('clientes')),
-            A('listas',_class="btn btn-primary", _href=URL('listas'))
-        ),
-        TR(),
-        TR(
-            H4('anula'),
-            A('ingreso',_class="btn btn-primary", _href=URL('anula_ingreso')),
-            A('venta',_class="btn btn-primary", _href=URL('anula_venta')),
-            A('pedido',_class="btn btn-primary", _href=URL('anula_pedido'))
-        ),
-        _id='tablaindex'
-    )
-)
-}}
+{{=form}}
