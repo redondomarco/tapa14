@@ -150,13 +150,15 @@ db.define_table(
 db.define_table(
     'ventas',
     Field('fecha', 'datetime'),
+    Field('fentrega', 'datetime'),
     Field('ventanum', 'integer'),
     Field('vendedor', 'reference auth_user'),
     Field('cliente', 'reference cliente'),
     Field('cantidad', 'integer'),
     Field('producto', 'reference producto'),
     Field('preciou', 'double'),
-    Field('total', 'double')
+    Field('total', 'double'),
+    format='%(ventanum)s'
     )
 #requires = IS_DATE(format=('%d/%m/%Y %H:%M:%S')
 db.define_table(
@@ -168,18 +170,6 @@ db.define_table(
     Field('usuario', default=auth.user_id),
     Field('cantidad', 'integer'),
     Field('producto', 'reference producto')
-    )
-db.define_table(
-    'pedidos',
-    Field('fecha', 'datetime'),
-    Field('pedidonum', 'integer'),
-    Field('vendedor', 'reference auth_user'),
-    Field('cliente', 'reference cliente'),
-    Field('cantidad', 'integer'),
-    Field('producto', 'reference producto'),
-    Field('preciou', 'double'),
-    Field('terminado', 'boolean'),
-    Field('total', 'double')
     )
 db.define_table(
     'es_caja',
@@ -203,6 +193,11 @@ db.define_table(
     'dinero',
     Field('nombre'),
     Field('valor','double')
+    )
+db.define_table(
+    'pendientes',
+    Field('operacion'),
+    Field('ventanum', 'integer')
     )
 def fecha_vto(lote):
     diasvto=30

@@ -45,7 +45,6 @@ def ingreso():
     #    TH('Total',_id='totaltitle'),
     #    TH(INPUT(_id='totalt', _type="number",_class='precio', _disabled="disabled")))))
     #formulario
-    #logger.info(str(session.idsform))
     form_ingreso = FORM(
         CENTER(
             H3('Ingreso de producción'),
@@ -75,7 +74,6 @@ def ingreso():
                 cantidad=int(0)
             db(db.producto.codigo==item.codigo).update(stock=db(db.producto.codigo==item.codigo).select()[0].stock+int(cantidad))
             if cantidad!=0:
-                #logger.info(str(auth.user.email))
                 log(str(cantidad)+' '+str(item.codigo)+' desde '+str(request.client)+' fecha '+str(ingresofecha)+' lote '+str(ingresolote))
                 producto=db(db.producto.codigo==item.codigo).select().first()['detalle']
                 productoid=db(db.producto.codigo==item.codigo).select().first()['id']
@@ -88,12 +86,9 @@ def ingreso():
                     cantidad=cantidad,
                     producto=productoid)
         db.commit()
-        #logger.info("bien")
         redirect(URL('index'))
-        #logger.flash("ingresados")
     else:
         log('acceso')
-        #logger.info('acceso '+str(request.function)+' '+str(auth.user.email)+' from '+str(request.cookies))
     return dict(form_ingreso=form_ingreso, ids_json=json(session.idsform))
 
 #armo tabla de productos para venta y calculadora
@@ -118,7 +113,7 @@ def ventaold():
     clientes=db(db.cliente).select(db.cliente.ALL)
     listas=db(db.listas).select(db.listas.ALL)
     comprobante=db(db.comprobante.nombre=='venta').select().first()['lastid']
-    logger.info("tabla1: "+str(tabla1))
+    log("tabla1: "+str(tabla1))
     form_venta = FORM(
         CENTER(
             TABLE(
@@ -135,27 +130,23 @@ def ventaold():
         CENTER( INPUT(_type="submit", _class="btn btn-primary btn-medium", _value='vender',_id='button14')),
         _id='formventa')
     if form_venta.accepts(request, session):
-        logger.info('aceptado '+str(request.function)+' '+str(auth.user.email)+' from '+str(request.cookies))
+        log('aceptado')
         cliente=request.vars['cliente']
         if cliente==" ":
-            logger.info('cliente vacio '+str(cliente))
+            log('cliente vacio '+str(cliente))
             redirect(URL('index'))
         else:
-            logger.info('cliente:'+str(cliente))
+            log('cliente:'+str(cliente))
         ventanumactual=db(db.comprobante.nombre=='venta').select()[0].lastid
         listaid=db(db.cliente.nombre==cliente).select().first()['lista']
         desc_lista=db(db.listas.id==listaid).select().first()['valor']
         for item in db(db.producto.detalle).select():
             cant='c'+str(item.codigo)
-            #logger.info("cant: "+str(cant)+str(request.vars))
-            #logger.info(str(request.vars[cant])+str(type(request.vars[cant])))
             #cantidad=int(str(request.vars[cant]))
-            #logger.info('cantTTTTT'+str(type(cantidad))+'|'+str(cantidad)+'|')
             if request.vars[cant] == '':
                 cantidad=int(0)
             else:
                 cantidad=int(str(request.vars[cant]))
-            #logger.info("cantidad:"+str(cantidad))
             db(db.producto.codigo==item.codigo).update(stock=db(db.producto.codigo==item.codigo).select()[0].stock-int(cantidad))
             if cantidad!=0:
                 valor=float(db(db.producto.codigo==item.codigo).select().first()['valor'])
@@ -182,7 +173,7 @@ def ventaold():
         db.commit()
         redirect(URL('index'))
     else:
-        logger.info('acceso '+str(request.function)+' '+str(auth.user.email)+' from '+str(request.cookies))
+        log('acceso')
     return dict(form_venta=form_venta, ids_json=json(session.idsform), clientes_json=json(clientes), listas_json=json(listas))
 
 @auth.requires_membership('vendedor')
@@ -190,11 +181,14 @@ def selec_cliente():
     clientes=db(db.cliente).select(db.cliente.ALL)
     form = FORM(
         CENTER(
-            TAG('<label class="control-label">Venta </label>'),BR(),
+            H3('Venta'),
+            #TAG('<label class="control-label">Venta </label>'),BR(),
             TABLE(
-                TR(
-                    TAG('<label for="clienteinput"> cliente</label>'),
-                    SELECT([" "]+[(p.nombre) for p in clientes], _name='cliente', _type='text', _id="clienteinput",_class="form-control string")
+                TR(TAG('<label for="clienteinput"> cliente</label>'),
+                   SELECT([" "]+[(p.nombre) for p in clientes], _name='cliente', _type='text', _id="clienteinput",_class="form-control string"),
+                ),
+                TR(TAG('<label class="tabla-label">Fecha Entrega: </label>'),
+                   SELECT(["Inmediata"]+["Posterior"], _name='entrega', _type='text', _id="clienteinput",_class="form-control string")
                 ),
                 _id='tablaselec',
             ),
@@ -203,8 +197,13 @@ def selec_cliente():
         _id='formventa')
     if form.accepts(request, session):
         session.cliente=request.vars['cliente']
-        logger.info('aceptado '+str(request.function)+' '+str(session.cliente)+' '+str(auth.user.email)+' from '+str(request.cookies))
-        redirect(URL('venta'))
+        session.entrega=request.vars['entrega']
+        debug(str(session.cliente))
+        if session.cliente!=" ":
+            log('aceptado')
+            redirect(URL('venta'))
+        else:
+            redirect(URL('selec_cliente'))
     return dict(form=form)
 
 
@@ -253,12 +252,18 @@ def venta():
         else:
             tagid='tipocuenta'
         saldo=TR(TAG('<label for="tipocuenta">saldo</label>'),
-                   INPUT(_value=str(saldo_cliente), _disabled="disabled",_type="number",_class=tagid))
+                 INPUT(_value=str(saldo_cliente), _disabled="disabled",_type="number",_class=tagid))
+        if session.entrega=='Inmediata':
+            fechaentrega=""
+        elif session.entrega=="Posterior":
+            fecha_entrega=TR(TAG('<label class="tabla-label">Entrega: </label>'),
+                             INPUT(_class='date',_name='fechaentrega',_id='fechaingreso'))
         tablacliente=TABLE(
                 nro_venta,
                 nombre_cliente,
                 tipo_cuenta,
                 saldo,
+                fecha_entrega,
                 _id='tablacliente'
                 )
     else:
@@ -280,39 +285,29 @@ def venta():
     tabla2.append(TFOOT(TR(
         TH(''), TH(''), TH('Total',_id='totaltitle'),TH(INPUT(_id='totalt', _type="number",_class='precio', _disabled="disabled")))))
     form = FORM(
-        CENTER(
-            #TAG('<label class="control-label">Venta </label>'),BR(),
-            tablacliente
-        ),
+        CENTER(tablacliente),
         TABLE( tabla2, _class='t2', _id="suma"),
         CENTER(INPUT(_type="submit", _class="btn btn-primary btn-medium", _value='vender',_id='button14')),
         _id='formventa')
     if form.accepts(request, session):
         productovendido=False
-        logger.info('aceptado '+str(request.function)+' '+str(auth.user.email)+' from '+str(request.cookies))
+        log('aceptado')
         ventanumactual=db(db.comprobante.nombre=='venta').select()[0].lastid
         listaid=db(db.cliente.nombre==session.cliente).select().first()['lista']
         desc_lista=db(db.listas.id==listaid).select().first()['valor']
         for item in productos_cliente:
             producto=db(db.producto.id==item).select().first()
             cant='c'+str(item.codigo)
-            #logger.info("cant: "+str(cant)+str(request.vars))
-            #logger.info(str(request.vars[cant])+str(type(request.vars[cant])))
-            #cantidad=int(str(request.vars[cant]))
-            #logger.info('cantTTTTT'+str(type(cantidad))+'|'+str(cantidad)+'|')
             if request.vars[cant] == '':
                 cantidad=int(0)
             else:
                 cantidad=int(str(request.vars[cant]))
-            #logger.info("cantidad:"+str(cantidad))
-            
             if cantidad!=0:
                 productovendido=True
                 #logica descuento stock
                 if producto['stock_alias']==None:
                     db(db.producto.codigo==producto['codigo']).update(stock=db(db.producto.codigo==producto['codigo']).select()[0].stock-int(cantidad))
                 else:
-                    logger.info("---DEBUG---: "+str(producto['stock_alias']))
                     stockprod=db(db.producto.id==producto['stock_alias']).select().first()
                     db(db.producto.codigo==stockprod['codigo']).update(stock=db(db.producto.codigo==stockprod['codigo']).select()[0].stock-int(cantidad))
                 valor=float(producto['valor'])
