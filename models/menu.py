@@ -6,7 +6,7 @@
 #########################################################################
 
 response.logo = A(B('tapa',SPAN(14),'ventas'),
-                  _class="navbar-brand",_href="https://web2py.latix.com.ar/tapa14",
+                  _class="navbar-brand",_href=URL('index'),
                   _id="web2py-logo")
 response.title = request.application.replace('_',' ').title()
 response.subtitle = ''
