@@ -181,6 +181,7 @@
 'errors': 'errores',
 'Errors': 'Errores',
 'Errors in form, please check it out.': 'Hay errores en el formulario, por favor comprúebelo.',
+'Estado': 'Estado',
 'export as csv file': 'exportar como archivo CSV',
 'Export:': 'Exportar:',
 'exposes': 'expone',

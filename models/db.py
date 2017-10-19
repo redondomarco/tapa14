@@ -15,7 +15,7 @@ from gluon.contrib.appconfig import AppConfig
 myconf = AppConfig(reload=True)
 
 #db = DAL(myconf.take('db.uri'), pool_size=myconf.take('db.pool_size', cast=int), check_reserved=['all'], migrate=True)
-db = DAL('sqlite://storage.sqlite', pool_size=1, check_reserved=['all'], lazy_tables=True)
+db = DAL('sqlite://storage.sqlite', pool_size=1, check_reserved=['all'], lazy_tables=True, migrate=True)
 #db = DAL(myconf.take('db.uri'), pool_size=myconf.take('db.pool_size', cast=int), check_reserved=['all'],lazy_tables=True)
 
 ## by default give a view/generic.extension to all actions from localhost
@@ -135,9 +135,14 @@ db.define_table(
     Field('valor', 'double'),
     format='%(lista)s'
     )
-db.define_table('tipo_cta',
-                Field('tipo', label=('Tipos de cuenta')),
-                format='%(tipo)s')
+db.define_table(
+    'tipo_cta',
+    Field('tipo', label=('Tipos de cuenta')),
+    format='%(tipo)s')
+db.define_table(
+    'estado_pedido',
+    Field('estado'),
+    format='%(estado)s')
 db.define_table(
     'cliente',
     Field('nombre', unique=True, length=255),
@@ -159,6 +164,20 @@ db.define_table(
     Field('preciou', 'double'),
     Field('total', 'double'),
     format='%(ventanum)s'
+    )
+db.define_table(
+    'pedidos',
+    Field('fecha', 'datetime'),
+    Field('fentrega', 'datetime'),
+    Field('pedidonum', 'integer'),
+    Field('vendedor', 'reference auth_user'),
+    Field('cliente', 'reference cliente'),
+    Field('cantidad', 'integer'),
+    Field('producto', 'reference producto', default=1),
+    Field('preciou', 'double'),
+    Field('total', 'double'),
+    Field('estado', 'reference estado_pedido'),
+    format='%(pedidonum)s'
     )
 #requires = IS_DATE(format=('%d/%m/%Y %H:%M:%S')
 db.define_table(

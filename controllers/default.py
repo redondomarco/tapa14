@@ -55,9 +55,9 @@ def ingreso():
                     TAG('<label for="clienteinput">Lote:</label>'),
                     INPUT(_name='ingresolote', _type='number',_min='1',_max='365',_step='1', _class='nrolote')),
             _id='tablaingreso'
-            )),
+            ),
         TABLE( tabla1, _class='t2', _id="suma"),
-        CENTER( INPUT(_type="submit", _class="btn btn-primary btn-medium", _value='ingresar',_id='button14')),)
+        TABLE(TR(A('Volver',_href=request.env.http_referer,_class='btn btn-default'),INPUT(_type="submit", _class="btn btn-primary btn-medium", _value='ingresar',_id='button14')))))
     if form_ingreso.accepts(request, session):
         for item in db(db.producto.detalle).select():
             cant='c'+str(item.codigo)
@@ -320,7 +320,7 @@ def venta():
                 total=preciou*int(cantidad)
                 log('venta #'+str(ventanumactual)+' cant '+str(cantidad)+' '+str(detalle)+' pu '+str(preciou)+' total '+str(total)+' a '+str(session.cliente))
                 db.ventas.insert(
-                    fecha=datetime.datetime.now(),
+                    fecha=datetime.now(),
                     vendedor=vendedorid,
                     cliente=clienteid,
                     ventanum=ventanumactual,
@@ -436,14 +436,14 @@ def pedido():
                 total=preciou*int(cantidad)
                 log('pedido #'+str(pedidonumactual)+' cant '+str(cantidad)+' '+str(detalle)+' pu '+str(preciou)+' total '+str(total)+' a '+str(session.cliente))
                 db.pedidos.insert(
-                    fecha=datetime.datetime.now(),
+                    fecha=datetime.now(),
                     vendedor=vendedorid,
                     cliente=clienteid,
                     pedidonum=pedidonumactual,
                     cantidad=int(cantidad),
                     producto=productoid,
                     preciou=preciou,
-                    terminado=False,
+                    estado=1,
                     total=total
                     )
         db(db.comprobante.nombre=='pedido').update(lastid=db(db.comprobante.nombre=='pedido').select()[0].lastid+1)

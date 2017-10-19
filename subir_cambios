@@ -1,0 +1,43 @@
+git status
+echo
+read -p "Agregar Cambios?(y/n)?" CONT
+if [ "$CONT" = "y" ]; then
+  echo "git add"
+  git add .
+  echo "hecho"
+  echo;
+else
+  echo "salgo"
+  exit 1;
+fi
+
+echo
+read -p "comentario de cambios:" COMENTARIO
+echo
+
+read -p "Agregar Comentario $COMENTARIO (y/n)?" CONT
+if [ "$CONT" = "y" ]; then
+  echo "git commit -m $COMENTARIO"
+  git commit -m "$COMENTARIO"
+  echo "hecho"
+  echo;
+else
+  echo "salgo"
+  exit 1;
+fi
+
+read -p "Subir en github?(y/n)?" CONT
+if [ "$CONT" = "y" ]; then
+  echo "git push"
+  git push
+  echo "hecho"
+  echo;
+else
+  echo "salgo"
+  exit 1;
+fi
+
+#git add .
+#git commit -m 'consulta actividad correo'
+#git push
+#git push mr
