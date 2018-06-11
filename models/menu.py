@@ -8,8 +8,12 @@
 response.logo = A(B('tapa',SPAN(14),'ventas'),
                   _class="navbar-brand",_href=URL('index'),
                   _id="web2py-logo")
+response.logo = A(B('rosario.',SPAN('dev'),'.ar'),
+                  _class="navbar-brand",_href=URL('index'),
+                  _id="web2py-logo")
 response.title = request.application.replace('_',' ').title()
 response.subtitle = ''
+response.logohome='rosario'
 
 ## read more at http://dev.w3.org/html5/markup/meta.name.html
 response.meta.author = 'Marco Redondo <redondomarco@gmail.com>'
@@ -35,14 +39,19 @@ response.menu = []
 
 #menucalculadora = (T('test'), False, URL('default', 'index2'), [])
 menutest = (T('lista de funciones'), False, None, [
-        (T('calculadora'), False, URL('tapa14', 'default', 'index2')),
-        (T('venta'), False, URL('tapa14', 'default', 'venta')),
-        (T('ingreso'), False, URL('tapa14', 'default', 'ingreso')),
-        (T('ventaold'), False, URL('tapa14', 'default', 'ventaold'))
+        (T('calculadora'), False, URL(request.application, 'default', 'index2')),
+        (T('venta'), False, URL(request.application, 'default', 'venta')),
+        (T('ingreso'), False, URL(request.application, 'default', 'ingreso')),
+        (T('ventaold'), False, URL(request.application, 'default', 'ventaold'))
         ])
 menuvendedor = (T('Venta'), False, URL('default', 'venta'), [])
 menureserva = (T('Reserva'), False, URL('default', 'reserva'), [])
 menuingreso = (T('Ingreso'), False, URL('default', 'ingreso'), [])
+menupedido =  (T('Pedidos'), False, None, [
+                (T('Nuevo'), False, URL('default', 'selec_cliente_pedido')),
+                (T('Listado'), False, URL('default', 'pedido_pendiente'))
+              ])
+menuappadmin = (T('appadmin'), False, URL('appadmin', 'index'), [])
 menuadmin = (T('admin'), False, URL('default', 'admin'), [])
 
 #response.menu.append(menucalculadora)
@@ -52,8 +61,8 @@ if auth.user:
   #logger.info(str(groups))                                                      
   #logger.info(str(auth.user))                                                   
   for group in groups:
-    #if group.role =='vendedor':
-    #  response.menu.append(menuvendedor)
+    if group.role =='vendedor':
+      response.menu.append(menupedido)
       #response.menu.append(menureserva)
     #if group.role == 'productor':
     #  response.menu.append(menuingreso)
@@ -62,8 +71,9 @@ if auth.user:
     if group.role == 'admin':
       response.menu.append(menuadmin)
   if auth.user.email == 'redondomarco@gmail.com':
+    response.menu.append(menuappadmin)
     #response.menu.append(menucalculadora)
-    response.menu.append(menutest)
+    #response.menu.append(menutest)
     
 
 

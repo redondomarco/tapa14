@@ -56,6 +56,17 @@
 	margin-left: 20px;
 }
 
+#aderecha {
+   text-align: right;
+}
+
+#itemficha {
+  padding: 1px;
+}
+
+#tablapedido {
+  outline: 2px solid;
+}
 
 #tablacliente {
   margin-bottom: 0px;
@@ -80,7 +91,7 @@
 }
 
 #nrocomp {
-  width: 110px;
+  width: 176px;
 }
 #clienteinput{
 }
@@ -165,6 +176,27 @@ td, th {
   .t2 tr *:nth-child(3), .t2 tr *:nth-child(5) {
     text-align: right;
   }
+
+
+/* tightgrid.js */
+
+.grid {
+  margin: -10px;
+}
+
+.grid__item {
+  display: inline-block; /* Important */
+  vertical-align: top;   /* Important */
+  width: 300px;
+  margin: 15px;
+  font: bold 100% monospace;
+  background: #e2e2e2;
+  font-size: 15px;
+  text-align: center;
+
+}
+
+
 
 /*no usados*/
 /*input.cliente {

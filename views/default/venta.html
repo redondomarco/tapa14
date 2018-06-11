@@ -57,6 +57,15 @@
               var totalc=totalc+(roundToTwo(cantidad*valor*dto));
               $("#totalt").val(roundToTwo(totalc));
             };
+            //
+            //html2canvas(document.querySelector("#tablacliente")).then(canvas => {
+            //    var datacliente = canvas;
+            //    console.log(datacliente)
+            //});
+            //html2canvas(document.querySelector("#suma")).then(canvas => {
+            //    var datasuma = canvas;
+            //});
+            //
         }
         
         // Funcion para validar que el numero sea correcto, y para cambiar el color
@@ -70,11 +79,32 @@
         function roundToTwo(num) {    
             return +(Math.round(num + "e+2")  + "e-2");
         }
-
         jQuery(function(){
             jQuery('input[type=submit]').click(
-               function(){return confirm('Confirma?');
+                //
+                //html2canvas(document.querySelector("#tablacliente")).then(canvas => {
+                //    var datacliente = canvas;
+                //    });
+                //html2canvas(document.querySelector("#suma")).then(canvas => {
+                //    var datasuma = canvas;
+                //    });
+                //
+                function(){
+                    capture_update();
+                    return confirm('Confirma?');
                 });
         });
+
+        //window.takeScreenShot = function() {
+        //    html2canvas(document.getElementById("target"), {
+        //       onrendered: function (canvas) {
+        //            var img = canvas.toDataURL("image/png");
+        //            alert('This will currently open image in a new window called "data:". Instead I want to save to  users local computer. Ideally as a jpg instead of png.');
+        //            window.open(img);
+        //        },
+        //    width:320,
+        //    height:220
+        //    });
+        //}
 </script>
 {{end page_js}}

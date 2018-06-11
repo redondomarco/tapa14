@@ -73,7 +73,8 @@ log_remove = [
 def log(palabra):
     """funcion auxiliar de auditoria que incorpora el usuario si es que existe"""
     if hasattr(auth.user, 'email'):
-        mensaje=str(auth.user.email)+' '+str(request.cookies)+' '+str(request.function)+' '+str(palabra)
+        #mensaje=str(auth.user.email)+' '+str(request.cookies)+' '+str(request.function)+' '+str(palabra)
+        mensaje=str(auth.user.email)+' '+str(request.function)+' '+str(palabra)
         for i in log_remove:
             mensaje = mensaje.replace(str(i),'')
         logger.info(mensaje)
@@ -113,11 +114,29 @@ auth.settings.reset_password_requires_verification = True
 ## after defining tables, uncomment below to enable auditing
 # auth.enable_record_versioning(db)
 
+#
+#websocket
+from gluon.contrib.websocket_messaging import websocket_send
+
+#estructura tree
+from collections import defaultdict
+
+def tree():
+    return defaultdict(tree)
+
+
 #db.define_table(
 #   'imagen',
 #   Field('titulo', unique=True, length=255),
 #   Field('archivo', 'upload'),
 #   format = '%(titulo)s')
+
+#combos cliente
+
+tipo_iva=['RI','monotributo','consumidor final','nc']
+tipo_comprobante = ['factura A', 'factura B','nota de venta','recibo']
+tipo_cta = ['efectivo', 'cta cte']
+
 
 db.define_table(
     'producto',
@@ -135,36 +154,30 @@ db.define_table(
     Field('valor', 'double'),
     format='%(lista)s'
     )
-db.define_table(
-    'tipo_cta',
-    Field('tipo', label=('Tipos de cuenta')),
-    format='%(tipo)s')
-db.define_table(
-    'estado_pedido',
-    Field('estado'),
-    format='%(estado)s')
+
 db.define_table(
     'cliente',
     Field('nombre', unique=True, length=255),
     Field('lista', 'reference listas'),
     Field('productos', 'list:reference producto'),
     Field('saldo', 'double', default=0),
-    Field('tipocuenta','reference tipo_cta'),
+    Field('tipocuenta'),
+    Field('iva'),
+    Field('comprobante'),
+    Field('correo'),
+    Field('aviso','boolean'),
+    Field('cuit', 'integer'),
+    Field('razon_social'),
+    Field('domicilio'),
+    Field('telefono'),
+    Field('activo','boolean'),
     format='%(nombre)s'
     )
-db.define_table(
-    'ventas',
-    Field('fecha', 'datetime'),
-    Field('fentrega', 'datetime'),
-    Field('ventanum', 'integer'),
-    Field('vendedor', 'reference auth_user'),
-    Field('cliente', 'reference cliente'),
-    Field('cantidad', 'integer'),
-    Field('producto', 'reference producto'),
-    Field('preciou', 'double'),
-    Field('total', 'double'),
-    format='%(ventanum)s'
-    )
+db.cliente.iva.requires = IS_IN_SET(tipo_iva)
+db.cliente.comprobante.requires = IS_IN_SET(tipo_comprobante, multiple=True)
+db.cliente.tipocuenta.requires = IS_IN_SET(tipo_cta, multiple=True)
+
+#tabla de pedidos
 db.define_table(
     'pedidos',
     Field('fecha', 'datetime'),
@@ -172,13 +185,42 @@ db.define_table(
     Field('pedidonum', 'integer'),
     Field('vendedor', 'reference auth_user'),
     Field('cliente', 'reference cliente'),
+    Field('nota'),
     Field('cantidad', 'integer'),
     Field('producto', 'reference producto', default=1),
     Field('preciou', 'double'),
     Field('total', 'double'),
-    Field('estado', 'reference estado_pedido'),
     format='%(pedidonum)s'
     )
+#ventas
+##estados
+tipo_entrega = ['pendiente', 'entregado']
+tipo_pago = ['pendiente', 'parcial','pagado']
+estado_pedido = ['pendiente','anulado','finalizado']
+##tabla de ventas
+db.define_table(
+    'ventas',
+    Field('fecha', 'datetime'),
+    Field('fentrega', 'datetime'),
+    Field('ventanum', 'integer'),
+    Field('vendedor', 'reference auth_user'),
+    Field('cliente', 'reference cliente'),
+    Field('nota'),
+    Field('cantidad', 'integer'),
+    Field('producto', 'reference producto', default=1),
+    Field('preciou', 'double'),
+    Field('total', 'double'),
+    Field('comprobante'),
+    Field('nro_comprobante', 'integer'),
+    Field('entrega'),
+    Field('pago'),
+    format='%(pedidonum)s'
+    )
+db.ventas.comprobante.requires = IS_IN_SET(tipo_comprobante, multiple=True)
+db.ventas.entrega.requires = IS_IN_SET(tipo_entrega)
+db.ventas.pago.requires = IS_IN_SET(tipo_pago)
+
+
 #requires = IS_DATE(format=('%d/%m/%Y %H:%M:%S')
 db.define_table(
     'ingresos',
@@ -195,14 +237,14 @@ db.define_table(
     Field('nombre'),
     Field('tipo')
     )
-db.define_table(
-    'movimientos',
-    Field('fecha', 'datetime'),
-    Field('vendedor', 'reference auth_user'),
-    Field('comprobante', 'integer'),
-    Field('descripcion', 'reference es_caja'),
-    Field('total', 'double')
-    )
+#db.define_table(
+#    'movimientos',
+#    Field('fecha', 'datetime'),
+#    Field('vendedor', 'reference auth_user'),
+#    Field('comprobante', 'integer'),
+#    Field('descripcion', 'reference es_caja'),
+#    Field('total', 'double')
+#    )
 db.define_table(
     'comprobante',
     Field('nombre'),
@@ -213,13 +255,19 @@ db.define_table(
     Field('nombre'),
     Field('valor','double')
     )
-db.define_table(
-    'pendientes',
-    Field('operacion'),
-    Field('ventanum', 'integer')
-    )
+#db.define_table(
+#    'pendientes',
+#    Field('operacion'),
+#    Field('ventanum', 'integer')
+#    )
+
+#calcula la fecha de vencimiento para un lote
 def fecha_vto(lote):
     diasvto=30
     a=datetime.strptime(str(datetime.now().year)+'11','%Y%m%d')
     b=timedelta(days=int(lote)+diasvto-1)
     return a+b
+
+def capture_update():
+    log(request.vars.data)
+    #return db().insert(data = request.vars.data)

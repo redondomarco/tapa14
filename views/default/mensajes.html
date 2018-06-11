@@ -1,3 +1,16 @@
-{{extend 'layout.html'}}
-<div class="well well-lg" > {{=CENTER(session.mensaje)}} </div>
-{{=CENTER(A('Volver', _class="btn btn-primary btn-default" ,_href=URL('default', 'index')))}}
+{{extend 'layout_starter.html'}}
+
+
+<center>
+<div class="container">
+    <div class="row">
+    	
+        
+			<div class="well well-lg" > {{=session.mensaje}} </div>
+			{{=A('Volver',_href=request.env.http_referer,_class='btn btn-default')}}
+			{{=A('Aceptar', _id='boton_r', _class="btn btn-primary btn-default" ,_href=URL('index'))}}
+			
+
+	</div>
+</div>
+</center>

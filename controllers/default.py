@@ -208,7 +208,7 @@ def selec_cliente():
 
 
 @auth.requires_membership('vendedor')
-def venta():
+def venta():     
     #clientes=db(db.cliente).select(db.cliente.ALL)
     listas=db(db.listas).select(db.listas.ALL)
     comprobante=db(db.comprobante.nombre=='venta').select().first()['lastid']
@@ -221,12 +221,13 @@ def venta():
     idsform = []
     precios = []
     productos_cliente=db(db.cliente.nombre==session.cliente).select().first()['productos']
-    idtipocuenta=db(db.cliente.nombre==session.cliente).select().first()['tipocuenta']
-    if idtipocuenta!=None:
-        tipocuenta=db(db.tipo_cta.id==idtipocuenta).select().first()['tipo']
-    else:
-        session.mensaje='El cliente no tiene tipo de cuenta valida'
-        redirect(URL('mensajes'))
+    #idtipocuenta=db(db.cliente.nombre==session.cliente).select().first()['tipocuenta']
+    tipocuenta=db(db.cliente.nombre==session.cliente).select().first()['tipocuenta']
+    log(tipocuenta)
+    log(session.cliente)
+    #if idtipocuenta==None:
+    #    session.mensaje='El cliente no tiene tipo de cuenta valida'
+    #    redirect(URL('mensajes'))
     listaidcliente=db(db.cliente.nombre==session.cliente).select().first()['lista']
     descuento=db(db.listas.id==listaidcliente).select().first()['valor']
     if productos_cliente==None:
@@ -237,15 +238,15 @@ def venta():
     nombre_cliente=TR(TAG('<label for="clienteinput">cliente</label>'),
                      INPUT(_value=str(session.cliente), _name='cliente', _disabled="disabled",_type='text', _id="clienteinput"))
     tipo_cuenta=TR(TAG('<label for="tipocuenta">cuenta</label>'),
-                   INPUT(_value=str(tipocuenta), _name='tipocuenta', _disabled="disabled",_type='text', _id="tipocuenta"))
-    if tipocuenta=='efectivo':
+                   INPUT(_value=str(tipo_cta), _name='tipocuenta', _disabled="disabled",_type='text', _id="tipocuenta"))
+    if tipocuenta=='|efectivo|':
         tablacliente=TABLE(
                 nro_venta,
                 nombre_cliente,
                 tipo_cuenta,
                 _id='tablacliente'
                 )
-    elif tipocuenta=='cta cte':
+    elif tipocuenta=='|cta cte|':
         saldo_cliente=db(db.cliente.nombre==session.cliente).select().first()['saldo']
         if saldo_cliente<0:
             tagid='saldonegativo'
@@ -254,7 +255,7 @@ def venta():
         saldo=TR(TAG('<label for="tipocuenta">saldo</label>'),
                  INPUT(_value=str(saldo_cliente), _disabled="disabled",_type="number",_class=tagid))
         if session.entrega=='Inmediata':
-            fechaentrega=""
+            fecha_entrega=""
         elif session.entrega=="Posterior":
             fecha_entrega=TR(TAG('<label class="tabla-label">Entrega: </label>'),
                              INPUT(_class='date',_name='fechaentrega',_id='fechaingreso'))
@@ -285,8 +286,9 @@ def venta():
     tabla2.append(TFOOT(TR(
         TH(''), TH(''), TH('Total',_id='totaltitle'),TH(INPUT(_id='totalt', _type="number",_class='precio', _disabled="disabled")))))
     form = FORM(
+        DIV(
         CENTER(tablacliente),
-        TABLE( tabla2, _class='t2', _id="suma"),
+        TABLE( tabla2, _class='t2', _id="suma"),_id='capture'),
         CENTER(INPUT(_type="submit", _class="btn btn-primary btn-medium", _value='vender',_id='button14')),
         _id='formventa')
     if form.accepts(request, session):
@@ -376,19 +378,27 @@ def pedido():
         session.mensaje='El cliente no tiene productos habilitados'
         redirect(URL('mensajes'))
     #genero tabla para form
-    tabla2 = [THEAD(TR(TH('cant'), TH('detalle'), TH('cod.'),TH('sub')))]
+    tabla2 = [THEAD(TR(TH('cant'), TH('detalle'), TH('cod.'),TH('dto'),TH('sub')))]
     for item in productos_cliente:
         producto=db(db.producto.id==item).select().first()
+        if producto==None:
+            session.mensaje='Revisar productos habilitados'
+            redirect(URL('mensajes'))
         session.productos.append([producto['codigo'],producto['detalle'],producto['valor']])
+        idcant='c'+str(producto['codigo'])
+        idvalor='v'+str(producto['codigo'])
+        iddto='d'+str(producto['codigo'])
+        idsubt='s'+str(producto['codigo'])
         tabla2.append(TR(
-            TD(INPUT(_id='c'+str(producto['codigo']), _name='c'+str(producto['codigo']),_type='number',_min='0',_step='1', _class='cantidad')),
+            TD(INPUT(_id=idcant, _name=idcant,_type='number',_min='0',_step='1', _class='cantidad')),
             TD(producto['detalle']),
-            TD(producto['codigo'], _id='v'+str(producto['codigo'])),
-            TD(INPUT(_id='s'+str(producto['codigo']), _type="number",_class='precio', _disabled="disabled"))))
-        idsform.append(['c'+str(producto['codigo']),'v'+str(producto['codigo']),'s'+str(producto['codigo'])])
+            TD(producto['codigo'], _id=idvalor),
+            TD(INPUT(_id=iddto, _name=iddto,_type='number',_min='0',_max='100',_step='1', _class='cantidad')),
+            TD(INPUT(_id=idsubt, _type="number",_class='precio', _disabled="disabled"))))
+        idsform.append([idcant,idvalor,iddto,idsubt])
         precios.append(producto['valor'])
     tabla2.append(TFOOT(TR(
-        TH(''), TH(''), TH('Total',_id='totaltitle'),TH(INPUT(_id='totalt', _type="number",_class='precio', _disabled="disabled")))))
+        TH(''), TH(''),TH(''), TH('Total',_id='totaltitle'),TH(INPUT(_id='totalt', _type="number",_class='precio', _disabled="disabled")))))
     form = FORM(
         CENTER(
             TAG('<label class="control-label">Pedido </label>'),BR(),
@@ -396,9 +406,14 @@ def pedido():
                 TR(
                     #TAG('<label class="control-label">Cliente </label>'),
                     TAG('<label for="clienteinput">cliente</label>'),
-                    INPUT(_value=str(session.cliente), _name='cliente', _type='text', _id="clienteinput",_class="form-control string"),
+                    INPUT(_value=str(session.cliente), _name='cliente', _type='text',_disabled="disabled", _id="clienteinput",_class="form-control string"),
                     TAG('<label class="control-label">Pedido nº </label>'),
                     INPUT(_value=str(int(comprobante)).zfill(10),_disabled="disabled",_class="form-control string",_id='nrocomp')),
+                TR(
+                    TAG('<label for="notainput">nota</label>'),
+                    INPUT(_name='nota',  _type='text',_id="notainput",_class="form-control string"),
+                    TAG('<label for="fechaent">Fecha entrega</label>'),
+                    INPUT(_name='entrega',  _type='date',_id="fechaent",_class="form-control string")),
             _id='tablacliente'
             )
         ),
@@ -410,9 +425,18 @@ def pedido():
         pedidonumactual=db(db.comprobante.nombre=='pedido').select()[0].lastid
         listaid=db(db.cliente.nombre==session.cliente).select().first()['lista']
         desc_lista=db(db.listas.id==listaid).select().first()['valor']
+        nota=request.vars.nota
+        log(str(request.vars.entrega))
+        if request.vars.entrega!="":
+            fentrega=datetime.strptime(request.vars.entrega.replace('/','-')+' 12:00:00', '%Y-%m-%d %H:%M:%S')
+        else:
+            fentrega=request.vars.entrega
+        #fentrega=request.vars.entrega
+        #log(str(fentrega)+' '+str(type(fentrega)))
         for item in productos_cliente:
             producto=db(db.producto.id==item).select().first()
             cant='c'+str(item.codigo)
+            desc='d'+str(item.codigo)
             #cantidad=int(str(request.vars[cant]))
             if request.vars[cant] == '':
                 cantidad=int(0)
@@ -437,15 +461,17 @@ def pedido():
                 log('pedido #'+str(pedidonumactual)+' cant '+str(cantidad)+' '+str(detalle)+' pu '+str(preciou)+' total '+str(total)+' a '+str(session.cliente))
                 db.pedidos.insert(
                     fecha=datetime.now(),
+                    fentrega=fentrega,
+                    pedidonum=pedidonumactual,
                     vendedor=vendedorid,
                     cliente=clienteid,
-                    pedidonum=pedidonumactual,
+                    nota=str(nota),
                     cantidad=int(cantidad),
                     producto=productoid,
                     preciou=preciou,
-                    estado=1,
                     total=total
                     )
+
         db(db.comprobante.nombre=='pedido').update(lastid=db(db.comprobante.nombre=='pedido').select()[0].lastid+1)
         db.commit()
         redirect(URL('index'))
@@ -455,7 +481,45 @@ def pedido():
 
 @auth.requires_membership('vendedor')
 def pedido_pendiente():
-    log('ingreso')
+    pedidos=arbol_pedidos()
+    #genero elementos grilla
+    conjunto_fichas=[]
+    for cliente in pedidos.keys():
+        total=0
+        productosficha=[]
+        #setpedidos=[]
+        for pedido in pedidos[cliente].keys():
+            #setpedidos.append(pedido)
+            nota=db(db.pedidos.pedidonum==int(pedido)).select(db.pedidos.nota).first()['nota']
+            productosficha.append(H4('Pedido n°'+str(pedido),_id='itemficha'))
+            productosficha.append(DIV(nota))
+            for producto in pedidos[cliente][pedido].keys():
+                cantidad=pedidos[cliente][pedido][producto][0]
+                #nota=pedidos[cliente][pedido][producto][1]
+                fentrega=pedidos[cliente][pedido][producto][2]
+                total=int(total)+int(pedidos[cliente][pedido][producto][3])
+                #total='nada'
+                item=str(cantidad)+' '+str(producto)+' '+str(fentrega)
+                productosficha.append(TR(
+                    TD(item,_id='itemficha')))
+            productosficha.append(TR(
+                TD(DIV(A('Generar NV',_href=URL('nota_de_venta', vars=dict(pedido=pedido)),_class='btn btn-default'))),
+                TD(DIV(A('Ingresar Pago',_href=URL('ingreso_pago', vars=dict(pedido=pedido)),_class='btn btn-default')))
+                ))
+            productosficha.append(TR(BR()))
+            unaficha=DIV(CENTER(
+                H3(cliente),
+                TABLE(productosficha)),
+                BR(),
+                DIV('TOTAL $ '+str(total),_id='aderecha'),
+                _class="grid__item js-item")
+        conjunto_fichas.append(unaficha)
+    #armo div grilla
+    grilla=DIV(conjunto_fichas,_class="grid")
+    #auxnum.append(pedidonum)
+    #pedidonum=set(auxnum)
+
+
     grid=SQLFORM.grid(
         db.pedidos,
         fields=(
@@ -468,17 +532,155 @@ def pedido_pendiente():
             TABLE(
                 TR(
                     TAG('<label class="control-label">Finalizar pedido nº </label>'),
-                    INPUT(_class="form-control string",_id='nrocomp')),
+                    INPUT(_name="pedidonum",_class="form-control string",_id='nrocomp')),
             _id='tablacliente'
             )
         ),
         CENTER(INPUT(_type="submit", _class="btn btn-primary btn-medium", _value='Vender',_id='button14')),
         _id='formventa')
-    return dict(grid=grid, form=form)
-
-
+    if form.accepts(request, session):
+        session.pedido=request.vars.pedidonum
+        redirect(URL('finaliza_pedido'))
+    return dict(grid=grid, form=form, grilla=grilla)
 
 @auth.requires_membership('vendedor')
+def finaliza_pedido():
+    pedidos=db(db.pedidos.pedidonum==session.pedido).select().as_dict().values()
+    session.clienteid=pedidos[0]['cliente']
+    session.cliente=db(db.cliente.id==session.clienteid).select().first()['nombre']
+    listas=db(db.listas).select(db.listas.ALL)
+    comprobante=db(db.comprobante.nombre=='venta').select().first()['lastid']
+    session.ultimasventas=SQLFORM.grid(
+        db.ventas,
+        fields=(db.ventas.fecha,db.ventas.ventanum,db.ventas.vendedor,db.ventas.cliente,db.ventas.cantidad,db.ventas.producto,db.ventas.total),
+        orderby=[~db.ventas.fecha],searchable=False,editable=False,deletable=False,create=False,sortable=True,details=False,maxtextlength=25)
+    #creo tabla con productos habilitados para el cliente
+    session.productos = []
+    idsform = []
+    precios = []
+    productos_cliente=db(db.cliente.nombre==session.cliente).select().first()['productos']
+    idtipocuenta=db(db.cliente.nombre==session.cliente).select().first()['tipocuenta']
+    if idtipocuenta!=None:
+        tipocuenta=db(db.tipo_cta.id==idtipocuenta).select().first()['tipo']
+    else:
+        session.mensaje='El cliente no tiene tipo de cuenta valida'
+        redirect(URL('mensajes'))
+    listaidcliente=db(db.cliente.nombre==session.cliente).select().first()['lista']
+    descuento=db(db.listas.id==listaidcliente).select().first()['valor']
+    if productos_cliente==None:
+        session.mensaje='El cliente no tiene productos habilitados'
+        redirect(URL('mensajes'))
+    nro_venta=TR(TAG('<label class="tabla-label">Venta nº </label>'),
+                INPUT(_value=str(int(comprobante)).zfill(10),_disabled="disabled",_id='nrocomp'))
+    nombre_cliente=TR(TAG('<label for="clienteinput">cliente</label>'),
+                     INPUT(_value=str(session.cliente), _name='cliente', _disabled="disabled",_type='text', _id="clienteinput"))
+    tipo_cuenta=TR(TAG('<label for="tipocuenta">cuenta</label>'),
+                   INPUT(_value=str(tipocuenta), _name='tipocuenta', _disabled="disabled",_type='text', _id="tipocuenta"))
+    if tipocuenta=='efectivo':
+        tablacliente=TABLE(
+                nro_venta,
+                nombre_cliente,
+                tipo_cuenta,
+                _id='tablacliente'
+                )
+    elif tipocuenta=='cta cte':
+        saldo_cliente=db(db.cliente.nombre==session.cliente).select().first()['saldo']
+        if saldo_cliente<0:
+            tagid='saldonegativo'
+        else:
+            tagid='tipocuenta'
+        saldo=TR(TAG('<label for="tipocuenta">saldo</label>'),
+                 INPUT(_value=str(saldo_cliente), _disabled="disabled",_type="number",_class=tagid))
+        if session.entrega=='Inmediata':
+            fechaentrega=""
+        elif session.entrega=="Posterior":
+            fecha_entrega=TR(TAG('<label class="tabla-label">Entrega: </label>'),
+                             INPUT(_class='date',_name='fechaentrega',_id='fechaingreso'))
+        tablacliente=TABLE(
+                nro_venta,
+                nombre_cliente,
+                tipo_cuenta,
+                saldo,
+                _id='tablacliente'
+                )
+    else:
+        session.mensaje='El cliente no tiene tipo de cuenta valida'
+        redirect(URL('mensajes'))
+    #genero tabla para form
+    tabla2 = []
+    tabla2.append(THEAD(TR(TH('cant'), TH('detalle'), TH('cod.'),TH('sub'))))
+    for item in productos_cliente:
+        #
+        #for uno in pedidos:
+        #    if 
+        #
+        producto=db(db.producto.id==item).select().first()
+        session.productos.append([producto['codigo'],producto['detalle'],producto['valor']])
+        tabla2.append(TR(
+            TD(INPUT(_id='c'+str(producto['codigo']), _name='c'+str(producto['codigo']),_type='number',_min='0',_step='1', _class='cantidad')),
+            TD(producto['detalle']),
+            TD(producto['codigo'], _id='v'+str(producto['codigo'])),
+            TD(INPUT(_id='s'+str(producto['codigo']), _type="number",_class='precio', _disabled="disabled"))))
+        idsform.append(['c'+str(producto['codigo']),'v'+str(producto['codigo']),'s'+str(producto['codigo'])])
+        precios.append(producto['valor'])
+    tabla2.append(TFOOT(TR(
+        TH(''), TH(''), TH('Total',_id='totaltitle'),TH(INPUT(_id='totalt', _type="number",_class='precio', _disabled="disabled")))))
+    form = FORM(
+        CENTER(tablacliente),
+        TABLE( tabla2, _class='t2', _id="suma"),
+        CENTER(INPUT(_type="submit", _class="btn btn-primary btn-medium", _value='vender',_id='button14')),
+        _id='formventa')
+    if form.accepts(request, session):
+        productovendido=False
+        log('aceptado')
+        ventanumactual=db(db.comprobante.nombre=='venta').select()[0].lastid
+        listaid=db(db.cliente.nombre==session.cliente).select().first()['lista']
+        desc_lista=db(db.listas.id==listaid).select().first()['valor']
+        for item in productos_cliente:
+            producto=db(db.producto.id==item).select().first()
+            cant='c'+str(item.codigo)
+            if request.vars[cant] == '':
+                cantidad=int(0)
+            else:
+                cantidad=int(str(request.vars[cant]))
+            if cantidad!=0:
+                productovendido=True
+                #logica descuento stock
+                if producto['stock_alias']==None:
+                    db(db.producto.codigo==producto['codigo']).update(stock=db(db.producto.codigo==producto['codigo']).select()[0].stock-int(cantidad))
+                else:
+                    stockprod=db(db.producto.id==producto['stock_alias']).select().first()
+                    db(db.producto.codigo==stockprod['codigo']).update(stock=db(db.producto.codigo==stockprod['codigo']).select()[0].stock-int(cantidad))
+                valor=float(producto['valor'])
+                detalle=producto['detalle']
+                productoid=producto['id']
+                vendedorid=db(db.auth_user.email==auth.user.email).select().first()['id']
+                clienteid=db(db.cliente.nombre==session.cliente).select().first()['id']
+                listaid=db(db.cliente.nombre==session.cliente).select().first()['lista']
+                preciou=round(valor*descuento,2)
+                total=preciou*int(cantidad)
+                log('venta #'+str(ventanumactual)+' cant '+str(cantidad)+' '+str(detalle)+' pu '+str(preciou)+' total '+str(total)+' a '+str(session.cliente))
+                db.ventas.insert(
+                    fecha=datetime.now(),
+                    vendedor=vendedorid,
+                    cliente=clienteid,
+                    ventanum=ventanumactual,
+                    cantidad=int(cantidad),
+                    producto=productoid,
+                    preciou=preciou,
+                    total=total
+                    )
+        #solo subo el numero de venta si no fue todo 0
+        if productovendido:
+            db(db.comprobante.nombre=='venta').update(lastid=db(db.comprobante.nombre=='venta').select()[0].lastid+1)
+        db.commit()
+        redirect(URL('index'))
+    else:
+        log(str(session.cliente)+' ingreso')
+    return dict(form=form, ids_json=json(idsform), listas_json=json(listas), descuento=descuento, precios_json=json(precios))
+
+
+#@auth.requires_membership('vendedor')
 def index2():
     #formulario
     clientes=db(db.cliente).select(db.cliente.ALL)
@@ -496,6 +698,7 @@ def index2():
     else:
         log('no tanto')
     return dict(form_venta=form_venta, ids_json=json(session.idsform), clientes_json=json(clientes), listas_json=json(listas))
+
 
 @auth.requires_membership('vendedor')
 def index():
@@ -533,16 +736,20 @@ def index():
     )
     return dict(form=form)
 
-@auth.requires_membership('admin')
-def productos():
-    log('acceso admin')
-    grid=SQLFORM.grid(db.producto)
-    return locals()
+#@auth.requires_membership('admin')
+#def productos():
+#    log('acceso admin')
+#    grid=SQLFORM.grid(db.producto)
+#    return locals()
 
 @auth.requires_membership('admin')
 def clientes():
     log('acceso admin')
-    grid=SQLFORM.grid(db.cliente,maxtextlength=25)
+    grid=SQLFORM.grid(
+        db.cliente,
+        maxtextlength=25,
+        fields=(db.cliente.nombre,db.cliente.lista,db.cliente.saldo,db.cliente.tipocuenta)
+        )
     return locals()
 
 @auth.requires_membership('admin')
@@ -611,6 +818,14 @@ def mensajes():
     log('muestro mensaje: '+str(session.mensaje))
     return dict()
 
+def capture_update():
+    log(request.vars.data)
+    #return db().insert(data = request.vars.data)
+
+def test_canvas():
+    return dict()
+
+
 def user():
     """
     exposes:
@@ -647,5 +862,3 @@ def call():
     supports xml, json, xmlrpc, jsonrpc, amfrpc, rss, csv
     """
     return service()
-
-
