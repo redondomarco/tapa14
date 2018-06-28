@@ -35,6 +35,9 @@
 #fechaingreso {
   width: 110px;
 }
+#nvembed {
+  width: 500px;
+}
 
 #labelcliente {
 	clear:left;

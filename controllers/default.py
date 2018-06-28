@@ -543,6 +543,13 @@ def pedido_pendiente():
         redirect(URL('finaliza_pedido'))
     return dict(grid=grid, form=form, grilla=grilla)
 
+def nota_de_venta():
+    session.pedidoa=request.vars['pedido']
+    
+    
+
+
+
 @auth.requires_membership('vendedor')
 def finaliza_pedido():
     pedidos=db(db.pedidos.pedidonum==session.pedido).select().as_dict().values()
@@ -791,6 +798,17 @@ def consulta_stock():
         searchable=True,editable=False,deletable=False,create=False,sortable=True,details=False,maxtextlength=25)
     return locals()
 
+def test_nv():
+    pdfexample=test_genera_nv()
+    #mostrar=Expose('/home/marco/web2py/'+pdfexample)
+    files=CENTER(
+        DIV(A('test_nv',_class="btn btn-primary", _href=URL('test_nv'))),
+        DIV(IFRAME(_src='http://127.0.0.1:8000/dev/default/archivo/test/nv/nv_30.pdf',_width="630px",_height='891'))
+    )
+    return dict(files=files)
+
+
+
 def admin():
     log('ingreso')
     form=CENTER(
@@ -809,10 +827,22 @@ def admin():
             A('venta',_class="btn btn-primary", _href=URL('anula_venta')),
             A('pedido',_class="btn btn-primary", _href=URL('anula_pedido'))
         ),
+        TR(
+            A('test_nv',_class="btn btn-primary", _href=URL('test_nv'))
+            ),
+        TR(),
         _id='tablaindex'
     )
 )
     return dict(form=form)
+
+from gluon.tools import Expose
+@auth.requires_login()
+@auth.requires_membership('vendedor')
+def archivo():
+    return dict(files=Expose('/home/marco/web2py/applications/'+str(myconf.take('datos.app_name'))+'/pdf',
+                             extensions=['.csv','.pdf']))
+
 
 def mensajes():
     log('muestro mensaje: '+str(session.mensaje))

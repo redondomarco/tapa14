@@ -75,7 +75,7 @@
 			"file": "models/db.py",
 			"settings":
 			{
-				"buffer_size": 8758,
+				"buffer_size": 8839,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -84,7 +84,7 @@
 			"file": "controllers/default.py",
 			"settings":
 			{
-				"buffer_size": 40340,
+				"buffer_size": 40496,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -111,7 +111,7 @@
 			"file": "static/css/tapa14.css",
 			"settings":
 			{
-				"buffer_size": 3985,
+				"buffer_size": 4025,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -234,10 +234,6 @@
 	},
 	"expanded_folders":
 	[
-		"/home/marco/mnt/dev",
-		"/home/marco/mnt/dev/models",
-		"/home/marco/mnt/dev/views",
-		"/home/marco/mnt/dev/views/default"
 	],
 	"file_history":
 	[
@@ -261,7 +257,7 @@
 	],
 	"find":
 	{
-		"height": 38.0
+		"height": 24.0
 	},
 	"find_in_files":
 	{
@@ -313,15 +309,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 8758,
+						"buffer_size": 8839,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								6411,
-								6411
+								0,
+								0
 							]
 						],
 						"settings":
@@ -475,15 +471,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 40340,
+						"buffer_size": 40496,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								25696,
-								25696
+								0,
+								0
 							]
 						],
 						"settings":
@@ -494,13 +490,16 @@
 							"SL.17.region_keys":
 							[
 							],
+							"SL.91.region_keys":
+							[
+							],
 							"auto_complete": false,
 							"syntax": "Packages/Djaneiro/Syntaxes/Python Django.tmLanguage",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 540.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -529,7 +528,8 @@
 							[
 							],
 							"auto_complete": false,
-							"syntax": "Packages/Djaneiro/Syntaxes/Python Django.tmLanguage"
+							"syntax": "Packages/Djaneiro/Syntaxes/Python Django.tmLanguage",
+							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -579,15 +579,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3985,
+						"buffer_size": 4025,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								838,
-								838
+								0,
+								0
 							]
 						],
 						"settings":
@@ -908,7 +908,7 @@
 	],
 	"incremental_find":
 	{
-		"height": 23.0
+		"height": 24.0
 	},
 	"input":
 	{
@@ -953,7 +953,7 @@
 	"project": "untitled.sublime-project",
 	"replace":
 	{
-		"height": 42.0
+		"height": 44.0
 	},
 	"save_all_on_build": true,
 	"select_file":

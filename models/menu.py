@@ -52,7 +52,10 @@ menupedido =  (T('Pedidos'), False, None, [
                 (T('Listado'), False, URL('default', 'pedido_pendiente'))
               ])
 menuappadmin = (T('appadmin'), False, URL('appadmin', 'index'), [])
-menuadmin = (T('admin'), False, URL('default', 'admin'), [])
+menuadmin = (T('general'), False, None, [
+              (T('Archivo'), False, URL('default', 'archivo')),
+              (T('admin'), False, URL('default', 'admin'))
+              ])
 
 #response.menu.append(menucalculadora)
 

@@ -135,16 +135,17 @@ def tree():
 
 tipo_iva=['RI','monotributo','consumidor final','nc']
 tipo_comprobante = ['factura A', 'factura B','nota de venta','recibo']
-tipo_cta = ['efectivo', 'cta cte']
-
+tipo_cta = ['contado', 'cta cte']
+estado_pedido = ['borrado', 'vendido']
+dir_pdf='applications/'+str(myconf.take('datos.app_name'))+'/pdf'
 
 db.define_table(
     'producto',
     Field('codigo', unique=True, length=255),
     Field('detalle', label=T('Nombre del producto'), unique=True, length=255),
-    Field('valor', 'double'),
-    Field('stock', 'integer'),
-    Field('reserva', 'integer'),
+    Field('valor', 'double', default=0),
+    Field('stock', 'integer', default=0),
+    Field('reserva', 'integer', default=0),
     Field('stock_alias', 'reference producto'),
     format='%(detalle)s'
     )
@@ -161,14 +162,16 @@ db.define_table(
     Field('lista', 'reference listas'),
     Field('productos', 'list:reference producto'),
     Field('saldo', 'double', default=0),
-    Field('tipocuenta'),
+    Field('tipocuenta', default=tipo_cta[0]),
     Field('iva'),
     Field('comprobante'),
     Field('correo'),
     Field('aviso','boolean'),
-    Field('cuit', 'integer'),
+    Field('cuit'),
     Field('razon_social'),
-    Field('domicilio'),
+    Field('domicilio', length=255),
+    Field('localidad', length=255),
+    Field('provincia', length=255),
     Field('telefono'),
     Field('activo','boolean'),
     format='%(nombre)s'
@@ -192,6 +195,22 @@ db.define_table(
     Field('total', 'double'),
     format='%(pedidonum)s'
     )
+
+db.define_table(
+    'pedidos_hist',
+    Field('fecha', 'datetime'),
+    Field('fentrega', 'datetime'),
+    Field('pedidonum', 'integer'),
+    Field('vendedor', 'reference auth_user'),
+    Field('cliente', 'reference cliente'),
+    Field('nota'),
+    Field('cantidad', 'integer'),
+    Field('producto', 'reference producto', default=1),
+    Field('preciou', 'double'),
+    Field('total', 'double'),
+    format='%(pedidonum)s'
+    )
+
 #ventas
 ##estados
 tipo_entrega = ['pendiente', 'entregado']
