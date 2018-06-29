@@ -37,6 +37,18 @@ else
   exit 1;
 fi
 
+read -p "Subir en gitlab?(y/n)?" CONT
+  if [ "$CONT" = "y" ]; then
+  echo "git push gitlab"
+  git push gitlab
+  echo "hecho"
+  echo;
+else
+  echo "salgo"
+  exit 1;
+fi
+
+
 #git add .
 #git commit -m 'consulta actividad correo'
 #git push
