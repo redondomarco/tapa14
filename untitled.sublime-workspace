@@ -75,7 +75,7 @@
 			"file": "models/db.py",
 			"settings":
 			{
-				"buffer_size": 8839,
+				"buffer_size": 9503,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -84,7 +84,7 @@
 			"file": "controllers/default.py",
 			"settings":
 			{
-				"buffer_size": 40496,
+				"buffer_size": 41346,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -93,7 +93,7 @@
 			"file": "models/funciones.py",
 			"settings":
 			{
-				"buffer_size": 600,
+				"buffer_size": 2537,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -111,7 +111,7 @@
 			"file": "static/css/tapa14.css",
 			"settings":
 			{
-				"buffer_size": 4025,
+				"buffer_size": 4054,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -126,10 +126,7 @@
 			}
 		},
 		{
-			"contents": "<!DOCTYPE html>\n<!--[if (gt IE 9)|!(IE)]><!--> <html class=\"no-js\" lang=\"{{=T.accepted_language or 'en'}}\"> <!--<![endif]-->\n  <head>\n    <meta charset=\"utf-8\">\n    <!-- www.phpied.com/conditional-comments-block-downloads/ -->\n    <!-- Always force latest IE rendering engine\n         (even in intranet) & Chrome Frame\n         Remove this if you use the .htaccess -->\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge{{=not request.is_local and ',chrome=1' or ''}}\">\n    <!--  Mobile Viewport Fix\n          j.mp/mobileviewport & davidbcalhoun.com/2010/viewport-metatag\n          device-width: Occupy full width of the screen in its current orientation\n          initial-scale = 1.0 retains dimensions instead of zooming out if page height > device height\n          user-scalable = yes allows the user to zoom in -->\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>{{=response.title or request.application}}</title>\n    <!-- http://dev.w3.org/html5/markup/meta.name.html -->\n    <meta name=\"application-name\" content=\"{{=request.application}}\">\n    <!-- Speaking of Google, don't forget to set your site up:\n         http://google.com/webmasters -->\n    <meta name=\"google-site-verification\" content=\"\">\n    <!-- include stylesheets -->\n    <link rel=\"stylesheet\" href=\"{{=URL('static','css/bootstrap.min.css')}}\"/>\n    <link rel=\"stylesheet\" href=\"{{=URL('static','css/web2py-bootstrap3.css')}}\"/>\n    <link rel=\"stylesheet\" href=\"{{=URL('static','css/tapa14.css')}}\"/>\n    <link rel=\"shortcut icon\" href=\"{{=URL('static','images/favicon.ico')}}\" type=\"image/x-icon\">\n    <link rel=\"apple-touch-icon\" href=\"{{=URL('static','images/favicon.png')}}\">\n    <!-- All JavaScript at the bottom, except for Modernizr which enables\n         HTML5 elements & feature detects -->\n    <script src=\"{{=URL('static','js/modernizr-2.8.3.min.js')}}\"></script>\n    <!--[if lt IE 9]>\n        <script src=\"{{=URL('static','js/respond-1.4.2.min.js')}}\"></script>\n        <![endif]-->\n    <!-- Favicons -->\n    {{include 'web2py_ajax.html'}} <!-- this includes jquery.js, calendar.js/.css and web2py.js -->\n    {{block head}}{{end}}\n    {{\n    # using sidebars need to know what sidebar you want to use\n    mc0 = 'col-md-12'\n    mc1 = 'col-md-9'\n    mc2 = 'col-md-6'\n    left_sidebar_enabled = globals().get('left_sidebar_enabled', False)\n    right_sidebar_enabled = globals().get('right_sidebar_enabled', False)\n    middle_column = {0: mc0, 1: mc1, 2: mc2}[\n    (left_sidebar_enabled and 1 or 0)+(right_sidebar_enabled and 1 or 0)]\n    }}\n  </head>\n  <body>\n    <!--[if lt IE 8]><p class=\"browserupgrade\">You are using an <strong>outdated</strong> browser. Please <a href=\"http://browsehappy.com/\">upgrade your browser</a> to improve your experience.</p><![endif]-->\n    <div class=\"w2p_flash alert alert-dismissable\">{{=response.flash or ''}}</div>\n    <!-- Navbar ======================================= -->\n    <nav class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\">\n      <div class=\"container-fluid\">\n        <div class=\"navbar-header\">\n          <button type=\"button\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\".navbar-collapse\">\n            <span class=\"sr-only\">Toggle navigation</span>\n            <span class=\"icon-bar\"></span>\n            <span class=\"icon-bar\"></span>\n            <span class=\"icon-bar\"></span>\n          </button>\n          {{=response.logo or ''}}\n        </div>\n        <div class=\"collapse navbar-collapse navbar-ex1-collapse\">\n          <ul class=\"nav navbar-nav navbar-right\">\n            {{='auth' in globals() and auth.navbar('Welcome',mode='dropdown') or ''}}\n          </ul>\n          {{if response.menu:}}\n          {{=MENU(response.menu, _class='nav navbar-nav',li_class='dropdown',ul_class='dropdown-menu')}}\n          {{pass}}\n        </div>\n      </div>\n    </nav>\n    <!-- Masthead ===================================== -->    \n    {{block header}}\n    {{end}}\n    <!-- Main ========================================= -->\n    <!-- Begin page content -->\n    <div class=\"container-fluid main-container\">\n      {{if left_sidebar_enabled:}}\n        <div class=\"col-md-3 left-sidebar\">\n            {{block left_sidebar}}\n            <h3>Left Sidebar</h3>\n            <p></p>\n            {{end}}\n        </div>\n      {{pass}}\n\n      <div class=\"{{=middle_column}}\">\n        {{block center}}\n        {{include}}\n        {{end}}\n      </div>\n\n      {{if right_sidebar_enabled:}}\n        <div class=\"col-md-3\">\n            {{block right_sidebar}}\n            <h3>Right Sidebar</h3>\n            <p></p>\n            {{end}}\n        </div>\n      {{pass}}\n\n    </div>\n\n    {{block footer}} <!-- this is default footer -->      \n    <footer class=\"footer\">\n      <div class=\"container-fluid\">\n        <div class=\"copyright pull-left\">{{=T('Copyright')}} &#169; {{=request.now.year}}</div>\n          <div id=\"poweredBy\" class=\"pull-right\">\n            {{=T('Powered by')}}\n            <a href=\"https://web2py.latix.com.ar/\">web2py</a>\n          </div>\n      </div>\n    </footer>\n    {{end}}\n    <!-- The javascript =============================== -->\n    <script src=\"{{=URL('static','js/bootstrap.min.js')}}\"></script>\n    <script src=\"{{=URL('static','js/web2py-bootstrap3.js')}}\"></script>\n    <script src=\"{{=URL('static','js/html2canvas.min.js')}}\"></script>\n    {{block page_js}}{{end page_js}}\n    {{if response.google_analytics_id:}}\n    <!-- Analytics ==================================== -->\n    <script src=\"{{=URL('static','js/analytics.min.js')}}\"></script>\n    <script type=\"text/javascript\">\n      analytics.initialize({\n      'Google Analytics':{trackingId:'{{=response.google_analytics_id}}'}\n      });\n    </script>\n    {{pass}}\n    <!-- Share ============================y============ \n    <script src=\"{{=URL('static','js/share.js',vars=dict(static=URL('static','images')))}}\"></script>-->\n  </body>\n</html>\n",
 			"file": "views/layout.html",
-			"file_size": 5913,
-			"file_write_time": 131631912910000000,
 			"settings":
 			{
 				"buffer_size": 5913,
@@ -137,10 +134,7 @@
 			}
 		},
 		{
-			"contents": "{{#extend 'layout.html'}}\n{{extend 'layout_starter.html'}}\n{{=form_venta}}\n\n{{block page_js}}\n<script type=\"text/javascript\">\n        // Cada vez que se pulse/suelte una tecla click mouse sobre la tabla con id #suma llamamos a calcular()\n        $(\"#formventa\").keypress(function(event) { calcular() });\n        $(\"#formventa\").click(function(event) {calcular() });\n        $(\"#formventa\").keyup(function(event) { calcular(); });\n        \n        // Calculamos la suma de los dos valores\n        function calcular()\n        {\n            //var valor1=validarNumero('#cdc18t14');\n            //var valor2 = $(\"#vdc18t14\").html();\n            \n            //var subt1 = $(\"#suma #vdc18t14\").html();\n            \n            //$(\"#sdc18t14\").val(valor1*valor2);\n            //$(\"#totalt\").val(subt1);\n\n            //obtengo cliente seleccionado en combo\n            var e = document.getElementById(\"clienteinput\");\n            var cliente = e.options[e.selectedIndex].value;\n            //console.log(cliente);\n            var clientes = {{=XML(clientes_json)}};\n\n            //obtengo la lista del cliente\n            for (i = 0; i < clientes.length; i++) {\n              if (cliente==clientes[i].nombre) {\n                var lista=clientes[i].lista;\n                //console.log(clientes[i].lista);\n              }\n            };\n\n            //determino el descuento\n            var listas = {{=XML(listas_json)}};\n            for (i = 0; i < listas.length; i++) {\n              if (lista==listas[i].id) {\n                var dto=listas[i].valor\n                //console.log(dto)\n              }\n            };\n\n            var idsform = {{=XML(ids_json)}};\n            //console.log(idsform);\n            //console.log(idsform[0][0]);\n            totalc=0;\n            for (i = 0; i < idsform.length; i++) {\n              var cantidad=validarNumero(\"#\"+idsform[i][0]);\n              var valor=$(\"#\"+idsform[i][1]).html();\n              $(\"#\"+idsform[i][2]).val(cantidad*valor*dto);\n              var totalc=totalc+(cantidad*valor*dto);\n              $(\"#totalt\").val(totalc);\n            };\n        }\n        \n        // Funcion para validar que el numero sea correcto, y para cambiar el color\n        // del marco en caso de error\n        function validarNumero(id) {\n            if($.isNumeric($(id).val()))\n            {$(id).css('border-color','#808080'); return parseFloat($(id).val());\n            }else if($(id).val()==\"\"){ $(id).css('border-color','#808080'); return 0;\n            }else{ $(id).css('border-color','#f00'); return 0;}\n        }\n    </script>\n\n\n</script>\n{{end page_js}}",
 			"file": "views/default/index2.html",
-			"file_size": 2597,
-			"file_write_time": 131678514270000000,
 			"settings":
 			{
 				"buffer_size": 2597,
@@ -148,10 +142,7 @@
 			}
 		},
 		{
-			"contents": "{{left_sidebar_enabled,right_sidebar_enabled=False,('message' in globals())}}\n{{extend 'layout.html'}}\n\n{{block header}}\n    <header class=\"container-fluid background\">\n      <div class=\"jumbotron text-center\">\n        {{if response.title:}}\n        <h1>{{=response.title}}\n          <small>{{=response.subtitle or ''}}</small></h1>\n        {{pass}}\n      </div>\n    </header>\n{{end}}\n\n{{if 'message' in globals():}}\n<h2>{{=message}}</h2>\n<p class=\"lead\">{{=T('How did you get here?')}}</p>\n<ol>\n  <li>{{=T('You are successfully running web2py')}}</li>\n  <li>{{=XML(T('You visited the url %s', A(request.env.path_info,_href=request.env.path_info)))}}</li>\n  <li>{{=XML(T('Which called the function %s located in the file %s',\n    (A(request.function+'()',_href='#'),\n    A('web2py/applications/%(application)s/controllers/%(controller)s.py' % request,\n    _href=URL('admin','default','peek', args=(request.application,'controllers',request.controller+'.py'))))))}}</li>\n  <li>{{=XML(T('The output of the file is a dictionary that was rendered by the view %s',\n    A('web2py/applications/%(application)s/views/%(controller)s/index.html' % request,\n    _href=URL('admin','default','peek',args=(request.application,'views',request.controller,'index.html')))))}}</li>\n  <li>{{=T('You can modify this application and adapt it to your needs')}}</li>\n</ol>\n{{elif 'content' in globals():}}\n{{=content}}\n{{else:}}\n{{=BEAUTIFY(response._vars)}}\n{{pass}}\n\n{{block right_sidebar}}\n<div class=\"panel panel-info\">\n  <div class=\"panel-heading\"><h3 class=\"panel-title\"><a class=\"btn-block\"\n      href=\"{{=URL('admin','default','index')}}\">\n      <i class=\"glyphicon glyphicon-cog\"></i>\n      {{=T(\"admin\")}}\n    </a></h3></div>\n  <div class=\"panel-body\">\n    {{=T(\"Don't know what to do?\")}}\n  </div>\n  <ul class=\"list-group\">\n    <li class=\"list-group-item\">{{=A(T(\"Online examples\"), _href=URL('examples','default','index'))}}</li>\n    <li class=\"list-group-item\"><a href=\"http://web2py.com\">web2py.com</a></li>\n    <li class=\"list-group-item\"><a href=\"http://web2py.com/book\">{{=T('Documentation')}}</a></li>\n  </ul>\n</div>\n{{end}}\n",
 			"file": "views/default/index1.html",
-			"file_size": 2120,
-			"file_write_time": 131678511340000000,
 			"settings":
 			{
 				"buffer_size": 2120,
@@ -162,7 +153,7 @@
 			"file": "models/menu.py",
 			"settings":
 			{
-				"buffer_size": 8404,
+				"buffer_size": 8525,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -180,16 +171,13 @@
 			"file": "views/layout_starter.html",
 			"settings":
 			{
-				"buffer_size": 19570,
+				"buffer_size": 19625,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"contents": "{{extend 'layout.html'}}\n{{=form}}\n{{=session.ultimasventas}}\n{{block page_js}}\n<script type=\"text/javascript\">\n        // Cada vez que se pulse/suelte una tecla click mouse sobre la tabla con id #suma llamamos a calcular()\n        $(\"#formventa\").keypress(function(event) { calcular() });\n        $(\"#formventa\").click(function(event) {calcular() });\n        $(\"#formventa\").keyup(function(event) { calcular(); });\n        \n        // Calculamos la suma de los dos valores\n        function calcular()\n        {\n            //var valor1=validarNumero('#cdc18t14');\n            //var valor2 = $(\"#vdc18t14\").html();\n            \n            //var subt1 = $(\"#suma #vdc18t14\").html();\n            \n            //$(\"#sdc18t14\").val(valor1*valor2);\n            //$(\"#totalt\").val(subt1);\n            \n            //obtengo cliente seleccionado en combo\n            //var e = document.getElementById(\"clienteinput\");\n            //var cliente = e.options[e.selectedIndex].value;\n            //console.log(cliente);\n            \n            \n            \n            //obtengo la lista del cliente\n            //for (i = 0; i < clientes.length; i++) {\n            //  if (cliente==clientes[i].nombre) {\n            //    var lista=clientes[i].lista;\n                //console.log(clientes[i].lista);\n            //  }\n            //};\n\n            //determino el descuento\n            //var listas = {{=XML(listas_json)}};\n            //for (i = 0; i < listas.length; i++) {\n            //  if (lista==listas[i].id) {\n            //    var dto=listas[i].valor\n                //console.log(dto)\n            //  }\n            //};\n\n            var idsform = {{=XML(ids_json)}};\n            var precios = {{=XML(precios_json)}};\n            //console.log(precios);\n            var dto = {{=descuento}}\n            //console.log(dto);\n            totalc=0;\n            for (i = 0; i < idsform.length; i++) {\n              var cantidad=validarNumero(\"#\"+idsform[i][0]);\n              //var valor=$(\"#\"+idsform[i][1]).html();\n              var valor=precios[i]\n              $(\"#\"+idsform[i][2]).val(cantidad*roundToTwo(valor*dto));\n              var totalc=totalc+(roundToTwo(cantidad*valor*dto));\n              $(\"#totalt\").val(roundToTwo(totalc));\n            };\n            //\n            //html2canvas(document.querySelector(\"#tablacliente\")).then(canvas => {\n            //    var datacliente = canvas;\n            //    console.log(datacliente)\n            //});\n            //html2canvas(document.querySelector(\"#suma\")).then(canvas => {\n            //    var datasuma = canvas;\n            //});\n            //\n        }\n        \n        // Funcion para validar que el numero sea correcto, y para cambiar el color\n        // del marco en caso de error\n        function validarNumero(id) {\n            if($.isNumeric($(id).val()))\n            {$(id).css('border-color','#808080'); return parseFloat($(id).val());\n            }else if($(id).val()==\"\"){ $(id).css('border-color','#808080'); return 0;\n            }else{ $(id).css('border-color','#f00'); return 0;}\n        }\n        function roundToTwo(num) {    \n            return +(Math.round(num + \"e+2\")  + \"e-2\");\n        }\n        jQuery(function(){\n            jQuery('input[type=submit]').click(\n                //\n                //html2canvas(document.querySelector(\"#tablacliente\")).then(canvas => {\n                //    var datacliente = canvas;\n                //    });\n                //html2canvas(document.querySelector(\"#suma\")).then(canvas => {\n                //    var datasuma = canvas;\n                //    });\n                //\n                function(){\n                    capture_update();\n                    return confirm('Confirma?');\n                });\n        });\n\n        //window.takeScreenShot = function() {\n        //    html2canvas(document.getElementById(\"target\"), {\n        //       onrendered: function (canvas) {\n        //            var img = canvas.toDataURL(\"image/png\");\n        //            alert('This will currently open image in a new window called \"data:\". Instead I want to save to  users local computer. Ideally as a jpg instead of png.');\n        //            window.open(img);\n        //        },\n        //    width:320,\n        //    height:220\n        //    });\n        //}\n</script>\n{{end page_js}}",
 			"file": "views/default/venta.html",
-			"file_size": 4314,
-			"file_write_time": 131637077140000000,
 			"settings":
 			{
 				"buffer_size": 4314,
@@ -234,6 +222,7 @@
 	},
 	"expanded_folders":
 	[
+		"/home/marco/web2py/applications/tapa14"
 	],
 	"file_history":
 	[
@@ -257,7 +246,7 @@
 	],
 	"find":
 	{
-		"height": 24.0
+		"height": 25.1428571429
 	},
 	"find_in_files":
 	{
@@ -271,6 +260,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"member",
 			"tightgrid",
 			"js",
 			"fichas",
@@ -309,7 +299,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 8839,
+						"buffer_size": 9503,
 						"regions":
 						{
 						},
@@ -322,6 +312,9 @@
 						],
 						"settings":
 						{
+							"SL.13.region_keys":
+							[
+							],
 							"SL.14.region_keys":
 							[
 							],
@@ -459,7 +452,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2370.0,
+						"translation.y": 2370.28571429,
 						"zoom_level": 1.0
 					},
 					"stack_index": 7,
@@ -471,19 +464,22 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 40496,
+						"buffer_size": 41346,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								27451,
+								27451
 							]
 						],
 						"settings":
 						{
+							"SL.14.region_keys":
+							[
+							],
 							"SL.15.region_keys":
 							[
 							],
@@ -499,7 +495,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 7441.14285714,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -511,19 +507,22 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 600,
+						"buffer_size": 2537,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								317,
-								317
+								0,
+								0
 							]
 						],
 						"settings":
 						{
+							"SL.15.region_keys":
+							[
+							],
 							"SL.45.region_keys":
 							[
 							],
@@ -557,6 +556,9 @@
 						],
 						"settings":
 						{
+							"SL.16.region_keys":
+							[
+							],
 							"SL.18.region_keys":
 							[
 							],
@@ -579,7 +581,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4025,
+						"buffer_size": 4054,
 						"regions":
 						{
 						},
@@ -592,6 +594,9 @@
 						],
 						"settings":
 						{
+							"SL.17.region_keys":
+							[
+							],
 							"SL.24.region_keys":
 							[
 							],
@@ -606,7 +611,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 585.0,
+						"translation.y": 585.142857143,
 						"zoom_level": 1.0
 					},
 					"stack_index": 2,
@@ -634,6 +639,9 @@
 							"SL.16.region_keys":
 							[
 							],
+							"SL.18.region_keys":
+							[
+							],
 							"SL.19.region_keys":
 							[
 							],
@@ -643,7 +651,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 315.0,
+						"translation.y": 315.428571429,
 						"zoom_level": 1.0
 					},
 					"stack_index": 9,
@@ -671,6 +679,9 @@
 							"SL.17.region_keys":
 							[
 							],
+							"SL.19.region_keys":
+							[
+							],
 							"SL.20.region_keys":
 							[
 							],
@@ -680,7 +691,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 270.0,
+						"translation.y": 269.714285714,
 						"zoom_level": 1.0
 					},
 					"stack_index": 10,
@@ -706,6 +717,9 @@
 						"settings":
 						{
 							"SL.18.region_keys":
+							[
+							],
+							"SL.20.region_keys":
 							[
 							],
 							"SL.21.region_keys":
@@ -745,6 +759,9 @@
 							"SL.19.region_keys":
 							[
 							],
+							"SL.21.region_keys":
+							[
+							],
 							"SL.22.region_keys":
 							[
 							],
@@ -766,20 +783,23 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 8404,
+						"buffer_size": 8525,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2495,
-								2495
+								0,
+								0
 							]
 						],
 						"settings":
 						{
 							"SL.20.region_keys":
+							[
+							],
+							"SL.22.region_keys":
 							[
 							],
 							"SL.23.region_keys":
@@ -794,7 +814,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2070.0,
+						"translation.y": 2069.71428571,
 						"zoom_level": 1.0
 					},
 					"stack_index": 8,
@@ -822,6 +842,9 @@
 							"SL.22.region_keys":
 							[
 							],
+							"SL.23.region_keys":
+							[
+							],
 							"SL.24.region_keys":
 							[
 							],
@@ -841,26 +864,29 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 19570,
+						"buffer_size": 19625,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								19561,
-								19561
+								0,
+								0
 							]
 						],
 						"settings":
 						{
+							"SL.24.region_keys":
+							[
+							],
 							"auto_complete": false,
 							"syntax": "Packages/Djaneiro/Syntaxes/HTML (Django).tmLanguage",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 6826.0,
+						"translation.y": 6826.28571429,
 						"zoom_level": 1.0
 					},
 					"stack_index": 4,
@@ -908,7 +934,7 @@
 	],
 	"incremental_find":
 	{
-		"height": 24.0
+		"height": 25.1428571429
 	},
 	"input":
 	{
@@ -953,7 +979,7 @@
 	"project": "untitled.sublime-project",
 	"replace":
 	{
-		"height": 44.0
+		"height": 45.7142857143
 	},
 	"save_all_on_build": true,
 	"select_file":
