@@ -290,3 +290,4 @@ def fecha_vto(lote):
 def capture_update():
     log(request.vars.data)
     #return db().insert(data = request.vars.data)
+

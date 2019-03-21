@@ -64,17 +64,18 @@ def obtengo_cliente(clienteid):
 	return db(db.cliente.id==clienteid).select(db.cliente.ALL).as_dict()[clienteid]
 
 
-from sets import Set
-def quito_ce(palabra):
-    caracteres_permitidos='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    allowed_chars = Set(caracteres_permitidos)
-    if palabra==None:
-		return 'error'
-    resultado=''
-    for i in palabra:
-        if i in allowed_chars:
-            resultado=resultado+i
-    return resultado
+#from sets import Set
+#def quito_ce(palabra):
+#    caracteres_permitidos='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+#    allowed_chars = Set(caracteres_permitidos)
+#    if palabra==None:
+#    	return 'error'
+#    resultado=''
+#    for i in palabra:
+#        if i in allowed_chars:
+#            resultado=resultado+i
+#    return resultado
+
     #if Set(string).issubset(allowed_chars):
     #    return string
     #else:
