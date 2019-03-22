@@ -6,7 +6,7 @@ sistema integral stock para pyme: -en desarrollo-
 ## Dependencias
 ### Sistema Operativo - debian strecht
 ```
-sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev python3-pip
+sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev python3-pip git
 ```
 ### requerimientos python3
 ```
