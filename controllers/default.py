@@ -1,24 +1,49 @@
 # -*- coding: utf-8 -*-
+# -------------------------------------------------------------------------
+# This is a sample controller
 # this file is released under public domain and you can use without limitations
+# -------------------------------------------------------------------------
+# -*- coding: utf-8 -*-
+# -------------------------------------------------------------------------
+# This is a sample controller
+# this file is released under public domain and you can use without limitations
+# -------------------------------------------------------------------------
 
-#########################################################################
-## This is a sample controller
-## - index is the default action of any application
-## - user is required for authentication and authorization
-## - download is for downloading files uploaded in the db (does streaming)
-#########################################################################
-
-# def index():
-#     """
-#     example action using the internationalization operator T and flash
-#     rendered by views/default/index.html or views/generic.html
-
-#     if you need a simple wiki simply replace the two lines below with:
-#     return auth.wiki()
-#     """
-#     #response.flash = T("Hello World")
-#     #return dict(message=T('Welcome to web2py!'))
-#     return dict()
+@auth.requires_membership('vendedor')
+def index():
+    log('ingreso')
+    form = FORM(
+    CENTER(
+    TABLE(
+        TR(
+            H4('stock'),
+            CENTER(A('ingreso',_class="btn btn-primary", _href=URL('ingreso'))),
+            CENTER(A('venta',_class="btn btn-primary", _href=URL('selec_cliente')))
+        ),
+        TR(),
+        TR(
+            H4('consultas'),
+            CENTER(A('ingresos',_class="btn btn-primary", _href=URL('consulta_ingreso_stock'))),
+            CENTER(A('ventas',_class="btn btn-primary", _href=URL('consulta_venta_stock'))),
+            CENTER(A('stock',_class="btn btn-primary", _href=URL('consulta_stock')))
+        ),
+        TR(),
+        TR(
+            H4('pedidos'),
+            CENTER(A('nuevo',_class="btn btn-primary", _href=URL('selec_cliente_pedido'))),
+            CENTER(A('pendientes',_class="btn btn-primary", _href=URL('pedido_pendiente')))
+        ),
+        TR(),
+        TR(
+            H4('materia prima'),
+            CENTER(A('ingreso',_class="btn btn-primary", _href=URL('ingreso_mp'))),
+            CENTER(A('baja',_class="btn btn-primary", _href=URL('baja_mp')))
+        ),
+        _id='tablaindex'
+    ),
+    )
+    )
+    return dict(form=form)
 
 @auth.requires_membership('vendedor')
 def ingreso():
@@ -706,43 +731,6 @@ def index2():
         log('no tanto')
     return dict(form_venta=form_venta, ids_json=json(session.idsform), clientes_json=json(clientes), listas_json=json(listas))
 
-
-@auth.requires_membership('vendedor')
-def index():
-    log('ingreso')
-    form = FORM(
-    CENTER(
-    TABLE(
-        TR(
-            H4('stock'),
-            CENTER(A('ingreso',_class="btn btn-primary", _href=URL('ingreso'))),
-            CENTER(A('venta',_class="btn btn-primary", _href=URL('selec_cliente')))
-        ),
-        TR(),
-        TR(
-            H4('consultas'),
-            CENTER(A('ingresos',_class="btn btn-primary", _href=URL('consulta_ingreso_stock'))),
-            CENTER(A('ventas',_class="btn btn-primary", _href=URL('consulta_venta_stock'))),
-            CENTER(A('stock',_class="btn btn-primary", _href=URL('consulta_stock')))
-        ),
-        TR(),
-        TR(
-            H4('pedidos'),
-            CENTER(A('nuevo',_class="btn btn-primary", _href=URL('selec_cliente_pedido'))),
-            CENTER(A('pendientes',_class="btn btn-primary", _href=URL('pedido_pendiente')))
-        ),
-        TR(),
-        TR(
-            H4('materia prima'),
-            CENTER(A('ingreso',_class="btn btn-primary", _href=URL('ingreso_mp'))),
-            CENTER(A('baja',_class="btn btn-primary", _href=URL('baja_mp')))
-        ),
-        _id='tablaindex'
-    ),
-    )
-    )
-    return dict(form=form)
-
 #@auth.requires_membership('admin')
 #def productos():
 #    log('acceso admin')
@@ -852,10 +840,29 @@ def capture_update():
     log(request.vars.data)
     #return db().insert(data = request.vars.data)
 
-def test_canvas():
-    return dict()
 
 
+# ---- API (example) -----
+@auth.requires_login()
+def api_get_user_email():
+    if not request.env.request_method == 'GET': raise HTTP(403)
+    return response.json({'status':'success', 'email':auth.user.email})
+
+# ---- Smart Grid (example) -----
+@auth.requires_membership('admin') # can only be accessed by members of admin groupd
+def grid():
+    response.view = 'generic.html' # use a generic view
+    tablename = request.args(0)
+    if not tablename in db.tables: raise HTTP(403)
+    grid = SQLFORM.smartgrid(db[tablename], args=[tablename], deletable=False, editable=False)
+    return dict(grid=grid)
+
+# ---- Embedded wiki (example) ----
+def wiki():
+    auth.wikimenu() # add the wiki to the menu
+    return auth.wiki() 
+
+# ---- Action for login/register/etc (required for auth) -----
 def user():
     """
     exposes:
@@ -874,7 +881,7 @@ def user():
     """
     return dict(form=auth())
 
-
+# ---- action to server uploaded static content (required) ---
 @cache.action()
 def download():
     """
@@ -882,13 +889,3 @@ def download():
     http://..../[app]/default/download/[filename]
     """
     return response.download(request, db)
-
-
-def call():
-    """
-    exposes services. for example:
-    http://..../[app]/default/call/jsonrpc
-    decorate with @services.jsonrpc the functions to expose
-    supports xml, json, xmlrpc, jsonrpc, amfrpc, rss, csv
-    """
-    return service()

@@ -380,7 +380,7 @@ def leo_para_despacho():
 #                   re -> registro de elaboracion
 #                   rd -> registro de despacho
 
-base_dir='applications/'+str(myconf.take('datos.app_name'))+'/files'
+base_dir='applications/'+str(configuration.get('datos.app_name'))+'/files'
 
 import shutil
 def proceso_fa():
