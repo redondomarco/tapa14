@@ -1,0 +1,3 @@
+[submodule "pyafipws"]
+	path = pyafipws
+	url = https://github.com/redondomarco/pyafipws
