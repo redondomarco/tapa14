@@ -1,11 +1,21 @@
 # -*- coding: utf-8 -*-
 
+
 # -------------------------------------------------------------------------
 # AppConfig configuration made easy. Look inside private/appconfig.ini
 # Auth is for authenticaiton and access control
 # -------------------------------------------------------------------------
 from gluon.contrib.appconfig import AppConfig
 from gluon.tools import Auth
+
+# for ide
+if False:
+    from gluon import *
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
 
 # -------------------------------------------------------------------------
 # This scaffolding model makes your app work on Google App Engine too
@@ -54,7 +64,7 @@ else:
 # by default give a view/generic.extension to all actions from localhost
 # none otherwise. a pattern can be 'controller/function.extension'
 # -------------------------------------------------------------------------
-response.generic_patterns = [] 
+response.generic_patterns = []
 if request.is_local and not configuration.get('app.production'):
     response.generic_patterns.append('*')
 
@@ -98,7 +108,10 @@ auth.define_tables(username=False, signature=False)
 # configure email
 # -------------------------------------------------------------------------
 mail = auth.settings.mailer
-mail.settings.server = 'logging' if request.is_local else configuration.get('smtp.server')
+if request.is_local:
+    mail.settings.server = 'logging'
+else:
+    mai.settings.server = configuration.get('smtp.server')
 mail.settings.sender = configuration.get('smtp.sender')
 mail.settings.login = configuration.get('smtp.login')
 mail.settings.tls = configuration.get('smtp.tls') or False
@@ -111,8 +124,9 @@ auth.settings.registration_requires_verification = False
 auth.settings.registration_requires_approval = False
 auth.settings.reset_password_requires_verification = True
 
-# -------------------------------------------------------------------------  
-# read more at http://dev.w3.org/html5/markup/meta.name.html               
+
+# -------------------------------------------------------------------------
+# read more at http://dev.w3.org/html5/markup/meta.name.html
 # -------------------------------------------------------------------------
 response.meta.author = configuration.get('app.author')
 response.meta.description = configuration.get('app.description')
@@ -121,7 +135,7 @@ response.meta.generator = configuration.get('app.generator')
 response.show_toolbar = configuration.get('app.toolbar')
 
 # -------------------------------------------------------------------------
-# your http://google.com/analytics id                                      
+# your http://google.com/analytics id
 # -------------------------------------------------------------------------
 response.google_analytics_id = configuration.get('google.analytics_id')
 
@@ -130,7 +144,8 @@ response.google_analytics_id = configuration.get('google.analytics_id')
 # -------------------------------------------------------------------------
 if configuration.get('scheduler.enabled'):
     from gluon.scheduler import Scheduler
-    scheduler = Scheduler(db, heartbeat=configuration.get('scheduler.heartbeat'))
+    heartbeat = configuration.get('scheduler.heartbeat')
+    scheduler = Scheduler(db, heartbeat=heartbeat)
 
 # -------------------------------------------------------------------------
 # Define your tables below (or better in another model file) for example

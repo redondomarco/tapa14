@@ -6,17 +6,13 @@ sistema integral stock para pyme: -en desarrollo-
 ## Dependencias
 ### Sistema Operativo - debian stretch
 ```
-<<<<<<< HEAD
-sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev python3-pip swig libssl-dev git
+sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev python3-pip swig libssl-dev git unzip ipython3 python3-tk
+```
 ### Parche M2Crypto ###
 ```
 git clone https://github.com/mcepl/M2Crypto.git
 cd M2Crypto
 sudo python3 setup.py install
-
-=======
-sudo apt-get install build-essential libpoppler-cpp-dev pkg-config python3-dev python3-pip git unzip
->>>>>>> ce64034e2b7f7a5e50bdf89ad220ccc54ffe76cb
 ```
 ### requerimientos python3
 ```
@@ -31,6 +27,10 @@ unzip web2py_src.zip
 ```
 cd web2py/applications
 git clone https://github.com/redondomarco/tapa14.git
+cd web2py/applications/tapa14/modules
+git clone https://github.com/redondomarco/pyafipws.git
+cd web2py/applications/tapa14/views
+git clone https://github.com/redondomarco/plugin_adminlte
 ```
 #### actualizacion de app
 ```
@@ -56,5 +56,5 @@ Desde la shell importamos una base de datos inicial:
 ```
 #### para exportar todas nuestras tablas
 ```
->>> db.export_to_csv_file(open('nuestras_tablas', 'wb'))
+>>> db.export_to_csv_file(open('nuestras_tablas.csv', 'wb'))
 ```

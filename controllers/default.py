@@ -3,41 +3,49 @@
 # This is a sample controller
 # this file is released under public domain and you can use without limitations
 # -------------------------------------------------------------------------
-# -*- coding: utf-8 -*-
-# -------------------------------------------------------------------------
-# This is a sample controller
-# this file is released under public domain and you can use without limitations
-# -------------------------------------------------------------------------
+# for ide
+if False:
+    from gluon import *
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
 
 @auth.requires_membership('vendedor')
 def index():
     log('ingreso')
-    form = FORM(
-    CENTER(
-    TABLE(
-        TR(
-            H4('stock'),
-            CENTER(A('ingreso',_class="btn btn-primary", _href=URL('ingreso'))),
-            CENTER(A('venta',_class="btn btn-primary", _href=URL('selec_cliente')))
-        ),
+    form = FORM(CENTER(TABLE(
+        TR(H4('stock'),
+           CENTER(A('ingreso', _class="btn btn-primary",
+                  _href=URL('ingreso'))),
+           CENTER(A('venta', _class="btn btn-primary",
+                  _href=URL('selec_cliente'))),
+           ),
         TR(),
-        TR(
-            H4('consultas'),
-            CENTER(A('ingresos',_class="btn btn-primary", _href=URL('consulta_ingreso_stock'))),
-            CENTER(A('ventas',_class="btn btn-primary", _href=URL('consulta_venta_stock'))),
-            CENTER(A('stock',_class="btn btn-primary", _href=URL('consulta_stock')))
-        ),
+        TR(H4('consultas'),
+           CENTER(A('ingresos', _class="btn btn-primary",
+                  _href=URL('consulta_ingreso_stock'))),
+           CENTER(A('ventas', _class="btn btn-primary",
+                  _href=URL('consulta_venta_stock'))),
+           CENTER(A('stock', _class="btn btn-primary",
+                  _href=URL('consulta_stock')))
+           ),
         TR(),
-        TR(
-            H4('pedidos'),
-            CENTER(A('nuevo',_class="btn btn-primary", _href=URL('selec_cliente_pedido'))),
-            CENTER(A('pendientes',_class="btn btn-primary", _href=URL('pedido_pendiente')))
-        ),
+        TR(H4('pedidos'),
+           CENTER(A('nuevo', _class="btn btn-primary",
+                  _href=URL('selec_cliente_pedido'))),
+           CENTER(A('pendientes', _class="btn btn-primary",
+                  _href=URL('pedido_pendiente')))
+           ),
         TR(),
         TR(
             H4('materia prima'),
-            CENTER(A('ingreso',_class="btn btn-primary", _href=URL('ingreso_mp'))),
-            CENTER(A('baja',_class="btn btn-primary", _href=URL('baja_mp')))
+            CENTER(A('ingreso', _class="btn btn-primary",
+                   _href=URL('ingreso_mp'))),
+            CENTER(A('baja', _class="btn btn-primary",
+                   _href=URL('baja_mp')))
         ),
         _id='tablaindex'
     ),
@@ -45,49 +53,66 @@ def index():
     )
     return dict(form=form)
 
+
 @auth.requires_membership('vendedor')
 def ingreso():
-    #armo tabla de productos
-    session.ultimosingresos=SQLFORM.grid(
+    # armo tabla de productos
+    session.ultimosingresos = SQLFORM.grid(
         db.ingresos,
-        fields=(db.ingresos.fecha,db.ingresos.lote,db.ingresos.usuario,db.ingresos.cantidad,db.ingresos.producto),
-        orderby=[~db.ingresos.fecha],searchable=False,editable=False,deletable=False,create=False,sortable=True,details=False,maxtextlength=25)
+        fields=(db.ingresos.fecha, db.ingresos.lote,
+                db.ingresos.usuario, db.ingresos.cantidad,
+                db.ingresos.producto),
+        orderby=[~db.ingresos.fecha],
+        searchable=False, editable=False, deletable=False, create=False,
+        sortable=True, details=False, maxtextlength=25)
     session.productos = []
     session.idsform = []
-    tabla1 =[]
-    tabla1.append([THEAD(TR(TH('cant'), TH('det'), TH('fis'),TH('net')))])
-    for item in db(db.producto.stock_alias==None).select():
-        session.productos.append([item.codigo,item.detalle,item.valor,item.stock])
+    tabla1 = []
+    tabla1.append([THEAD(TR(TH('cant'), TH('det'), TH('fis'), TH('net')))])
+    for item in db(db.producto.stock_alias is None).select():
+        session.productos.append([item.codigo,
+                                  item.detalle,
+                                  item.valor,
+                                  item.stock])
         tabla1.append(TR(
-            TD(INPUT(_name='c'+str(item.codigo), _type='number',_min='0',_step='1', _class='cantidad')),
+            TD(INPUT(_name='c' + str(item.codigo),
+                     _type='number', _min='0', _step='1', _class='cantidad')),
             TD(item.detalle),
             TD(item.stock),
-            TD(item.stock-item.reserva)))
-            #TD(item.valor, _id='v'+str(item.codigo)),
-            #TD(INPUT(_id='s'+str(item.codigo), _type="number",_class='precio', _disabled="disabled"))))
-        session.idsform.append(['c'+str(item.codigo),'v'+str(item.codigo),'s'+str(item.codigo)])
-    #tabla1.append(TFOOT(TR(TH(''), TH(''), TH(''),
+            TD(item.stock - item.reserva)))
+# TD(item.valor, _id='v'+str(item.codigo)),
+# TD(INPUT(_id='s'+str(item.codigo), _type="number",_class='precio',
+#    _disabled="disabled"))))
+        session.idsform.append(['c' + str(item.codigo),
+                                'v' + str(item.codigo),
+                                's' + str(item.codigo)])
+    # tabla1.append(TFOOT(TR(TH(''), TH(''), TH(''),
     #    TH('Total',_id='totaltitle'),
-    #    TH(INPUT(_id='totalt', _type="number",_class='precio', _disabled="disabled")))))
-    #formulario
+    #    TH(INPUT(_id='totalt', _type="number",_class='precio',
+    #      _disabled="disabled")))))
+    # formulario
     form_ingreso = FORM(
         CENTER(
             H3('Ingreso de producción'),
             TABLE(
                 TR(
                     TAG('<label class="tabla-label">Fecha: </label>'),
-                    INPUT(_class='date',_name='ingresofecha',_id='fechaingreso'),
+                    INPUT(_class='date', _name='ingresofecha',
+                          _id='fechaingreso'),
                     TAG('<label for="clienteinput">Lote:</label>'),
-                    INPUT(_name='ingresolote', _type='number',_min='1',_max='365',_step='1', _class='nrolote')),
-            _id='tablaingreso'
-            ),
-        TABLE( tabla1, _class='t2', _id="suma"),
-        TABLE(TR(A('Volver',_href=request.env.http_referer,_class='btn btn-default'),INPUT(_type="submit", _class="btn btn-primary btn-medium", _value='ingresar',_id='button14')))))
+                    INPUT(_name='ingresolote', _type='number', _min='1',
+                          _max='365', _step='1', _class='nrolote')),
+                _id='tablaingreso'),
+            TABLE(tabla1, _class='t2', _id="suma"),
+            TABLE(TR(A('Volver', _href=request.env.http_referer,
+                  _class='btn btn-default'),
+                  INPUT(_type="submit", _class="btn btn-primary btn-medium",
+                        _value='ingresar', _id='button14')))))
     if form_ingreso.accepts(request, session):
         for item in db(db.producto.detalle).select():
-            cant='c'+str(item.codigo)
-            if request.vars['ingresofecha']!='':
-                ingresofecha=datetime.strptime(request.vars['ingresofecha'].replace('/','-')+' 12:00:00', '%d-%m-%Y %H:%M:%S')
+            cant = 'c' + str(item.codigo)
+            if request.vars['ingresofecha'] != '':
+                ingresofecha = datetime.strptime(request.vars['ingresofecha'].replace('/','-')+' 12:00:00', '%d-%m-%Y %H:%M:%S')
                 debug(type(ingresofecha))
             else:
                 ingresofecha=''
