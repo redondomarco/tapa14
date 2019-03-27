@@ -112,21 +112,28 @@ def ingreso():
         for item in db(db.producto.detalle).select():
             cant = 'c' + str(item.codigo)
             if request.vars['ingresofecha'] != '':
-                ingresofecha = datetime.strptime(request.vars['ingresofecha'].replace('/','-')+' 12:00:00', '%d-%m-%Y %H:%M:%S')
+                hora = (request.vars['ingresofecha'].replace('/', '-') +
+                        ' 12:00:00', '%d-%m-%Y %H:%M:%S')
+                ingresofecha = datetime.strptime(hora)
                 debug(type(ingresofecha))
             else:
-                ingresofecha=''
-            ingresolote=request.vars['ingresolote']
-            fechavto=fecha_vto(ingresolote)
+                ingresofecha = ''
+            ingresolote = request.vars['ingresolote']
+            fechavto = fecha_vto(ingresolote)
             debug(type(fecha_vto(ingresolote)))
-            cantidad=request.vars[cant]
-            if cantidad == '' or cantidad == None:
-                cantidad=int(0)
-            db(db.producto.codigo==item.codigo).update(stock=db(db.producto.codigo==item.codigo).select()[0].stock+int(cantidad))
-            if cantidad!=0:
-                log(str(cantidad)+' '+str(item.codigo)+' desde '+str(request.client)+' fecha '+str(ingresofecha)+' lote '+str(ingresolote))
-                producto=db(db.producto.codigo==item.codigo).select().first()['detalle']
-                productoid=db(db.producto.codigo==item.codigo).select().first()['id']
+            cantidad = request.vars[cant]
+            if cantidad == '' or cantidad is None:
+                cantidad = int(0)
+            selector = (db.producto.codigo == item.codigo)
+            db(selector).update(
+                stock=db(selector).select()[0].stock + int(cantidad))
+            if cantidad != 0:
+                log(str(cantidad) + ' ' + str(item.codigo) + ' desde ' +
+                    str(request.client) + ' fecha ' +
+                    str(ingresofecha) + ' lote ' + str(ingresolote))
+                s_producto = (db.producto.codigo == item.codigo)
+#                producto = db(s_producto).select().first()['detalle']
+                productoid = db(s_producto).select().first()['id']
                 db.ingresos.insert(
                     fecha=datetime.now(),
                     fecha_prod=ingresofecha,
@@ -141,74 +148,93 @@ def ingreso():
         log('acceso')
     return dict(form_ingreso=form_ingreso, ids_json=json(session.idsform))
 
-#armo tabla de productos para venta y calculadora
+
+# armo tabla de productos para venta y calculadora
 session.productos = []
 session.idsform = []
-tabla1 = [THEAD(TR(TH('cant'), TH('detalle'), TH('stock'), TH('final'),TH('sub')))]
+tabla1 = [THEAD(TR(TH('cant'), TH('detalle'),
+                   TH('stock'), TH('final'), TH('sub')))]
 for item in db(db.producto.detalle).select():
-    session.productos.append([item.codigo,item.detalle,item.valor,item.stock])
+    session.productos.append([item.codigo, item.detalle,
+                              item.valor, item.stock])
     tabla1.append(TR(
-        TD(INPUT(_id='c'+str(item.codigo), _name='c'+str(item.codigo),_type='number',_min='0',_step='1', _class='cantidad')),
+        TD(INPUT(_id='c' + str(item.codigo), _name='c' + str(item.codigo),
+                 _type='number', _min='0', _step='1', _class='cantidad')),
         TD(item.detalle),
         TD(item.stock),
-        TD(item.valor, _id='v'+str(item.codigo)),
-        TD(INPUT(_id='s'+str(item.codigo), _type="number",_class='precio', _disabled="disabled"))))
-    session.idsform.append(['c'+str(item.codigo),'v'+str(item.codigo),'s'+str(item.codigo)])
-tabla1.append(TFOOT(TR(TH(''), TH(''), TH(''),
-    TH('Total',_id='totaltitle'),
-    TH(INPUT(_id='totalt', _type="number",_class='precio', _disabled="disabled")))))
+        TD(item.valor, _id='v' + str(item.codigo)),
+        TD(INPUT(_id='s' + str(item.codigo), _type="number", _class='precio',
+                 _disabled="disabled"))))
+    session.idsform.append(['c' + str(item.codigo), 'v' + str(item.codigo),
+                           's' + str(item.codigo)])
+tabla1.append(TFOOT(TR(
+    TH(''), TH(''), TH(''),
+    TH('Total', _id='totaltitle'),
+    TH(INPUT(_id='totalt', _type="number", _class='precio',
+             _disabled="disabled")))))
+
 
 @auth.requires_membership('vendedor')
 def ventaold():
-    clientes=db(db.cliente).select(db.cliente.ALL)
-    listas=db(db.listas).select(db.listas.ALL)
-    comprobante=db(db.comprobante.nombre=='venta').select().first()['lastid']
-    log("tabla1: "+str(tabla1))
-    form_venta = FORM(
-        CENTER(
-            TABLE(
-                TR(
-                    #TAG('<label class="control-label">Cliente </label>'),
-                    TAG('<label for="clienteinput">cliente</label>'),
-                    SELECT([" "]+[(p.nombre) for p in clientes], _name='cliente', _type='text', _id="clienteinput",_class="form-control string"),
-                    TAG('<label class="control-label">Venta nº </label>'),
-                    INPUT(_value=str(int(comprobante)).zfill(10),_disabled="disabled",_class="form-control string",_id='nrocomp')),
-            _id='tablacliente'
-            ),
-        ),
-        TABLE( tabla1, _class='t2', _id="suma"),
-        CENTER( INPUT(_type="submit", _class="btn btn-primary btn-medium", _value='vender',_id='button14')),
+    clientes = db(db.cliente).select(db.cliente.ALL)
+    listas = db(db.listas).select(db.listas.ALL)
+    selector = (db.comprobante.nombre == 'venta')
+    comprobante = db(selector).select().first()['lastid']
+    log("tabla1: " + str(tabla1))
+    form_venta = FORM(CENTER(
+        TABLE(TR(TAG('<label for="clienteinput">cliente</label>'),
+              SELECT([" "] + [(p.nombre) for p in clientes], _name='cliente',
+                     _type='text', _id="clienteinput",
+                     _class="form-control string"),
+              TAG('<label class="control-label">Venta nº </label>'),
+              INPUT(_value=str(int(comprobante)).zfill(10),
+                    _disabled="disabled", _class="form-control string",
+                    _id='nrocomp')),
+              _id='tablacliente'),),
+        TABLE(tabla1, _class='t2', _id="suma"),
+        CENTER(INPUT(_type="submit", _class="btn btn-primary btn-medium",
+                     _value='vender', _id='button14')),
         _id='formventa')
     if form_venta.accepts(request, session):
         log('aceptado')
-        cliente=request.vars['cliente']
-        if cliente==" ":
-            log('cliente vacio '+str(cliente))
+        cliente = request.vars['cliente']
+        if cliente == " ":
+            log('cliente vacio ' + str(cliente))
             redirect(URL('index'))
         else:
-            log('cliente:'+str(cliente))
-        ventanumactual=db(db.comprobante.nombre=='venta').select()[0].lastid
-        listaid=db(db.cliente.nombre==cliente).select().first()['lista']
-        desc_lista=db(db.listas.id==listaid).select().first()['valor']
+            log('cliente:' + str(cliente))
+        s_venta = (db.comprobante.nombre == 'venta')
+        ventanumactual = db(s_venta).select()[0].lastid
+        listaid = db(db.cliente.nombre == cliente).select().first()['lista']
+#        desc_lista = db(db.listas.id == listaid).select().first()['valor']
         for item in db(db.producto.detalle).select():
-            cant='c'+str(item.codigo)
-            #cantidad=int(str(request.vars[cant]))
+            cant = 'c' + str(item.codigo)
+#            cantidad=int(str(request.vars[cant]))
             if request.vars[cant] == '':
-                cantidad=int(0)
+                cantidad = int(0)
             else:
-                cantidad=int(str(request.vars[cant]))
-            db(db.producto.codigo==item.codigo).update(stock=db(db.producto.codigo==item.codigo).select()[0].stock-int(cantidad))
-            if cantidad!=0:
-                valor=float(db(db.producto.codigo==item.codigo).select().first()['valor'])
-                producto=db(db.producto.codigo==item.codigo).select().first()['detalle']
-                productoid=db(db.producto.codigo==item.codigo).select().first()['id']
-                vendedorid=db(db.auth_user.email==auth.user.email).select().first()['id']
-                clienteid=db(db.cliente.nombre==cliente).select().first()['id']
-                listaid=db(db.cliente.nombre==cliente).select().first()['lista']
-                descuento=float(db(db.listas.id==listaid).select().first()['valor'])
-                preciou=round(valor*descuento,2)
-                total=preciou*int(cantidad)
-                log('venta #'+str(ventanumactual)+' cant '+str(cantidad)+' '+str(producto)+' pu '+str(preciou)+' total '+str(total)+' a '+str(cliente))
+                cantidad = int(str(request.vars[cant]))
+            s_codigo = (db.producto.codigo == item.codigo)
+            db(s_codigo).update(stock=db(s_codigo).select()[0].stock -
+                                int(cantidad))
+            if cantidad != 0:
+                s_codigo = (db.producto.codigo == item.codigo)
+                s_email = (db.auth_user.email == auth.user.email)
+                s_nombre = (db.cliente.nombre == cliente)
+                s_lista = (db.listas.id == listaid)
+                valor = float(db(s_codigo).select().first()['valor'])
+                producto = db(s_codigo).select().first()['detalle']
+                productoid = db(s_codigo).select().first()['id']
+                vendedorid = db(s_email).select().first()['id']
+                clienteid = db(s_nombre).select().first()['id']
+                listaid = db(s_nombre).select().first()['lista']
+                descuento = float(db(s_lista).select().first()['valor'])
+                preciou = round(valor * descuento, 2)
+                total = preciou * int(cantidad)
+                log('venta #' + str(ventanumactual) + ' cant ' +
+                    str(cantidad) + ' ' + str(producto) + ' pu ' +
+                    str(preciou) + ' total ' + str(total) + ' a ' +
+                    str(cliente))
                 db.ventas.insert(
                     fecha=datetime.datetime.now(),
                     vendedor=vendedorid,
@@ -218,21 +244,24 @@ def ventaold():
                     producto=productoid,
                     preciou=preciou,
                     total=total
-                    )
-        db(db.comprobante.nombre=='venta').update(lastid=db(db.comprobante.nombre=='venta').select()[0].lastid+1)
+                )
+        s_comprobante = (db.comprobante.nombre == 'venta')
+        db(s_comprobante).update(lastid=db(s_comprobante).select()[0].lastid +
+                                 1)
         db.commit()
         redirect(URL('index'))
     else:
         log('acceso')
-    return dict(form_venta=form_venta, ids_json=json(session.idsform), clientes_json=json(clientes), listas_json=json(listas))
+    return dict(form_venta=form_venta, ids_json=json(session.idsform),
+                clientes_json=json(clientes), listas_json=json(listas))
+
 
 @auth.requires_membership('vendedor')
 def selec_cliente():
-    clientes=db(db.cliente).select(db.cliente.ALL)
+    clientes = db(db.cliente).select(db.cliente.ALL)
     form = FORM(
         CENTER(
             H3('Venta'),
-            #TAG('<label class="control-label">Venta </label>'),BR(),
             TABLE(
                 TR(TAG('<label for="clienteinput"> cliente</label>'),
                    SELECT([" "]+[(p.nombre) for p in clientes], _name='cliente', _type='text', _id="clienteinput",_class="form-control string"),
@@ -258,20 +287,23 @@ def selec_cliente():
 
 
 @auth.requires_membership('vendedor')
-def venta():     
-    #clientes=db(db.cliente).select(db.cliente.ALL)
-    listas=db(db.listas).select(db.listas.ALL)
-    comprobante=db(db.comprobante.nombre=='venta').select().first()['lastid']
-    session.ultimasventas=SQLFORM.grid(
+def venta():
+    listas = db(db.listas).select(db.listas.ALL)
+    s_venta = (db.comprobante.nombre == 'venta')
+    comprobante = db(s_venta).select().first()['lastid']
+    session.ultimasventas = SQLFORM.grid(
         db.ventas,
-        fields=(db.ventas.fecha,db.ventas.ventanum,db.ventas.vendedor,db.ventas.cliente,db.ventas.cantidad,db.ventas.producto,db.ventas.total),
-        orderby=[~db.ventas.fecha],searchable=False,editable=False,deletable=False,create=False,sortable=True,details=False,maxtextlength=25)
-    #creo tabla con productos habilitados para el cliente
+        fields=(db.ventas.fecha, db.ventas.ventanum, db.ventas.vendedor,
+                db.ventas.cliente, db.ventas.cantidad, db.ventas.producto,
+                db.ventas.total),
+        orderby=[~db.ventas.fecha],
+        searchable=False, editable=False, deletable=False, create=False,
+        sortable=True, details=False, maxtextlength=25)
+#   creo tabla con productos habilitados para el cliente
     session.productos = []
     idsform = []
     precios = []
     productos_cliente=db(db.cliente.nombre==session.cliente).select().first()['productos']
-    #idtipocuenta=db(db.cliente.nombre==session.cliente).select().first()['tipocuenta']
     tipocuenta=db(db.cliente.nombre==session.cliente).select().first()['tipocuenta']
     log(tipocuenta)
     log(session.cliente)
@@ -866,20 +898,24 @@ def capture_update():
     #return db().insert(data = request.vars.data)
 
 
-
 # ---- API (example) -----
+
+
 @auth.requires_login()
 def api_get_user_email():
     if not request.env.request_method == 'GET': raise HTTP(403)
-    return response.json({'status':'success', 'email':auth.user.email})
+    return response.json({'status': 'success', 'email': auth.user.email})
 
 # ---- Smart Grid (example) -----
-@auth.requires_membership('admin') # can only be accessed by members of admin groupd
+
+
+@auth.requires_membership('admin')
 def grid():
-    response.view = 'generic.html' # use a generic view
+    response.view = 'generic.html'  # use a generic view
     tablename = request.args(0)
     if not tablename in db.tables: raise HTTP(403)
-    grid = SQLFORM.smartgrid(db[tablename], args=[tablename], deletable=False, editable=False)
+    grid = SQLFORM.smartgrid(db[tablename], args=[tablename],
+                             deletable=False, editable=False)
     return dict(grid=grid)
 
 # ---- Embedded wiki (example) ----
