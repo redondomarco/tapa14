@@ -3,6 +3,8 @@
 # This is a sample controller
 # this file is released under public domain and you can use without limitations
 # -------------------------------------------------------------------------
+import subprocess
+from gluon.tools import Expose
 # for ide
 if False:
     from gluon import *
@@ -11,6 +13,7 @@ if False:
     session = current.session
     cache = current.cache
     T = current.T
+    from db import *
 
 
 @auth.requires_membership('vendedor')
@@ -412,7 +415,7 @@ def venta():
                     producto=productoid,
                     preciou=preciou,
                     total=total
-                    )
+                )
         #solo subo el numero de venta si no fue todo 0
         if productovendido:
             db(db.comprobante.nombre=='venta').update(lastid=db(db.comprobante.nombre=='venta').select()[0].lastid+1)
@@ -881,21 +884,25 @@ def admin():
 )
     return dict(form=form)
 
-from gluon.tools import Expose
+
 @auth.requires_login()
 @auth.requires_membership('vendedor')
 def archivo():
-    return dict(files=Expose('/home/marco/web2py/applications/'+str(myconf.take('datos.app_name'))+'/pdf',
-                             extensions=['.csv','.pdf']))
+    expose = ('applications/' + str(configuration.get('app.name')) +
+              '/files')
+
+    subprocess.run(["mkdir", "-p", expose])
+    return dict(files=Expose(expose, extensions=['.csv', '.pdf']))
 
 
 def mensajes():
-    log('muestro mensaje: '+str(session.mensaje))
+    log('muestro mensaje: ' + str(session.mensaje))
     return dict()
+
 
 def capture_update():
     log(request.vars.data)
-    #return db().insert(data = request.vars.data)
+#    return db().insert(data = request.vars.data)
 
 
 # ---- API (example) -----
@@ -909,19 +916,46 @@ def api_get_user_email():
 # ---- Smart Grid (example) -----
 
 
-@auth.requires_membership('admin')
-def grid():
-    response.view = 'generic.html'  # use a generic view
-    tablename = request.args(0)
-    if not tablename in db.tables: raise HTTP(403)
-    grid = SQLFORM.smartgrid(db[tablename], args=[tablename],
-                             deletable=False, editable=False)
-    return dict(grid=grid)
+# @auth.requires_membership('admin')
+# def grid():
+#     response.view = 'generic.html'  # use a generic view
+#     tablename = request.args(0)
+#     if (not tablename in db.tables):
+#         raise HTTP(403)
+#     grid = SQLFORM.smartgrid(db[tablename], args=[tablename],
+#                              deletable=False, editable=False)
+#     return dict(grid=grid)
 
 # ---- Embedded wiki (example) ----
-def wiki():
-    auth.wikimenu() # add the wiki to the menu
-    return auth.wiki() 
+# def wiki():
+#    auth.wikimenu() # add the wiki to the menu
+#    return auth.wiki() 
+
+
+def subir_datos_afip_paso1():
+    session.paso1 = []
+    form = FORM(
+        H1('Ingrese zip afip')
+        TAG('<span class="label label-success">archivo</span>'),
+        INPUT(_name='csvfile', _type='file', requires=IS_LENGTH(1048576, 8)),
+        INPUT(_type="submit", _class="btn btn-primary btn-medium"))
+    paso1=CENTER(TABLE(
+        H1('Carga de lista dni'),
+        TAG('Los dni en el archivo deben estar separado por salto de linea, por ejemplo:'),
+        PRE('12345678\n23456789', _id='prestyle'),
+        form))
+    if form.accepts(request, session):
+        tablacsv =  csv.reader(request.vars.csvfile.file.read().splitlines())
+        for line in tablacsv:
+            session.paso1.append(line)
+        log('cargado: '+str(session.paso1))
+        redirect(URL('carga_lista_dni_paso2'))
+    else:
+        log('acceso '+str(request.function))
+    return dict(form=paso1)
+
+
+
 
 # ---- Action for login/register/etc (required for auth) -----
 def user():

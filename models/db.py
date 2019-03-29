@@ -111,7 +111,7 @@ mail = auth.settings.mailer
 if request.is_local:
     mail.settings.server = 'logging'
 else:
-    mai.settings.server = configuration.get('smtp.server')
+    mail.settings.server = configuration.get('smtp.server')
 mail.settings.sender = configuration.get('smtp.sender')
 mail.settings.login = configuration.get('smtp.login')
 mail.settings.tls = configuration.get('smtp.tls') or False

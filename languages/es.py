@@ -411,6 +411,7 @@
 'Statistics': 'Estadísticas',
 'Stylesheet': 'Hoja de estilo',
 'Subir': 'Subir',
+'subir datos afip': 'subir datos afip',
 'Submit': 'Enviar',
 'submit': 'enviar',
 'Success!': '¡Correcto!',
