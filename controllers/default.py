@@ -935,14 +935,14 @@ def api_get_user_email():
 def subir_datos_afip_paso1():
     session.paso1 = []
     form = FORM(
-        H1('Ingrese zip afip')
-        TAG('<span class="label label-success">archivo</span>'),
-        INPUT(_name='csvfile', _type='file', requires=IS_LENGTH(1048576, 8)),
-        INPUT(_type="submit", _class="btn btn-primary btn-medium"))
-    paso1=CENTER(TABLE(
-        H1('Carga de lista dni'),
-        TAG('Los dni en el archivo deben estar separado por salto de linea, por ejemplo:'),
-        PRE('12345678\n23456789', _id='prestyle'),
+        H1('Ingrese archivos cabecera zip afip'),
+        TABLE(
+        TR(INPUT(_name='cabecera', _type='file', requires=IS_LENGTH(1048576, 8))),
+        TR(INPUT(_name='detalle', _type='file', requires=IS_LENGTH(1048576, 8))),
+        TR(INPUT(_name='ventas', _type='file', requires=IS_LENGTH(1048576, 8))),
+        TR(INPUT(_name='alicuotas', _type='file', requires=IS_LENGTH(1048576, 8))),
+        INPUT(_type="submit", _class="btn btn-primary btn-medium")))
+    paso1 = CENTER(TABLE(
         form))
     if form.accepts(request, session):
         tablacsv =  csv.reader(request.vars.csvfile.file.read().splitlines())
