@@ -1,6 +1,9 @@
 import logging
 from collections import defaultdict
 import hashlib
+import string
+import datetime
+import random
 
 
 # for ide
@@ -61,3 +64,20 @@ def md5sum(filepath):
             if not data:
                 break
             md5.update(data)
+
+
+def idtemp_generator(
+    size=50,
+    chars=(string.ascii_uppercase + string.digits +
+           string.ascii_lowercase)):
+    dia = (str(datetime.datetime.now().year) + '-' +
+           str(datetime.datetime.now().month) + '-' +
+           str(datetime.datetime.now().day) + '_')
+    return dia + ''.join(random.choice(chars) for _ in range(size))
+
+
+def hoy_string():
+    dia = (str(datetime.datetime.now().year) + '-' +
+           str(datetime.datetime.now().month) + '-' +
+           str(datetime.datetime.now().day))
+    return dia

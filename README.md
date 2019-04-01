@@ -58,3 +58,34 @@ Desde la shell importamos una base de datos inicial:
 ```
 >>> db.export_to_csv_file(open('nuestras_tablas.csv', 'wb'))
 ```
+#### logging
+copiar el archivo web2py/examples/logging.example.conf en el raiz de web2py:
+```
+cd web2py
+cp examples/logging.example.conf logging.conf
+```
+luego configurar, segun destino del log
+1) to file:
+```
+keys=consoleHandler,messageBoxHandler,rotatingFileHandler
+
+[handler_rotatingFileHandler]
+class=handlers.RotatingFileHandler
+level=DEBUG
+formatter=simpleFormatter
+args=("logs/web2py.log", "a", 1000000, 5)
+
+```
+
+2) to linux syslog(local3):
+
+```
+keys=consoleHandler,messageBoxHandler,rotatingFileHandler,linuxSysLogHandler
+
+[handler_linuxSysLogHandler]
+class=handlers.SysLogHandler
+level=DEBUG
+formatter=simpleFormatter
+args=("/dev/log", handlers.SysLogHandler.LOG_LOCAL3)
+
+```

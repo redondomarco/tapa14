@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # db.define_table(
 #   'imagen',
 #   Field('titulo', unique=True, length=255),

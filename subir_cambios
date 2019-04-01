@@ -53,3 +53,8 @@ fi
 #git commit -m 'consulta actividad correo'
 #git push
 #git push mr
+
+FECHA=`date +%F`
+TARFILE=/home/marco/tapa14-$FECHA.tar.gz
+tar -zcf $TARFILE /home/marco/web2py
+scp $TARFILE root@propastas.com.ar:/root/dev/

@@ -4,6 +4,8 @@
 # this file is released under public domain and you can use without limitations
 # -------------------------------------------------------------------------
 import subprocess
+import csv
+import shutil
 from gluon.tools import Expose
 # for ide
 if False:
@@ -13,7 +15,8 @@ if False:
     session = current.session
     cache = current.cache
     T = current.T
-    from db import *
+#    from db import *
+#    from util import *
 
 
 @auth.requires_membership('vendedor')
@@ -892,7 +895,7 @@ def archivo():
               '/files')
 
     subprocess.run(["mkdir", "-p", expose])
-    return dict(files=Expose(expose, extensions=['.csv', '.pdf']))
+    return dict(files=Expose(expose, extensions=['.csv', '.pdf', '.txt']))
 
 
 def mensajes():
@@ -929,7 +932,7 @@ def api_get_user_email():
 # ---- Embedded wiki (example) ----
 # def wiki():
 #    auth.wikimenu() # add the wiki to the menu
-#    return auth.wiki() 
+#    return auth.wiki()
 
 
 def subir_datos_afip_paso1():
@@ -937,21 +940,52 @@ def subir_datos_afip_paso1():
     form = FORM(
         H1('Ingrese archivos cabecera zip afip'),
         TABLE(
-        TR(INPUT(_name='cabecera', _type='file', requires=IS_LENGTH(1048576, 8))),
-        TR(INPUT(_name='detalle', _type='file', requires=IS_LENGTH(1048576, 8))),
-        TR(INPUT(_name='ventas', _type='file', requires=IS_LENGTH(1048576, 8))),
-        TR(INPUT(_name='alicuotas', _type='file', requires=IS_LENGTH(1048576, 8))),
-        INPUT(_type="submit", _class="btn btn-primary btn-medium")))
+            TR(INPUT(_name='archivo1', _type='file',
+                     requires=IS_LENGTH(1048576, 8))),
+            TR(INPUT(_name='archivo2', _type='file',
+                     requires=IS_LENGTH(1048576, 8))),
+            TR(INPUT(_name='archivo3', _type='file',
+                     requires=IS_LENGTH(1048576, 8))),
+            TR(INPUT(_name='archivo4', _type='file',
+                     requires=IS_LENGTH(1048576, 8))),
+            INPUT(_type="submit",
+                  _class="btn btn-primary btn-medium")))
     paso1 = CENTER(TABLE(
         form))
     if form.accepts(request, session):
-        tablacsv =  csv.reader(request.vars.csvfile.file.read().splitlines())
-        for line in tablacsv:
-            session.paso1.append(line)
-        log('cargado: '+str(session.paso1))
-        redirect(URL('carga_lista_dni_paso2'))
+        archivos = [
+            request.vars.archivo1,
+            request.vars.archivo2,
+            request.vars.archivo3,
+            request.vars.archivo4,
+        ]
+        archivos_subidos = []
+
+        path = ('applications/' + str(configuration.get('app.name')) +
+                '/files/upload/' + hoy_string() + '/')
+        subprocess.run(["mkdir", "-p", path])
+        fecha_h = idtemp_generator(4)
+        for archivo in archivos:
+            nombre = archivo.filename
+            contenido = archivo.file
+            filename = fecha_h + '_' + nombre
+            filepath = path + filename
+            shutil.copyfileobj(contenido, open(filepath, 'wb'))
+            archivos_subidos.append(filename)
+        log('subidos en' + path + ' : ' + str(archivos_subidos))
+
+        #new_days = open(new_path,'w')
+        #archivo1 = csv.reader(request.vars.archivo1.file.read().splitlines())
+        #archivo2 = csv.reader(request.vars.archivo2.file.read().splitlines())
+        #archivo3 = csv.reader(request.vars.archivo3.file.read().splitlines())
+        #archivo4 = csv.reader(request.vars.archivo4.file.read().splitlines())
+        #log(len(archivo[1]), archivo[2], archivo[3], archivo[4])
+        #for line in tablacsv:
+        #    session.paso1.append(line)
+        #log('cargado: ' + str(session.paso1))
+        #redirect(URL('subir_datos_paso_2'))
     else:
-        log('acceso '+str(request.function))
+        log('acceso ' + str(request.function))
     return dict(form=paso1)
 
 

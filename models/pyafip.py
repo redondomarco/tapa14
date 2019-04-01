@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # import datetime
 
 # importar componentes del módulo PyAfipWs
