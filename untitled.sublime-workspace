@@ -11,7 +11,7 @@
 			"file": "controllers/default.py",
 			"settings":
 			{
-				"buffer_size": 42607,
+				"buffer_size": 43658,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -115,26 +115,37 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 42607,
+						"buffer_size": 43658,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								518,
-								518
+								42184,
+								42184
 							]
 						],
 						"settings":
 						{
+							"auto_complete_triggers":
+							[
+								{
+									"characters": ".",
+									"selector": "source.python - string - comment - constant.numeric"
+								},
+								{
+									"characters": ".",
+									"selector": "source.python - string - constant.numeric"
+								}
+							],
 							"git_gutter_is_enabled": true,
 							"syntax": "Packages/Python/Python.sublime-syntax",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 15731.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,

@@ -42,7 +42,7 @@ codigos_operacion = {
     "E": "Operaciones Exentas",
 }
 
-CAB_FAC_TIPO1 = [
+CAB_FAC_TIPO1 = [ # 
     ('tipo_reg', 1, tipodato['N']),
     ('fecha_cbte', 8, tipodato['N']),
     ('tipo_cbte', 2, tipodato['N']),
@@ -199,7 +199,7 @@ REGINFO_CV_VENTAS_CBTE = [
     ('impto_perc_mun', 15, tipodato['I']),
     ('imp_internos', 15, tipodato['I']),
     ('moneda_id', 3, tipodato['A']),
-    ('moneda_ctz', 10, I, 6),
+    ('moneda_ctz', 10, tipodato['I'], 6),
     ('cant_alicuota_iva', 1, tipodato['N']),
     ('codigo_operacion', 1, tipodato['C']),
     ('imp_trib', 15, tipodato['I']),

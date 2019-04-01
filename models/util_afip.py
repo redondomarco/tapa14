@@ -23,15 +23,15 @@ def leer(linea, formato, expandir_fechas=False):
         dec = (len(fmt) > 3 and isinstance(fmt[3], int)) and fmt[3] or 2
         valor = linea[comienzo - 1:comienzo - 1 + longitud].strip()
         try:
-            log('debug: '+valor)
+            #log('debug: '+ str(fmt[0]) + ':' + valor)
             if chr(8) in valor or chr(127) in valor or chr(255) in valor:
                 valor = None        # nulo
-            elif tipo == N:
+            elif tipo == tipodato['N']:
                 if valor:
                     valor = int(valor)
                 else:
                     valor = 0
-            elif tipo == I:
+            elif tipo == tipodato['I']:
                 if valor:
                     try:
                         if '.' in valor:
@@ -56,7 +56,8 @@ def leer(linea, formato, expandir_fechas=False):
                 else:
                     valor = None
             else:
-                valor = valor.decode("ascii", "ignore")
+                # valor = valor.decode("ascii", "ignore")
+                log('debug-' + valor + '-')
             if not valor and clave in dic and len(linea) <= comienzo:
                 pass    # ignorar - compatibilidad hacia atrás (cambios tamaño)
             else:

@@ -73,7 +73,7 @@ keys=consoleHandler,messageBoxHandler,rotatingFileHandler
 class=handlers.RotatingFileHandler
 level=DEBUG
 formatter=simpleFormatter
-args=("logs/web2py.log", "a", 1000000, 5)
+args=("logs/web2py.log", "a", 1000000, 5, 'utf-8')
 
 ```
 
@@ -86,6 +86,6 @@ keys=consoleHandler,messageBoxHandler,rotatingFileHandler,linuxSysLogHandler
 class=handlers.SysLogHandler
 level=DEBUG
 formatter=simpleFormatter
-args=("/dev/log", handlers.SysLogHandler.LOG_LOCAL3)
+args=("/dev/log", handlers.SysLogHandler.LOG_LOCAL3, 'utf-8')
 
 ```
