@@ -54,7 +54,15 @@ fi
 #git push
 #git push mr
 
-FECHA=`date +%F`
-TARFILE=/home/marco/tapa14-$FECHA.tar.gz
-tar -zcf $TARFILE /home/marco/web2py
-scp $TARFILE root@propastas.com.ar:/root/dev/
+read -p "Subir en github?(y/n)?" CONT
+if [ "$CONT" = "y" ]; then
+  FECHA=`date +%F`
+  TARFILE=/home/marco/tapa14-$FECHA.tar.gz
+  echo "comprimo $TARFILE .."
+  tar -zcf $TARFILE /home/marco/web2py
+  echo "envio.."
+  rsync -avz $TARFILE bkp@propastas.com.ar:/root/dev/ --progress
+else
+  echo "salgo"
+  exit 1;
+fi

@@ -972,7 +972,7 @@ def subir_datos_afip_paso1():
             filepath = path + filename
             shutil.copyfileobj(contenido, open(filepath, 'wb'))
             archivos_subidos.append(filename)
-        log('subidos en' + path + ' : ' + str(archivos_subidos))
+        log('subidos en ' + path + ' : ' + str(archivos_subidos))
 
         #new_days = open(new_path,'w')
         #archivo1 = csv.reader(request.vars.archivo1.file.read().splitlines())
