@@ -57,7 +57,8 @@ def leer(linea, formato, expandir_fechas=False):
                     valor = None
             else:
                 # valor = valor.decode("ascii", "ignore")
-                log('debug-' + valor + '-')
+                # log('debug-' + valor + '-')
+                pass
             if not valor and clave in dic and len(linea) <= comienzo:
                 pass    # ignorar - compatibilidad hacia atrás (cambios tamaño)
             else:

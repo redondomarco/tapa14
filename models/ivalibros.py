@@ -24,20 +24,27 @@ def proceso_archivos(VENTAS, ALICUOTAS,
                      CABECERA, DETALLE):
     ops = {}
     for linea in open(CABECERA, 'r', encoding='latin1'):
-        log(len(linea))
-        reg = leer(linea, CAB_FAC_TIPO1)
-        key = (reg["tipo_cbte"], reg["punto_vta"], reg["cbt_numero"])
-        if key != (0, 0, 0):
+        if len(linea) == 291:
+            reg = leer(linea, CAB_FAC_TIPO1)
+            key = (reg["tipo_cbte"], reg["punto_vta"], reg["cbt_numero"])
             ops[key] = reg
-            # log(key)
+        else:
+            mensaje = "Error en longitud de la linea %s , %s" % (
+                linea, len(linea))
+            log(mensaje)
     # alicuotas
     for linea in open(ALICUOTAS, 'r', encoding='latin1'):
-        iva = leer(linea, REGINFO_CV_VENTAS_CBTE_ALICUOTA)
-        key = (iva["tipo_cbte"], iva["punto_vta"], iva["cbt_numero"])
-        reg = ops[key]
-        reg["imp_neto"] = reg.get("imp_neto", 0.00) + iva["base_imp"]
-        reg["imp_iva"] = reg.get("imp_iva", 0.00) + iva["importe"]
-        reg.setdefault("iva", []).append(iva)
+        if len(linea) == 63:
+            iva = leer(linea, REGINFO_CV_VENTAS_CBTE_ALICUOTA)
+            key = (iva["tipo_cbte"], iva["punto_vta"], iva["cbt_numero"])
+            reg = ops[key]
+            reg["imp_neto"] = reg.get("imp_neto", 0.00) + iva["base_imp"]
+            reg["imp_iva"] = reg.get("imp_iva", 0.00) + iva["importe"]
+            reg.setdefault("iva", []).append(iva)
+        else:
+            mensaje = "Error en longitud de la linea %s , %s" % (
+                linea, len(linea))
+            log(mensaje)
     # ventas
     #for linea in open(VENTAS, 'r', encoding='latin1'):
     #    iva = leer(linea, REGINFO_CV_VENTAS_CBTE_ALICUOTA)
@@ -61,3 +68,15 @@ def test_proceso_archivos():
                             path + 'CABECERA.txt',
                             path + 'DETALLE.txt',
                             )
+
+
+def test_proceso_individual(archivo):
+    path = ('applications/' + str(configuration.get('app.name')) +
+            '/files/')
+    filepath = path + archivo
+    ops = {}
+    for linea in open(filepath, 'r', encoding='latin1'):
+        lectura = leer(linea, VENTAS_TIPO1)
+        key = (reg["tipo_cbte"], reg["punto_vta"], reg["cbt_numero"])
+        ops[key] = reg
+    return ops
