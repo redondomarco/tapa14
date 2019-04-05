@@ -206,6 +206,31 @@ REGINFO_CV_VENTAS_CBTE = [
     ('fecha_venc_pago', 8, tipodato['A']),
 ]
 
+REGINFO_CV_VENTAS_CBTE_NUEVO = [
+    ('fecha_cbte', 8, tipodato['N']),  # 8
+    ('tipo_cbte', 3, tipodato['N']),  # 11
+    ('punto_vta', 5, tipodato['N']),  # 16
+    ('cbt_desde', 20, tipodato['N']),  # 36
+    ('cbt_hasta', 20, tipodato['N']),  # 56
+    ('tipo_doc', 2, tipodato['N']),  # 58
+    ('nro_doc', 20, tipodato['N']),  # 78
+    ('nombre', 30, tipodato['A']),  # 108
+    ('imp_total', 15, tipodato['I']),  # 123
+    ('imp_tot_conc', 15, tipodato['I']),  # 138
+    ('impto_liq_rni', 15, tipodato['I']),  # 153
+    ('imp_op_ex', 15, tipodato['I']),  # 168
+    ('impto_perc', 15, tipodato['I']),  # 183
+    ('imp_iibb', 15, tipodato['I']),  # 198
+    ('impto_perc_mun', 15, tipodato['I']),  # 213
+    ('imp_internos', 15, tipodato['I']),  # 228
+    ('moneda_id', 3, tipodato['A']),  # 231
+    ('moneda_ctz', 10, tipodato['I'], 6),  # 241
+    ('cant_alicuota_iva', 1, tipodato['N']),  # 242
+    ('codigo_operacion', 1, tipodato['C']),  # 243
+    ('imp_trib', 15, tipodato['I']),  # 258
+    ('fecha_venc_pago', 8, tipodato['A']), #266
+]
+
 # Diseño de registro de Importación de Alícuotas de comprobantes de Ventas
 
 REGINFO_CV_VENTAS_CBTE_ALICUOTA = [

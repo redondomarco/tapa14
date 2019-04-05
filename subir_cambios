@@ -54,14 +54,14 @@ fi
 #git push
 #git push mr
 
-read -p "Subir en github?(y/n)?" CONT
+read -p "Subir bkp en propastas? (y/n)?" CONT
 if [ "$CONT" = "y" ]; then
   FECHA=`date +%F`
   TARFILE=/home/marco/tapa14-$FECHA.tar.gz
   echo "comprimo $TARFILE .."
   tar -zcf $TARFILE /home/marco/web2py
   echo "envio.."
-  rsync -avz $TARFILE bkp@propastas.com.ar:/root/dev/ --progress
+  rsync -avz $TARFILE bkp@propastas.com.ar: --progress
 else
   echo "salgo"
   exit 1;

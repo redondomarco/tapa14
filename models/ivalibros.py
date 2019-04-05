@@ -38,8 +38,10 @@ def proceso_archivos(VENTAS, ALICUOTAS,
             iva = leer(linea, REGINFO_CV_VENTAS_CBTE_ALICUOTA)
             key = (iva["tipo_cbte"], iva["punto_vta"], iva["cbt_numero"])
             reg = ops[key]
-            reg["imp_neto"] = reg.get("imp_neto", 0.00) + iva["base_imp"]
-            reg["imp_iva"] = reg.get("imp_iva", 0.00) + iva["importe"]
+            # suma imp neto cargado en cabecera + base imponible de alicuota???
+            # reg["imp_neto"] = reg.get("imp_neto", 0.00) + iva["base_imp"]
+            
+            # reg["imp_iva"] = reg.get("imp_iva", 0.00) + iva["importe"]
             reg.setdefault("iva", []).append(iva)
         else:
             mensaje = "Error en longitud de la linea %s , %s" % (
@@ -76,7 +78,7 @@ def test_proceso_individual(archivo):
     filepath = path + archivo
     ops = {}
     for linea in open(filepath, 'r', encoding='latin1'):
-        lectura = leer(linea, VENTAS_TIPO1)
+        lectura = leer(linea, REGINFO_CV_VENTAS_CBTE_NUEVO)
         key = (reg["tipo_cbte"], reg["punto_vta"], reg["cbt_numero"])
         ops[key] = reg
     return ops
