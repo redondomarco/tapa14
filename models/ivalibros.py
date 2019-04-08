@@ -20,46 +20,91 @@ if False:
 # "Imp. Neto No Gravado","Imp. Op. Exentas","IVA","Imp. Total"
 
 
-def proceso_archivos(VENTAS, ALICUOTAS,
-                     CABECERA, DETALLE):
-    ops = {}
-    for linea in open(CABECERA, 'r', encoding='latin1'):
-        if len(linea) == 291:
-            reg = leer(linea, CAB_FAC_TIPO1)
-            key = (reg["tipo_cbte"], reg["punto_vta"], reg["cbt_numero"])
-            ops[key] = reg
-        else:
-            mensaje = "Error en longitud de la linea %s , %s" % (
-                linea, len(linea))
-            log(mensaje)
-    # alicuotas
-    for linea in open(ALICUOTAS, 'r', encoding='latin1'):
-        if len(linea) == 63:
-            iva = leer(linea, REGINFO_CV_VENTAS_CBTE_ALICUOTA)
-            key = (iva["tipo_cbte"], iva["punto_vta"], iva["cbt_numero"])
-            reg = ops[key]
-            # suma imp neto cargado en cabecera + base imponible de alicuota???
-            # reg["imp_neto"] = reg.get("imp_neto", 0.00) + iva["base_imp"]
-            
-            # reg["imp_iva"] = reg.get("imp_iva", 0.00) + iva["importe"]
-            reg.setdefault("iva", []).append(iva)
-        else:
-            mensaje = "Error en longitud de la linea %s , %s" % (
-                linea, len(linea))
-            log(mensaje)
-    # ventas
-    #for linea in open(VENTAS, 'r', encoding='latin1'):
-    #    iva = leer(linea, REGINFO_CV_VENTAS_CBTE_ALICUOTA)
-    #    key = (iva["tipo_cbte"], iva["punto_vta"], iva["cbt_numero"])
-    #    reg = ops[key]
-    #    reg["imp_neto"] = reg.get("imp_neto", 0.00) + iva["base_imp"]
-    #    reg["imp_iva"] = reg.get("imp_iva", 0.00) + iva["importe"]
-    #    reg.setdefault("iva", []).append(iva)
-    # detalle
+def proceso_REGISTRO(ARCHIVO, tipo):
+    tiporeg = TIPOS_REGISTROS[tipo][0]
+    cantreg = TIPOS_REGISTROS[tipo][1]
+    procesado = {}
+    try:
+        for linea in open(ARCHIVO, 'r', encoding='latin1'):
+            if len(linea) == cantreg:
+                reg = leer(linea, tiporeg)
+                key = (reg["tipo_cbte"], reg["punto_vta"], reg["cbt_numero"])
+                procesado[key] = reg
+            else:
+                mensaje = "Error en longitud de la linea %s , %s" % (
+                    linea, len(linea))
+                log(mensaje)
+        return ['ok', procesado]
+    except Exception as e:
+        mensaje = 'Error: ' + str(e)
+        log(mensaje)
+        return ['error', mensaje]
 
-#    facts = sorted(ops.values(), key=lambda f: (
-#        f["tipo_cbte"], f["punto_vta"], f["cbt_numero"])) 
-    return ops
+def test_proceso_REGISTRO():
+    path = ('applications/' + str(configuration.get('app.name')) +
+            '/files/')
+    cabecera=proceso_REGISTRO(path + 'CABECERA.txt', 'CABECERA')
+    return cabecera
+
+def proceso_CAB_FAC_TIPO1(CABECERA):
+    cabecera = {}
+    try:
+        for linea in open(CABECERA, 'r', encoding='latin1'):
+            if len(linea) == 291:
+                reg = leer(linea, CAB_FAC_TIPO1)
+                key = (reg["tipo_cbte"], reg["punto_vta"], reg["cbt_numero"])
+                cabecera[key] = reg
+            else:
+                mensaje = "Error en longitud de la linea %s , %s" % (
+                    linea, len(linea))
+                log(mensaje)
+        return ['ok', cabecera]
+    except Exception as e:
+        mensaje = 'Error: ' + str(e)
+        log(mensaje)
+        return ['error', mensaje]
+
+
+def proceso_REGINFO_CV_VENTAS_CBTE_ALICUOTA(ALICUOTAS):
+    alicuotas = {}
+    try:
+        for linea in open(ALICUOTAS, 'r', encoding='latin1'):
+            if len(linea) == 63:
+                reg = leer(linea, REGINFO_CV_VENTAS_CBTE_ALICUOTA)
+                key = (iva["tipo_cbte"], iva["punto_vta"], iva["cbt_numero"])
+                alicuotas[key] = reg
+            else:
+                mensaje = "Error en longitud de la linea %s , %s" % (
+                    linea, len(linea))
+                log(mensaje)
+        return['ok', alicuotas]
+    except Exception as e:
+        mensaje = 'Error: ' + str(e)
+        log(mensaje)
+        return ['error', mensaje]
+
+
+def proceso_REGINFO_CV_VENTAS_CBTE_NUEVO(VENTAS):
+    ventas = {}
+    try:
+        for linea in open(VENTAS, 'r', encoding='latin1'):
+            if len(linea) == 266:
+                reg = leer(linea, REGINFO_CV_VENTAS_CBTE_NUEVO)
+                key = (iva["tipo_cbte"], iva["punto_vta"], iva["cbt_numero"])
+                ventas[key] = reg
+            else:
+                mensaje = "Error en longitud de la linea %s , %s" % (
+                    linea, len(linea))
+                log(mensaje)
+        return['ok', ventas]
+    except Exception as e:
+        mensaje = 'Error: ' + str(e)
+        log(mensaje)
+        return ['error', mensaje]
+
+
+
+
 
 
 def test_proceso_archivos():

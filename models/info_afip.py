@@ -18,6 +18,13 @@ tipodato = {
     'B': 'Alfanumerico',
 }
 
+TIPOS_REGISTROS = {
+    'ALICUOTAS': ['REGINFO_CV_VENTAS_CBTE_ALICUOTA', 63],
+    'VENTAS': ['REGINFO_CV_VENTAS_CBTE_NUEVO', 267],
+    'CABECERA': ['CAB_FAC_TIPO1', 291],
+    'DETALLE': ['DETALLE_TIPO1', 189],
+}
+
 # de sired.py de https://github.com/reingart/pyafipws
 # Diseño de registro de Importación de comprobantes de Ventas
 
@@ -122,6 +129,7 @@ DETALLE = [
     ('ds', 150, tipodato['A']),
 ]
 
+
 VENTAS_TIPO1 = [
     ('tipo_reg', 1, tipodato['N']),
     ('fecha_cbte', 8, tipodato['N']),
@@ -224,11 +232,11 @@ REGINFO_CV_VENTAS_CBTE_NUEVO = [
     ('impto_perc_mun', 15, tipodato['I']),  # 213
     ('imp_internos', 15, tipodato['I']),  # 228
     ('moneda_id', 3, tipodato['A']),  # 231
-    ('moneda_ctz', 10, tipodato['I'], 6),  # 241
+    ('moneda_ctz', 10, tipodato['I']),  # 241
     ('cant_alicuota_iva', 1, tipodato['N']),  # 242
     ('codigo_operacion', 1, tipodato['C']),  # 243
     ('imp_trib', 15, tipodato['I']),  # 258
-    ('fecha_venc_pago', 8, tipodato['A']), #266
+    ('fecha_venc_pago', 8, tipodato['A'])  # 266
 ]
 
 # Diseño de registro de Importación de Alícuotas de comprobantes de Ventas
@@ -240,4 +248,26 @@ REGINFO_CV_VENTAS_CBTE_ALICUOTA = [
     ('base_imp', 15, tipodato['I']),
     ('iva_id', 4, tipodato['N']),
     ('importe', 15, tipodato['I']),
+]
+
+# Detalle -provisorio-
+
+DETALLE_TIPO1 = [
+    ('tipo_cbte', 2, tipodato['N']),  # 2
+    ('ctl_fiscal', 1, tipodato['C']),  # 3
+    ('fecha_cbte', 8, tipodato['N']),  # 11
+    ('punto_vta', 4, tipodato['N']),  # 15
+    ('cbt_numero', 8, tipodato['N']),  # 23
+    ('cbte_nro_reg', 8, tipodato['N']),  # 31
+    ('cantidad', 7, tipodato['N']),  # 38
+    ('xxx1', 5, tipodato['N']),  # 43
+    ('pro_umed', 2, tipodato['N']),  # 45
+    ('pro_precio_uni', 15, tipodato['I']),  # 60
+    ('imp_bonif', 15, tipodato['I']),  # 75
+    ('imp_ajuste', 15, tipodato['I']),  # 90
+    ('imp_total', 18, tipodato['I']),  # 108
+    ('alicuota_iva', 4, tipodato['I']),  # 112
+    ('gravado', 1, tipodato['C']),  # 113 -G-
+    ('anulacion', 1, tipodato['C']),  # 114
+    ('cyd', 75, tipodato['A']),  # 189
 ]
