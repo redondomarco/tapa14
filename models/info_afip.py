@@ -22,7 +22,7 @@ TIPOS_REGISTROS = {
     'ALICUOTAS': ['REGINFO_CV_VENTAS_CBTE_ALICUOTA', 63],
     'VENTAS': ['REGINFO_CV_VENTAS_CBTE_NUEVO', 267],
     'CABECERA': ['CAB_FAC_TIPO1', 291],
-    'DETALLE': ['DETALLE_TIPO1', 189],
+    'DETALLE': ['DETALLE_TIPO1', 190],
 }
 
 # de sired.py de https://github.com/reingart/pyafipws
@@ -218,8 +218,8 @@ REGINFO_CV_VENTAS_CBTE_NUEVO = [
     ('fecha_cbte', 8, tipodato['N']),  # 8
     ('tipo_cbte', 3, tipodato['N']),  # 11
     ('punto_vta', 5, tipodato['N']),  # 16
-    ('cbt_desde', 20, tipodato['N']),  # 36
-    ('cbt_hasta', 20, tipodato['N']),  # 56
+    ('cbt_numero', 20, tipodato['N']),  # 36
+    ('cbte_nro_reg', 20, tipodato['N']),  # 56
     ('tipo_doc', 2, tipodato['N']),  # 58
     ('nro_doc', 20, tipodato['N']),  # 78
     ('nombre', 30, tipodato['A']),  # 108
