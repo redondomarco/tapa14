@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from decimal import Decimal
 
 # for ide
 if False:
@@ -23,7 +23,7 @@ def leer(linea, formato, expandir_fechas=False):
         dec = (len(fmt) > 3 and isinstance(fmt[3], int)) and fmt[3] or 2
         valor = linea[comienzo - 1:comienzo - 1 + longitud].strip()
         try:
-            #log('debug: '+ str(fmt[0]) + ':' + valor)
+            # log('debug: '+ str(fmt[0]) + ':' + valor)
             if chr(8) in valor or chr(127) in valor or chr(255) in valor:
                 valor = None        # nulo
             elif tipo == tipodato['N']:
@@ -31,6 +31,8 @@ def leer(linea, formato, expandir_fechas=False):
                     valor = int(valor)
                 else:
                     valor = 0
+                if clave.lower().startswith("fec"):
+                    valor = datetime.datetime.strptime(str(valor), '%Y%m%d')
             elif tipo == tipodato['I']:
                 if valor:
                     try:
@@ -43,16 +45,24 @@ def leer(linea, formato, expandir_fechas=False):
                                 valor = valor[1:]
                             else:
                                 sign = +1
-                            valor = sign * float(("%%s.%%0%sd" % dec) % (int(valor[:-dec] or '0'), int(valor[-dec:] or '0')))
+                            valor = sign * float(
+                                ("%%s.%%0%sd" % dec) % (
+                                    int(valor[:-dec] or
+                                        '0'), int(valor[-dec:] or '0')))
+                            valor = Decimal(valor)
                     except ValueError:
-                        raise ValueError("Campo invalido: %s = '%s'" % (clave, valor))
+                        raise ValueError("Campo invalido: %s = '%s'" % (
+                            clave, valor))
                 else:
-                    valor = 0.00
-            elif (expandir_fechas and
-                  clave.lower().startswith("fec") and
-                  longitud <= 8):
+                    valor = Decimal(0.00)
+            elif (clave.lower().startswith("fec") and longitud <= 8):
                 if valor:
-                    valor = "%s-%s-%s" % (valor[0:4], valor[4:6], valor[6:8])
+                    if valor == '00000000':
+                        valor = None
+                    else:
+                        log('aaa')
+                        valor = datetime.datetime.strptime(str(valor), '%Y%m%d')
+                    # valor = "%s-%s-%s" % (valor[0:4], valor[4:6], valor[6:8])
                 else:
                     valor = None
             else:

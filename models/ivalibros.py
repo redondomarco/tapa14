@@ -38,6 +38,8 @@ def registros_id(tuple):
 
 formato_decimal = 'decimal(25,2)'
 
+
+# corresponde a ALICUOTAS: REGINFO_CV_VENTAS_CBTE_ALICUOTA, 63
 db.define_table(
     'cbte_alicuotas',
     Field('comprobante', 'string', unique=True),
@@ -52,6 +54,7 @@ db.define_table(
     format='%(comprobante)s'
 )
 
+# corresponde VENTAS: REGINFO_CV_VENTAS_CBTE_NUEVO, 267
 db.define_table(
     'cbte_ventas',
     Field('comprobante', 'string', unique=True),
@@ -82,9 +85,10 @@ db.define_table(
     format='%(comprobante)s'
 )
 
+# corresponde CABECERA: CAB_FAC_TIPO1, 291
 db.define_table(
     'cbte_cabecera',
-    Field('comprobante', 'string', unique=True),
+    Field('comprobante', 'string'),
     Field('tipo_reg', 'integer'),
     Field('fecha_cbte', 'datetime'),
     Field('tipo_cbte', 'integer'),
@@ -94,7 +98,7 @@ db.define_table(
     Field('cbte_nro_reg', 'integer'),
     Field('cant_hojas', 'integer'),
     Field('tipo_doc', 'integer'),
-    Field('nro_doc', 'string'),
+    Field('nro_doc', 'integer'),
     Field('nombre', 'string'),
     Field('imp_total', formato_decimal),
     Field('imp_tot_conc', formato_decimal),
@@ -102,23 +106,25 @@ db.define_table(
     Field('impto_liq', formato_decimal),
     Field('impto_liq_rni', formato_decimal),
     Field('imp_op_ex', formato_decimal),
-    Field('impto_percField', formato_decimal),
+    Field('impto_perc', formato_decimal),
     Field('imp_iibb', formato_decimal),
     Field('impto_perc_mun', formato_decimal),
     Field('imp_internos', formato_decimal),
     Field('transporte', formato_decimal),
     Field('categoria', 'integer'),
-    Field('imp_moneda_id', 'integer'),
+    Field('imp_moneda_id', 'string'),
     Field('imp_moneda_ctz', formato_decimal),
     Field('alicuotas_iva', 'integer'),
     Field('codigo_operacion', 'string'),
-    Field('cae', 'string'),
+    Field('cae', 'integer'),
     Field('fecha_vto', 'datetime'),
     Field('fecha_anulacion', 'datetime'),
     Field('fecha_carga', 'datetime'),
     Field('fecha_mod', 'datetime'),
 )
 
+
+# corresponde DETALLE: DETALLE_TIPO1, 190
 db.define_table(
     'cbte_detalle',
     Field('comprobante', 'string', unique=True),
@@ -143,6 +149,34 @@ db.define_table(
     Field('fecha_mod', 'datetime'),
     format='%(comprobante)s'
 )
+
+
+def ingreso_cbtes(tipo, cbtes_dict):
+    # tipos alicuotas, ventas, cabecera, detalle
+    if type(cbtes_dict) != dict:
+        return ['error', '']
+    if tipo == 'alicuotas':
+        for i in cbtes_dict.keys():
+            pass
+
+
+def test_ingreso_cabecera():
+    t_procesos = test_proceso_REGISTRO()
+    # registro: 0 cabecera, 1 ventas, 2 alicuotas, 3 detalle
+    registro = (0, 'cabecera')
+    registro = (1, 'ventas')
+    registro = (2, 'alicuotas')
+    registro = (3, 'detalle')
+    k_procesos = t_procesos[registro][1].keys()
+    for key in k_procesos:
+        t_procesos[registro][1][key]['comprobante'] = str(key)
+        t_procesos[registro][1][key]['fecha_carga'] = datetime.datetime.now()
+        t_procesos[registro][1][key]['fecha_mod'] = datetime.datetime.now()
+        db['cbte_cabecera'].insert(**t_procesos[0][1][key])
+    # a[0][1][(1, 4, 3892)]['fecha_carga'] = datetime.datetime.now()
+    # a[0][1][(1, 4, 3892)][''] = datetime.datetime.now()
+    # db['cbte_cabecera'].insert(**a[0][1][(1, 4, 3892)]) 
+    db.commit()
 
 
 def proceso_REGISTRO(ARCHIVO, tipo):
