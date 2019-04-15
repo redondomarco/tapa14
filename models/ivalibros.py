@@ -84,8 +84,8 @@ db.define_table(
     Field('fecha_mod', 'datetime'),
     format='%(comprobante)s'
 )
-
 # corresponde CABECERA: CAB_FAC_TIPO1, 291
+
 db.define_table(
     'cbte_cabecera',
     Field('comprobante', 'string'),
@@ -167,15 +167,24 @@ def test_ingreso_cabecera():
     registro = (1, 'ventas')
     registro = (2, 'alicuotas')
     registro = (3, 'detalle')
-    k_procesos = t_procesos[registro][1].keys()
+    k_procesos = t_procesos[registro[0]][1].keys()
     for key in k_procesos:
-        t_procesos[registro][1][key]['comprobante'] = str(key)
-        t_procesos[registro][1][key]['fecha_carga'] = datetime.datetime.now()
-        t_procesos[registro][1][key]['fecha_mod'] = datetime.datetime.now()
-        db['cbte_cabecera'].insert(**t_procesos[0][1][key])
+        hoy = datetime.datetime.now()
+        if db(db.cbte_cabecera.comprobante == str(key)).select().first():
+            # ya existe lo actualizo
+            t_procesos[registro[0]][1][key]['fecha_mod'] = hoy
+            log(str(t_procesos[registro[0]][1][key]['fecha_mod']))
+            log('actualizo ' + str(key))
+            a = db(db['cbte_' + registro[1]].comprobante == str(key)).update(**t_procesos[0][1][key])
+            log(a)
+        else:
+            t_procesos[registro][1][key]['comprobante'] = str(key)
+            t_procesos[registro][1][key]['fecha_carga'] = hoy
+            t_procesos[registro][1][key]['fecha_mod'] = hoy
+            db['cbte_cabecera'].insert(**t_procesos[0][1][key])
     # a[0][1][(1, 4, 3892)]['fecha_carga'] = datetime.datetime.now()
     # a[0][1][(1, 4, 3892)][''] = datetime.datetime.now()
-    # db['cbte_cabecera'].insert(**a[0][1][(1, 4, 3892)]) 
+    # db['cbte_cabecera'].insert(**a[0][1][(1, 4, 3892)])
     db.commit()
 
 
