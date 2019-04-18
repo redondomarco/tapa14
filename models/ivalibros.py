@@ -163,20 +163,23 @@ def ingreso_cbtes(tipo, cbtes_dict):
 def test_ingreso_cabecera():
     t_procesos = test_proceso_REGISTRO()
     # registro: 0 cabecera, 1 ventas, 2 alicuotas, 3 detalle
-    registro = (0, 'cabecera')
-    registro = (1, 'ventas')
-    registro = (2, 'alicuotas')
-    registro = (3, 'detalle')
-    k_procesos = t_procesos[registro[0]][1].keys()
+    registro = {0: 'cabecera',
+                1: 'ventas',
+                2: 'alicuotas',
+                3: 'detalle'
+                }
+    actual = 0
+    k_procesos = t_procesos[actual][1].keys()
     for key in k_procesos:
         hoy = datetime.datetime.now()
         if db(db.cbte_cabecera.comprobante == str(key)).select().first():
             # ya existe lo actualizo
-            t_procesos[registro[0]][1][key]['fecha_mod'] = hoy
-            log(str(t_procesos[registro[0]][1][key]['fecha_mod']))
+            t_procesos[actual][1][key]['fecha_mod'] = hoy
+            log(str(t_procesos[actual][1][key]['fecha_mod']))
             log('actualizo ' + str(key))
-            a = db(db['cbte_' + registro[1]].comprobante == str(key)).update(**t_procesos[0][1][key])
-            log(a)
+            a = db(db['cbte_' + registro[actual]].comprobante == str(key)).update(**t_procesos[actual][1][key])
+            #log(a)
+            #return t_procesos[0][1][key]
         else:
             t_procesos[registro][1][key]['comprobante'] = str(key)
             t_procesos[registro][1][key]['fecha_carga'] = hoy
