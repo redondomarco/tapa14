@@ -82,3 +82,24 @@ def hoy_string():
            str(datetime.datetime.now().month) + '-' +
            str(datetime.datetime.now().day))
     return dia
+
+
+def dict_to_table(diccionario, orden=[]):
+    '''recibe un diccionario y devuelve una tabla html 2xn'''
+    if type(diccionario) == dict:
+        claves = diccionario.keys()
+        aux_filas = []
+        for i in reversed(orden):
+            try:
+                claves.insert(0, claves.pop(claves.index(i)))
+            except Exception:
+                pass
+        for i in claves:
+            aux_filas.append(TR(TD(i), TD(diccionario[i])))
+        return TABLE(aux_filas, _id="tabla_informe")
+    elif type(diccionario) == str:
+        return diccionario
+    else:
+        # aux_filas=['error',str(diccionario)]
+        aux_filas = [TR(TD('bug!'), TD(str(diccionario)))]
+        return TABLE(aux_filas, _id="tabla_informe")

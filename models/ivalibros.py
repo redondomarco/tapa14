@@ -41,7 +41,7 @@ formato_decimal = 'decimal(25,2)'
 
 # corresponde a ALICUOTAS: REGINFO_CV_VENTAS_CBTE_ALICUOTA, 63
 db.define_table(
-    'cbte_alicuotas',
+    'cbte_ALICUOTAS',
     Field('comprobante', 'string', unique=True),
     Field('tipo_cbte', 'integer'),
     Field('punto_vta', 'integer'),
@@ -56,7 +56,7 @@ db.define_table(
 
 # corresponde VENTAS: REGINFO_CV_VENTAS_CBTE_NUEVO, 267
 db.define_table(
-    'cbte_ventas',
+    'cbte_VENTAS',
     Field('comprobante', 'string', unique=True),
     Field('fecha_cbte', 'datetime'),
     Field('tipo_cbte', 'integer'),
@@ -87,7 +87,7 @@ db.define_table(
 # corresponde CABECERA: CAB_FAC_TIPO1, 291
 
 db.define_table(
-    'cbte_cabecera',
+    'cbte_CABECERA',
     Field('comprobante', 'string'),
     Field('tipo_reg', 'integer'),
     Field('fecha_cbte', 'datetime'),
@@ -126,7 +126,7 @@ db.define_table(
 
 # corresponde DETALLE: DETALLE_TIPO1, 190
 db.define_table(
-    'cbte_detalle',
+    'cbte_DETALLE',
     Field('comprobante', 'string', unique=True),
     Field('tipo_cbte', 'integer'),
     Field('ctl_fiscal', 'string'),
@@ -160,13 +160,13 @@ def ingreso_cbtes(tipo, cbtes_dict):
             pass
 
 
-def test_ingreso_cabecera():
+def dev_ingreso_cabecera():
     t_procesos = test_proceso_REGISTRO()
     # registro: 0 cabecera, 1 ventas, 2 alicuotas, 3 detalle
-    registro = {0: 'cabecera',
-                1: 'ventas',
-                2: 'alicuotas',
-                3: 'detalle'
+    registro = {0: 'CABECERA',
+                1: 'VENTAS',
+                2: 'ALICUOTAS',
+                3: 'DETALLE'
                 }
     actual = 0
     k_procesos = t_procesos[actual][1].keys()
@@ -175,11 +175,12 @@ def test_ingreso_cabecera():
         if db(db.cbte_cabecera.comprobante == str(key)).select().first():
             # ya existe lo actualizo
             t_procesos[actual][1][key]['fecha_mod'] = hoy
-            log(str(t_procesos[actual][1][key]['fecha_mod']))
-            log('actualizo ' + str(key))
-            a = db(db['cbte_' + registro[actual]].comprobante == str(key)).update(**t_procesos[actual][1][key])
-            #log(a)
-            #return t_procesos[0][1][key]
+            # log(str(t_procesos[actual][1][key]['fecha_mod']))
+            # log('actualizo ' + str(key))
+            db(db['cbte_' + registro[actual]].comprobante == str(key)).update(
+                **t_procesos[actual][1][key])
+            # log(a)
+            # return t_procesos[0][1][key]
         else:
             t_procesos[registro][1][key]['comprobante'] = str(key)
             t_procesos[registro][1][key]['fecha_carga'] = hoy
@@ -191,9 +192,74 @@ def test_ingreso_cabecera():
     db.commit()
 
 
-def proceso_REGISTRO(ARCHIVO, tipo):
-    tiporeg = TIPOS_REGISTROS[tipo][0]
-    cantreg = TIPOS_REGISTROS[tipo][1]
+def subo_cbtes(ARCHIVO):
+    hoy = datetime.datetime.now()
+    # determino tipo
+    tipo = identifico_registro(ARCHIVO)
+    if tipo[0] == 'ok':
+        log('proceso archivo tipo: ' + str(tipo[1]))
+        nombre_cbte = 'cbte_' + str(tipo[1])
+        t_procesos = proceso_REGISTRO(ARCHIVO)
+        reg_updates = []
+        reg_inserts = []
+        if t_procesos[0] == 'ok':
+            k_procesos = t_procesos[1].keys()
+            for key in k_procesos:
+                selector='db.' + nombre_cbte + '.comprobante'
+                if db(eval(selector) == str(key)).select().first():
+                    t_procesos[1][key]['fecha_mod'] = hoy
+                    db(db[condicion].comprobante == str(key)).update(
+                        **t_procesos[actual][1][key])
+                    reg_updates.append(key)
+                else:
+                    t_procesos[1][key]['comprobante'] = str(key)
+                    t_procesos[1][key]['fecha_carga'] = hoy
+                    t_procesos[1][key]['fecha_mod'] = hoy
+                    db[nombre_cbte].insert(**t_procesos[1][key])
+                    reg_inserts.append(key)
+            db.commit()
+            mensaje = (str(len(reg_updates)) + ' registros actualizados: ' +
+                       str(len(reg_inserts)) + ' registros agregados')
+            log(mensaje)
+            return ['ok', mensaje]
+        else:
+            log('error t-procesos')
+            return t_procesos
+    else:
+        log('error tipo')
+        return tipo
+
+
+def test_subo_cbtes():
+    ARCHIVO = 'applications/tapa14/files/CABECERA.txt'
+    return subo_cbtes(ARCHIVO)
+
+
+def identifico_registro(ARCHIVO):
+    """segun longitud de la linea determino el tipo de archivo afip"""
+    try:
+        for linea in open(ARCHIVO, 'r', encoding='latin1'):
+            longitud = len(linea)
+            for tipo in TIPOS_REGISTROS.keys():
+                if TIPOS_REGISTROS[tipo][1] == longitud:
+                    return ['ok', tipo]
+            # si llego aca es que no correponde a ningun tipo conocido
+            return ['error', 'la longitud no corresponde a ningun tipo']
+    except Exception as e:
+        mensaje = ['error', str(e)]
+        log(mensaje)
+        return mensaje
+
+
+def proceso_REGISTRO(ARCHIVO):
+    """ proceso archivo de afip y lo convierto en un diccionario"""
+    tipo = identifico_registro(ARCHIVO)
+    if tipo[0] == 'ok':
+        log('proceso archivo tipo: ' + str(tipo[1]))
+        tiporeg = TIPOS_REGISTROS[tipo[1]][0]
+        cantreg = TIPOS_REGISTROS[tipo[1]][1]
+    else:
+        return tipo
     procesado = {}
     try:
         for linea in open(ARCHIVO, 'r', encoding='latin1'):
@@ -215,8 +281,8 @@ def proceso_REGISTRO(ARCHIVO, tipo):
 def test_proceso_REGISTRO():
     path = ('applications/' + str(configuration.get('app.name')) +
             '/files/')
-    cabecera = proceso_REGISTRO(path + 'CABECERA.txt', 'CABECERA')
-    ventas = proceso_REGISTRO(path + 'VENTAS.txt', 'VENTAS')
-    alicuotas = proceso_REGISTRO(path + 'ALICUOTAS.txt', 'ALICUOTAS')
-    detalle = proceso_REGISTRO(path + 'DETALLE.txt', 'DETALLE')
+    cabecera = proceso_REGISTRO(path + 'CABECERA.txt')
+    ventas = proceso_REGISTRO(path + 'VENTAS.txt')
+    alicuotas = proceso_REGISTRO(path + 'ALICUOTAS.txt')
+    detalle = proceso_REGISTRO(path + 'DETALLE.txt')
     return cabecera, ventas, alicuotas, detalle

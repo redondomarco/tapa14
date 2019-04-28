@@ -281,10 +281,10 @@ def selec_cliente():
         ),
         _id='formventa')
     if form.accepts(request, session):
-        session.cliente=request.vars['cliente']
-        session.entrega=request.vars['entrega']
+        session.cliente = request.vars['cliente']
+        session.entrega = request.vars['entrega']
         debug(str(session.cliente))
-        if session.cliente!=" ":
+        if session.cliente != " ":
             log('aceptado')
             redirect(URL('venta'))
         else:
@@ -859,32 +859,32 @@ def test_nv():
     return dict(files=files)
 
 
-
 def admin():
     log('ingreso')
-    form=CENTER(
+    form = CENTER(
         H3('Administrar'),
         TABLE(
-        TR(
-            H4('ABM'),
-            A('productos',_class="btn btn-primary", _href=URL('productos')),
-            A('clientes',_class="btn btn-primary", _href=URL('clientes')),
-            A('listas',_class="btn btn-primary", _href=URL('listas'))
-        ),
-        TR(),
-        TR(
-            H4('anula'),
-            A('ingreso',_class="btn btn-primary", _href=URL('anula_ingreso')),
-            A('venta',_class="btn btn-primary", _href=URL('anula_venta')),
-            A('pedido',_class="btn btn-primary", _href=URL('anula_pedido'))
-        ),
-        TR(
-            A('test_nv',_class="btn btn-primary", _href=URL('test_nv'))
+            TR(
+                H4('ABM'),
+                A('productos', _class="btn btn-primary",
+                  _href=URL('productos')),
+                A('clientes', _class="btn btn-primary", _href=URL('clientes')),
+                A('listas', _class="btn btn-primary", _href=URL('listas'))
             ),
-        TR(),
-        _id='tablaindex'
+            TR(),
+            TR(
+                H4('anula'),
+                A('ingreso', _class="btn btn-primary",
+                  _href=URL('anula_ingreso')),
+                A('venta', _class="btn btn-primary", _href=URL('anula_venta')),
+                A('pedido', _class="btn btn-primary",
+                  _href=URL('anula_pedido'))
+            ),
+            TR(A('test_nv', _class="btn btn-primary", _href=URL('test_nv'))),
+            TR(),
+            _id='tablaindex'
+        )
     )
-)
     return dict(form=form)
 
 
@@ -911,10 +911,10 @@ def capture_update():
 # ---- API (example) -----
 
 
-@auth.requires_login()
-def api_get_user_email():
-    if not request.env.request_method == 'GET': raise HTTP(403)
-    return response.json({'status': 'success', 'email': auth.user.email})
+# @auth.requires_login()
+# def api_get_user_email():
+#     if not request.env.request_method == 'GET': raise HTTP(403)
+#     return response.json({'status': 'success', 'email': auth.user.email})
 
 # ---- Smart Grid (example) -----
 
@@ -973,22 +973,20 @@ def subir_datos_afip_paso1():
             shutil.copyfileobj(contenido, open(filepath, 'wb'))
             archivos_subidos.append(filename)
         log('subidos en ' + path + ' : ' + str(archivos_subidos))
-
-        #new_days = open(new_path,'w')
-        #archivo1 = csv.reader(request.vars.archivo1.file.read().splitlines())
-        #archivo2 = csv.reader(request.vars.archivo2.file.read().splitlines())
-        #archivo3 = csv.reader(request.vars.archivo3.file.read().splitlines())
-        #archivo4 = csv.reader(request.vars.archivo4.file.read().splitlines())
-        #log(len(archivo[1]), archivo[2], archivo[3], archivo[4])
-        #for line in tablacsv:
-        #    session.paso1.append(line)
-        #log('cargado: ' + str(session.paso1))
-        #redirect(URL('subir_datos_paso_2'))
+        # ahora los cargo en db
+        session.salida = {}
+        for archivo in archivos_subidos:
+            session.salida[archivo] = subo_cbtes(archivo)
+        redirect(URL('show_dict'))
     else:
         log('acceso ' + str(request.function))
     return dict(form=paso1)
 
 
+def show_dict():
+    if session.salida is dict:
+        table = dict_to_table(session.salida)
+    return dict(table=table)
 
 
 # ---- Action for login/register/etc (required for auth) -----
@@ -1006,11 +1004,14 @@ def user():
         @auth.requires_membership('group name')
         @auth.requires_permission('read','table name',record_id)
     to decorate functions that need access control
-    also notice there is http://..../[app]/appadmin/manage/auth to allow administrator to manage users
+    also notice there is http://..../[app]/appadmin/manage/auth to allow
+    administrator to manage users
     """
     return dict(form=auth())
 
 # ---- action to server uploaded static content (required) ---
+
+
 @cache.action()
 def download():
     """
