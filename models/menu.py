@@ -56,7 +56,9 @@ menufacturas = (T('Facturas'), False, None,
 menuappadmin = (T('appadmin'), False, URL('appadmin', 'index'), [])
 menuadmin = (T('general'), False, None,
              [(T('Archivo'), False, URL('default', 'archivo')),
-              (T('admin'), False, URL('default', 'admin'))
+              (T('Guardar Backup'), False, URL('default', 'save_backup')),
+              (T('Restaurar Backup'), False, URL('default', 'load_backup')),
+              (T('admin'), False, URL('default', 'admin')),
               ]
              )
 

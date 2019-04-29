@@ -983,6 +983,15 @@ def subir_datos_afip_paso1():
     return dict(form=paso1)
 
 
+def save_backup():
+    nombrecsv = idtemp_generator(4) + '.csv'
+    path = ('applications/' + str(configuration.get('app.name')) +
+            '/files/download/backup/' + hoy_string() + '/')
+    subprocess.run(["mkdir", "-p", path])
+    filepath = path + nombrecsv
+    db.export_to_csv_file(open(filepath, 'w', encoding='utf-8', newline=''))
+    return response.stream(filepath, request=request, attachment=True)
+
 def show_dict():
     if session.salida is dict:
         table = dict_to_table(session.salida)
