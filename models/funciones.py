@@ -9,6 +9,65 @@ if False:
     cache = current.cache
     T = current.T
 
+# no usado aun
+# def delete_tables():
+#     """borro todo el contenido de las tablas menos los usuarios y permisos"""
+#     tables_all = db.tables()
+#     try:
+#         tables_all.remove('auth_user')
+#         tables_all.remove('auth_group')
+#         tables_all.remove('auth_permission')
+#         tables_all.remove('auth_membership')
+#         tables_all.remove('auth_event')
+#         tables_all.remove('auth_cas')
+#     except Exception:
+#         pass
+#     for table_name in tables_all:
+#         log('borra ' + table_name)
+#         try:
+#             db[table_name].drop()
+#         except Exception as e:
+#             log('tabla ' + str(table_name) + ' e: ' + str(e))
+#             pass
+#     db.commit()
+
+
+def blank_data():
+    tables_all = db.tables()
+    # no blanqueo 
+    try:
+        tables_all.remove('auth_user')
+        tables_all.remove('auth_group')
+        tables_all.remove('auth_permission')
+        tables_all.remove('auth_membership')
+        tables_all.remove('auth_event')
+        tables_all.remove('auth_cas')
+    except Exception:
+        pass
+    for table_name in tables_all:
+        try:
+            eval('db.' + table_name + '.truncate()')
+            log('blanqueo ' + table_name)
+        except Exception as e:
+            log('error balnqueo ' + str(table_name) + ' e: ' + str(e))
+            pass
+    db.commit()
+
+
+
+def restore_backup(filepath):
+    try:
+        db.import_from_csv_file(open(filepath, 'r',
+                                encoding='utf-8',
+                                newline='',),
+                                restore=True)
+        db.commit()
+        mensaje = 'cargado sin errores'
+        log(mensaje)
+        return ['ok', mensaje]
+    except Exception as e:
+        return ['error', str(e)]
+
 
 def arbol_pedidos():
     pedidos = db(db.pedidos).select(db.pedidos.ALL).as_list()
