@@ -4,7 +4,6 @@
 # this file is released under public domain and you can use without limitations
 # -------------------------------------------------------------------------
 import subprocess
-import csv
 import shutil
 from gluon.tools import Expose
 # for ide
@@ -801,35 +800,43 @@ def finaliza_pedido():
                     producto=productoid,
                     preciou=preciou,
                     total=total
-                    )
-        #solo subo el numero de venta si no fue todo 0
+                )
+        # solo subo el numero de venta si no fue todo 0
         if productovendido:
-            db(db.comprobante.nombre=='venta').update(lastid=db(db.comprobante.nombre=='venta').select()[0].lastid+1)
+            operacion = (db.comprobante.nombre == 'venta')
+            db(operacion).update(
+                lastid=db(operacion).select()[0].lastid + 1)
         db.commit()
         redirect(URL('index'))
     else:
-        log(str(session.cliente)+' ingreso')
-    return dict(form=form, ids_json=json(idsform), listas_json=json(listas), descuento=descuento, precios_json=json(precios))
+        log(str(session.cliente) + ' ingreso')
+    return dict(form=form, ids_json=json(idsform),
+                listas_json=json(listas), descuento=descuento,
+                precios_json=json(precios))
 
 
-#@auth.requires_membership('vendedor')
+# @auth.requires_membership('vendedor')
 def index2():
-    #formulario
-    clientes=db(db.cliente).select(db.cliente.ALL)
-    listas=db(db.listas).select(db.listas.ALL)
+    # formulario
+    clientes = db(db.cliente).select(db.cliente.ALL)
+    listas = db(db.listas).select(db.listas.ALL)
     form_venta = FORM(
         CENTER(
             LABEL('Cliente', _id='labelcliente'),
-            SELECT([(p.nombre) for p in clientes], _name='cliente', _type='text', _id="clienteinput"),
+            SELECT([(p.nombre) for p in clientes], _name='cliente',
+                   _type='text', _id="clienteinput"),
             TAG('<span class="label label-success">Calculadora</span>')
-            ),
-        #SELECT([(p.nombre) for p in result], _id='selector', _name="sistema"),
-        TABLE( tabla1, _class='t2', _id="suma"), _id='formventa')
+        ),
+        # SELECT([(p.nombre) for p in result], _id='selector',
+        #        _name="sistema"),
+        TABLE(tabla1, _class='t2', _id="suma"), _id='formventa')
     if form_venta.accepts(request, session):
         log('bien')
     else:
         log('no tanto')
-    return dict(form_venta=form_venta, ids_json=json(session.idsform), clientes_json=json(clientes), listas_json=json(listas))
+    return dict(form_venta=form_venta, ids_json=json(session.idsform),
+                clientes_json=json(clientes), listas_json=json(listas))
+
 
 #@auth.requires_membership('admin')
 #def productos():
@@ -837,35 +844,47 @@ def index2():
 #    grid=SQLFORM.grid(db.producto)
 #    return locals()
 
+
 @auth.requires_membership('admin')
 def clientes():
     log('acceso admin')
-    grid=SQLFORM.grid(
+    grid = SQLFORM.grid(
         db.cliente,
         maxtextlength=25,
-        fields=(db.cliente.nombre,db.cliente.lista,db.cliente.saldo,db.cliente.tipocuenta)
+        fields=(db.cliente.nombre, db.cliente.lista, db.cliente.saldo,
+                db.cliente.tipocuenta)
         )
     return locals()
+
 
 @auth.requires_membership('admin')
 def listas():
     log('acceso admin')
-    grid=SQLFORM.grid(db.listas,maxtextlength=25)
+    grid = SQLFORM.grid(db.listas, maxtextlength=25)
     return locals()
+
 
 @auth.requires_membership('admin')
 def productos():
     log('acceso admin')
-    grid=SQLFORM.grid(db.producto,maxtextlength=25)
+    grid = SQLFORM.grid(db.producto, maxtextlength=25)
     return locals()
+
+# db.producto.truncate()
+# db.producto.import_from_csv_file(open('file,
+# 'r', encoding='utf-8', newline=''))
+# db.commit()
+
 
 @auth.requires_membership('productor')
 def consulta_ingreso_stock():
     log('ingreso')
-    grid=SQLFORM.grid(
+    grid = SQLFORM.grid(
         db.ingresos,
-        fields=(db.ingresos.fecha,db.ingresos.usuario,db.ingresos.cantidad,db.ingresos.producto),
-        searchable=True,editable=False,deletable=False,create=False,sortable=True,details=False,maxtextlength=25)
+        fields=(db.ingresos.fecha, db.ingresos.usuario,
+                db.ingresos.cantidad, db.ingresos.producto),
+        searchable=True, editable=False, deletable=False, create=False,
+        sortable=True, details=False, maxtextlength=25)
     return locals()
 
 @auth.requires_membership('vendedor')
@@ -936,8 +955,13 @@ def archivo():
 
 
 def mensajes():
-    log('muestro: ' + str(session.mensaje))
-    return dict()
+    if isinstance(session.mensaje, dict):
+        contenido = dict_to_table(session.mensaje)
+        return dict(contenido=contenido)
+    if isinstance(session.mensaje, str):
+        log('muestro: ' + str(session.mensaje))
+        contenido = session.mensaje
+        return dict(contenido=contenido)
 
 
 def capture_update():
@@ -1010,20 +1034,14 @@ def subir_datos_afip_paso1():
             shutil.copyfileobj(contenido, open(filepath, 'wb'))
             archivos_subidos.append(filename)
         log('subidos en ' + path + ' : ' + str(archivos_subidos))
-        # ahora los cargo en db
-        session.salida = {}
+        session.mensaje = {}
         for archivo in archivos_subidos:
-            session.salida[archivo] = subo_cbtes(path + archivo)
-        redirect(URL('show_dict'))
+            session.mensaje[archivo] = subo_cbtes(path + archivo)
+        log(str(session.mensaje))
+        redirect(URL('mensajes'))
     else:
         log('acceso ' + str(request.function))
     return dict(form=paso1)
-
-
-def show_dict():
-    if session.salida is dict:
-        table = dict_to_table(session.salida)
-    return dict(table=table)
 
 
 def save_backup():
@@ -1059,9 +1077,9 @@ def load_backup():
         filepath = path + filename
         shutil.copyfileobj(contenido, open(filepath, 'wb'))
         log('subidos en ' + path + str(filename))
-        session.mensaje = blank_data()
-        if aux[0] == 'ok':
-            session.mensaje = restore_backup(path + filename)
+        blank_data()
+        session.mensaje = restore_backup(path + filename)
+        session.mensaje = path + filename + ' restaurado'
         redirect(URL('mensajes'))
     else:
         log('acceso ' + str(request.function))

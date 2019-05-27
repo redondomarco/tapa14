@@ -1,0 +1,12 @@
+#tabla_informe {
+    border-collapse: collapse;
+    width: 100%;
+}
+#tabla_informe td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+#tabla_informe tr:nth-child(even) {
+    background-color: #dddddd;
+}

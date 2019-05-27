@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #
+import hashlib
 # for ide
 if False:
     from gluon import *
@@ -26,17 +27,30 @@ if False:
 # (completado los zeros)
 
 
-def registros_id(tuple):
+def registros_id(lista):
     tipo_cbte_size = 3
     punto_vta_size = 5
     cbt_numero_size = 20
-    salida = (str(tuple[0]).zfill(tipo_cbte_size) +
-              str(tuple[1]).zfill(punto_vta_size) +
-              str(tuple[1]).zfill(cbt_numero_size))
+    salida = (str(lista[0]).zfill(tipo_cbte_size) +
+              str(lista[1]).zfill(punto_vta_size) +
+              str(lista[2]).zfill(cbt_numero_size))
     return(salida)
 
 
 formato_decimal = 'decimal(25,2)'
+
+
+def detalle_id(lista, cyd):
+    m = hashlib.md5()
+    m.update(cyd.encode('utf-8'))
+    salida = registros_id(lista) + m.hexdigest()
+    return salida
+
+
+def test_detalle_id():
+    a = id_detalle([0, 1, 2], 'detalle')
+    if a == '0000000100000000000000000002f019564bfcfa0a562d25341e83ca087b':
+        return True
 
 
 # corresponde a ALICUOTAS: REGINFO_CV_VENTAS_CBTE_ALICUOTA, 63
@@ -74,7 +88,7 @@ db.define_table(
     Field('imp_iibb', formato_decimal),
     Field('impto_perc_mun', formato_decimal),
     Field('imp_internos', formato_decimal),
-    Field('moneda_id', 'integer'),
+    Field('moneda_id', 'string'),
     Field('moneda_ctz', formato_decimal),
     Field('cant_alicuota_iva', 'integer'),
     Field('codigo_operacion', 'string'),
@@ -88,7 +102,7 @@ db.define_table(
 
 db.define_table(
     'cbte_CABECERA',
-    Field('comprobante', 'string'),
+    Field('comprobante', 'string', unique=True),
     Field('tipo_reg', 'integer'),
     Field('fecha_cbte', 'datetime'),
     Field('tipo_cbte', 'integer'),
@@ -127,7 +141,7 @@ db.define_table(
 # corresponde DETALLE: DETALLE_TIPO1, 190
 db.define_table(
     'cbte_DETALLE',
-    Field('comprobante', 'string', unique=True),
+    Field('comprobante', 'string'),
     Field('tipo_cbte', 'integer'),
     Field('ctl_fiscal', 'string'),
     Field('fecha_cbte', 'datetime'),
@@ -205,11 +219,11 @@ def subo_cbtes(ARCHIVO):
         if t_procesos[0] == 'ok':
             k_procesos = t_procesos[1].keys()
             for key in k_procesos:
-                selector='db.' + nombre_cbte + '.comprobante'
+                selector = 'db.' + nombre_cbte + '.comprobante'
                 if db(eval(selector) == str(key)).select().first():
                     t_procesos[1][key]['fecha_mod'] = hoy
-                    db(db[condicion].comprobante == str(key)).update(
-                        **t_procesos[actual][1][key])
+                    db(db[nombre_cbte].comprobante == str(key)).update(
+                        **t_procesos[1][key])
                     reg_updates.append(key)
                 else:
                     t_procesos[1][key]['comprobante'] = str(key)
@@ -231,7 +245,7 @@ def subo_cbtes(ARCHIVO):
 
 
 def test_subo_cbtes():
-    ARCHIVO = 'applications/tapa14/files/CABECERA.txt'
+    ARCHIVO = 'applications/tapa14/files/DETALLE.txt'
     return subo_cbtes(ARCHIVO)
 
 
@@ -265,7 +279,13 @@ def proceso_REGISTRO(ARCHIVO):
         for linea in open(ARCHIVO, 'r', encoding='latin1'):
             if len(linea) == cantreg:
                 reg = leer(linea, eval(tiporeg))
-                key = (reg["tipo_cbte"], reg["punto_vta"], reg["cbt_numero"])
+                cbte = [reg["tipo_cbte"],
+                        reg["punto_vta"],
+                        reg["cbt_numero"]]
+                if tipo[1] == 'DETALLE':
+                    key = detalle_id(cbte, reg['cyd'])
+                else:
+                    key = registros_id(cbte)
                 procesado[key] = reg
             else:
                 mensaje = "Error en longitud de la linea %s , %s" % (
