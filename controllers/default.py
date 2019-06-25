@@ -838,13 +838,6 @@ def index2():
                 clientes_json=json(clientes), listas_json=json(listas))
 
 
-#@auth.requires_membership('admin')
-#def productos():
-#    log('acceso admin')
-#    grid=SQLFORM.grid(db.producto)
-#    return locals()
-
-
 @auth.requires_membership('admin')
 def clientes():
     log('acceso admin')
@@ -853,7 +846,7 @@ def clientes():
         maxtextlength=25,
         fields=(db.cliente.nombre, db.cliente.lista, db.cliente.saldo,
                 db.cliente.tipocuenta)
-        )
+    )
     return locals()
 
 
@@ -867,8 +860,15 @@ def listas():
 @auth.requires_membership('admin')
 def productos():
     log('acceso admin')
-    grid = SQLFORM.grid(db.producto, maxtextlength=25)
+    grid = SQLFORM.grid(db.producto, maxtextlength=30)
     return locals()
+
+
+# @auth.requires_membership('admin')
+# def productos():
+#    log('acceso admin')
+#    grid=SQLFORM.grid(db.producto)
+#    return locals()
 
 # db.producto.truncate()
 # db.producto.import_from_csv_file(open('file,
@@ -996,44 +996,81 @@ def capture_update():
 #    return auth.wiki()
 
 
+# def subir_datos_afip_paso1():
+#     session.paso1 = []
+#     form = FORM(
+#         H1('Ingrese archivos cabecera zip afip'),
+#         TABLE(
+#             TR(INPUT(_name='archivo1', _type='file',
+#                      requires=IS_LENGTH(1048576, 8))),
+#             TR(INPUT(_name='archivo2', _type='file',
+#                      requires=IS_LENGTH(1048576, 8))),
+#             TR(INPUT(_name='archivo3', _type='file',
+#                      requires=IS_LENGTH(1048576, 8))),
+#             TR(INPUT(_name='archivo4', _type='file',
+#                      requires=IS_LENGTH(1048576, 8))),
+#             INPUT(_type="submit",
+#                   _class="btn btn-primary btn-medium")))
+#     paso1 = CENTER(TABLE(
+#         form))
+#     if form.accepts(request, session):
+#         archivos = [
+#             request.vars.archivo1,
+#             request.vars.archivo2,
+#             request.vars.archivo3,
+#             request.vars.archivo4,
+#         ]
+#         archivos_subidos = []
+
+#         path = ('applications/' + str(configuration.get('app.name')) +
+#                 '/files/upload/' + hoy_string() + '/')
+#         subprocess.run(["mkdir", "-p", path])
+#         fecha_h = idtemp_generator(4)
+#         for archivo in archivos:
+#             nombre = archivo.filename
+#             contenido = archivo.file
+#             filename = fecha_h + '_' + nombre
+#             filepath = path + filename
+#             shutil.copyfileobj(contenido, open(filepath, 'wb'))
+#             archivos_subidos.append(filename)
+#         log('subidos en ' + path + ' : ' + str(archivos_subidos))
+#         session.mensaje = {}
+#         for archivo in archivos_subidos:
+#             session.mensaje[archivo] = subo_cbtes(path + archivo)
+#         log(str(session.mensaje))
+#         redirect(URL('mensajes'))
+#     else:
+#         log('acceso ' + str(request.function))
+#     return dict(form=paso1)
+
+
 def subir_datos_afip_paso1():
     session.paso1 = []
     form = FORM(
         H1('Ingrese archivos cabecera zip afip'),
         TABLE(
-            TR(INPUT(_name='archivo1', _type='file',
-                     requires=IS_LENGTH(1048576, 8))),
-            TR(INPUT(_name='archivo2', _type='file',
-                     requires=IS_LENGTH(1048576, 8))),
-            TR(INPUT(_name='archivo3', _type='file',
-                     requires=IS_LENGTH(1048576, 8))),
-            TR(INPUT(_name='archivo4', _type='file',
+            TR(INPUT(_name='farchivos', _type='file', _multiple="multiple",
                      requires=IS_LENGTH(1048576, 8))),
             INPUT(_type="submit",
                   _class="btn btn-primary btn-medium")))
     paso1 = CENTER(TABLE(
         form))
     if form.accepts(request, session):
-        archivos = [
-            request.vars.archivo1,
-            request.vars.archivo2,
-            request.vars.archivo3,
-            request.vars.archivo4,
-        ]
+        archivos = request.vars.farchivos
         archivos_subidos = []
-
         path = ('applications/' + str(configuration.get('app.name')) +
                 '/files/upload/' + hoy_string() + '/')
         subprocess.run(["mkdir", "-p", path])
         fecha_h = idtemp_generator(4)
-        for archivo in archivos:
-            nombre = archivo.filename
-            contenido = archivo.file
-            filename = fecha_h + '_' + nombre
-            filepath = path + filename
-            shutil.copyfileobj(contenido, open(filepath, 'wb'))
-            archivos_subidos.append(filename)
-        log('subidos en ' + path + ' : ' + str(archivos_subidos))
+        if type(archivos) == list:
+            for archivo in archivos:
+                nombre = archivo.filename
+                contenido = archivo.file
+                filename = fecha_h + '_' + nombre
+                filepath = path + filename
+                shutil.copyfileobj(contenido, open(filepath, 'wb'))
+                archivos_subidos.append(filename)
+            log('subidos en ' + path + ' : ' + str(archivos_subidos))
         session.mensaje = {}
         for archivo in archivos_subidos:
             session.mensaje[archivo] = subo_cbtes(path + archivo)
@@ -1042,7 +1079,6 @@ def subir_datos_afip_paso1():
     else:
         log('acceso ' + str(request.function))
     return dict(form=paso1)
-
 
 def save_backup():
     nombrecsv = 'bkp_full_' + idtemp_generator(4) + '.csv'
@@ -1084,6 +1120,31 @@ def load_backup():
     else:
         log('acceso ' + str(request.function))
     return dict(form=paso1)
+
+
+def lista_despacho():
+    log('acceso ' + str(request.function))
+    registros = proceso_detalle_despacho()
+    tabla = CENTER(H1('Resultado del analisis de facturas'),
+                   list_dict_to_table_sortable(registros))
+    form = (tabla)
+    return dict(form=form)
+
+
+@auth.requires_login()
+def descarga_csv():
+    if session.nombre_archivo:
+        log(session.nombre_archivo)
+        response.headers['Content-Type'] = 'text/csv'
+        attachment = 'attachment;filename=' + str(session.nombre_archivo)
+        response.headers['Content-Disposition'] = attachment
+        # content = session.lista_consulta
+        #
+        content = open('applications/' + str(configuration.get('app.name')) + '/files/csv/' + str(session.nombre_archivo), "r").read()
+        log(content)
+        raise HTTP(200, str(content),
+                   **{'Content-Type': 'text/csv',
+                   'Content-Disposition': attachment + ';'})
 
 
 # ---- Action for login/register/etc (required for auth) -----
