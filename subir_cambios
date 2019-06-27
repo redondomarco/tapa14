@@ -66,3 +66,18 @@ else
   echo "salgo"
   exit 1;
 fi
+
+
+read -p "Subir files-data en github?(y/n)?" CONT
+  if [ "$CONT" = "y" ]; then
+  cd files
+  git add .
+  git commit -m "$COMENTARIO"
+  git push
+  echo "hecho"
+  echo;
+else
+  echo "salgo"
+  exit 1;
+fi
+

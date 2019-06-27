@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from pyexcel_ods3 import get_data
+
 # for ide
 if False:
     from gluon import *
@@ -122,7 +124,7 @@ def mapeo_prod(producto):
               '12' in minus,
               '20' in minus]):
         return [producto, 'LM123DH']
-    #lm PH
+    # lm PH
     elif all(['pascualina' in minus,
               'hojaldre' in minus,
               '300x2x20' in minus]):
@@ -250,12 +252,14 @@ def proceso_detalle_despacho():
     cons = db((db.cbte_DETALLE.fecha_cbte >= fecha_inicio) and
               (db.cbte_DETALLE.fecha_cbte <= fecha_fin)).select()
     registros = cons.as_dict()
+    return registros
     resultado = []
     for i in registros.keys():
         cyd = registros[i]['cyd']
         if descarto_productos_despacho(cyd):
             producto = mapeo_prod(cyd)[1]
             comprobante = registros[i]['comprobante'][0:28]
+            log(comprobante)
             cons1 = db(db.cbte_CABECERA.comprobante == comprobante).select()
             cliente = cons1.first().as_dict()['nombre']
             fecha = registros[i]['fecha_cbte']
@@ -289,3 +293,17 @@ def descarto_productos_despacho(producto):
         return False
     else:
         return True
+
+
+def leo_elaboracion():
+    dir_elab = 'elaboracion/'
+    file_elab = 'REGISTRO ELABORACION Y ENVASADO.ods'
+    archivo_elaboracion = files_dir + dir_elab + file_elab
+    data = get_data(archivo_elaboracion)
+    return data
+
+
+def compilo_elaboracion():
+    planilla = leo_elaboracion()
+    compilado = []
+    # for hoja in planilla.keys():

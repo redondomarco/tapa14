@@ -6,7 +6,7 @@ import string
 import datetime
 import random
 import csv
-
+import os
 
 # for ide
 if False:
@@ -16,6 +16,9 @@ if False:
     session = current.session
     cache = current.cache
     T = current.T
+
+# directorios
+files_dir = 'applications/' + str(configuration.get('app.name')) + '/files/'
 
 # logs
 logger = logging.getLogger("web2py")
@@ -182,3 +185,11 @@ def list_dict_to_table_sortable(lista):
                           _class='btn btn-default')
             # return CENTER(TABLE(boton_csv,XML(tabla)))
             return DIV(boton_csv, leyenda_cantidad, XML(tabla))
+
+
+def todos_los_archivos(directorio):
+    archivos = []
+    for path, subdirs, files in os.walk(directorio):
+        for name in files:
+            archivos.append(os.path.join(path, name))
+    return archivos

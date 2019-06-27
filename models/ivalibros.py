@@ -306,3 +306,10 @@ def test_proceso_REGISTRO():
     alicuotas = proceso_REGISTRO(path + 'ALICUOTAS.txt')
     detalle = proceso_REGISTRO(path + 'DETALLE.txt')
     return cabecera, ventas, alicuotas, detalle
+
+
+def subo_registros_batch():
+    archivos = todos_los_archivos(files_dir + 'facturacion')
+    for archivo in archivos:
+        subo_cbtes(archivo)
+
