@@ -123,7 +123,8 @@ def list_of_dict_to_csv(nombre, lista, **kwargs):
     log(directorio + nombre_archivo)
     try:
         keys = lista[0].keys()
-        with open(directorio + nombre_archivo, 'w') as output_file:
+        with open(directorio + nombre_archivo, 'w',
+                  encoding='utf8', newline='') as output_file:
             dict_writer = csv.DictWriter(output_file, keys)
             dict_writer.writeheader()
             dict_writer.writerows(lista)
@@ -135,7 +136,7 @@ def list_of_dict_to_csv(nombre, lista, **kwargs):
 
 def test_list_of_dict_to_csv():
     lista = [{'cantidad': 3,
-              'cliente': 'PANIFICADORA ESTADIO S.A.',
+              'cliente': 'PANIFICADORA ÑESTADIO S.A.',
               'fa_n': '0010000400000000000000003892',
               'fecha': datetime.date(2019, 2, 1),
               'lote': ['32'],

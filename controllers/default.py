@@ -1049,8 +1049,7 @@ def subir_datos_afip_paso1():
     form = FORM(
         H1('Ingrese archivos cabecera zip afip'),
         TABLE(
-            TR(INPUT(_name='farchivos', _type='file', _multiple="multiple",
-                     requires=IS_LENGTH(1048576, 8))),
+            TR(INPUT(_name='farchivos', _type='file', _multiple="multiple")),
             INPUT(_type="submit",
                   _class="btn btn-primary btn-medium")))
     paso1 = CENTER(TABLE(
@@ -1140,7 +1139,7 @@ def descarga_csv():
         response.headers['Content-Disposition'] = attachment
         # content = session.lista_consulta
         #
-        content = open('applications/' + str(configuration.get('app.name')) + '/files/csv/' + str(session.nombre_archivo), "r").read()
+        content = open(str(session.nombre_archivo), "r").read()
         log(content)
         raise HTTP(200, str(content),
                    **{'Content-Type': 'text/csv',

@@ -248,25 +248,25 @@ def proceso_detalle_despacho():
     # busco registros detalle de facturacion
     # entre fechas
     fecha_inicio = datetime.datetime(2018, 11, 1, 0, 0)
-    fecha_fin = datetime.datetime(2019, 6, 11, 0, 0)
+    fecha_fin = datetime.datetime(2019, 6, 27, 0, 0)
     cons = db((db.cbte_DETALLE.fecha_cbte >= fecha_inicio) and
               (db.cbte_DETALLE.fecha_cbte <= fecha_fin)).select()
     registros = cons.as_dict()
-    return registros
+    # return registros
     resultado = []
     for i in registros.keys():
         cyd = registros[i]['cyd']
         if descarto_productos_despacho(cyd):
             producto = mapeo_prod(cyd)[1]
             comprobante = registros[i]['comprobante'][0:28]
-            log(comprobante)
+            # log(comprobante)
             cons1 = db(db.cbte_CABECERA.comprobante == comprobante).select()
             cliente = cons1.first().as_dict()['nombre']
             fecha = registros[i]['fecha_cbte']
             aux = {
                 'producto': str(producto),
                 'cantidad': str(registros[i]['cantidad']),
-                'fa_n': str(comprobante),
+                'fa_n': 'fa-' + str(comprobante),
                 'fecha': fecha.date(),
                 'cliente': str(cliente),
                 'lote': str(busca_lote(fecha, producto))
