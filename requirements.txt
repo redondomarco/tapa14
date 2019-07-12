@@ -2,3 +2,4 @@ tornado
 fpdf
 sets
 pdftotext
+gitpython

@@ -1,6 +1,0 @@
-[submodule "pyafipws"]
-	path = modules/pyafipws
-	url = https://github.com/redondomarco/pyafipws
-[submodule "plugin_adminlte"]
-	path = views/plugin_adminlte
-	url = https://github.com/redondomarco/plugin_admilte
