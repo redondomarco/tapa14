@@ -861,6 +861,32 @@ def listas():
 def productos():
     log('acceso admin')
     grid = SQLFORM.grid(db.producto, maxtextlength=30)
+    form1 = FORM(
+        H5('Cargar productos mediante csv'),
+        INPUT(_name='archivocsv', _type='file',
+              requires=IS_LENGTH(1048576, 8)),
+           INPUT(_type="submit", _class="btn btn-primary btn-medium"))
+    table = TABLE(H4('Administracion'), form1)
+    if form1.accepts(request, session):
+        #terminar
+        log('form1')
+        # archivocsv = request.vars.archivocsv
+        # path = ('applications/' + str(configuration.get('app.name')) +
+        #         '/files/upload/bkp/' + hoy_string() + '/')
+        # subprocess.run(["mkdir", "-p", path])
+        # fecha_h = idtemp_generator(4)
+        # nombre = archivocsv.filename
+        # contenido = archivocsv.file
+        # filename = fecha_h + '_' + nombre
+        # filepath = path + filename
+        # shutil.copyfileobj(contenido, open(filepath, 'wb'))
+        # log('subidos en ' + path + str(filename))
+        # blank_data()
+        # session.mensaje = restore_backup(path + filename)
+        # session.mensaje = path + filename + ' restaurado'
+        # redirect(URL('mensajes'))
+    else:
+        log('acceso ' + str(request.function))
     return locals()
 
 
