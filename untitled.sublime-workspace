@@ -127,7 +127,7 @@
 			"file": "controllers/default.py",
 			"settings":
 			{
-				"buffer_size": 50525,
+				"buffer_size": 51533,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -141,31 +141,22 @@
 			}
 		},
 		{
+			"contents": "# -*- coding: utf-8 -*-\n# db.define_table(\n#   'imagen',\n#   Field('titulo', unique=True, length=255),\n#   Field('archivo', 'upload'),\n#   format = '%(titulo)s')\n\n# combos cliente\n\n# for ide\nif False:\n    from db import *\n    from util import *\n\n\ntipo_iva = ['RI', 'monotributo', 'consumidor final', 'nc']\ntipo_comprobante = ['factura A', 'factura B', 'nota de venta', 'recibo']\ntipo_cta = ['contado', 'cta cte']\nestado_pedido = ['borrado', 'vendido']\ndir_pdf = ('applications/' + str(configuration.get('datos.app_name')) +\n           '/files/pdf')\n\ndb.define_table(\n    'producto',\n    Field('codigo', unique=True, length=255),\n    Field('detalle', label=T('Nombre del producto'), unique=True, length=255),\n    Field('valor', 'double', default=0),\n    Field('stock', 'integer', default=0),\n    Field('reserva', 'integer', default=0),\n    Field('stock_alias', 'reference producto'),\n    format='%(detalle)s'\n)\ndb.define_table(\n    'listas',\n    Field('lista', unique=True, length=255),\n    Field('valor', 'double'),\n    format='%(lista)s'\n)\n\ndb.define_table(\n    'cliente',\n    Field('nombre', unique=True, length=255),\n    Field('lista', 'reference listas'),\n    Field('productos', 'list:reference producto'),\n    Field('saldo', 'double', default=0),\n    Field('tipocuenta', default=tipo_cta[0]),\n    Field('iva'),\n    Field('comprobante'),\n    Field('correo'),\n    Field('aviso', 'boolean'),\n    Field('cuit'),\n    Field('razon_social'),\n    Field('domicilio', length=255),\n    Field('localidad', length=255),\n    Field('provincia', length=255),\n    Field('telefono'),\n    Field('activo', 'boolean'),\n    format='%(nombre)s'\n)\ndb.cliente.iva.requires = IS_IN_SET(tipo_iva)\ndb.cliente.comprobante.requires = IS_IN_SET(tipo_comprobante, multiple=True)\ndb.cliente.tipocuenta.requires = IS_IN_SET(tipo_cta, multiple=True)\n\n# tabla de pedidos\ndb.define_table(\n    'pedidos',\n    Field('fecha', 'datetime'),\n    Field('fentrega', 'datetime'),\n    Field('pedidonum', 'integer'),\n    Field('vendedor', 'reference auth_user'),\n    Field('cliente', 'reference cliente'),\n    Field('nota'),\n    Field('cantidad', 'integer'),\n    Field('producto', 'reference producto', default=1),\n    Field('preciou', 'double'),\n    Field('total', 'double'),\n    format='%(pedidonum)s'\n)\n\ndb.define_table(\n    'pedidos_hist',\n    Field('fecha', 'datetime'),\n    Field('fentrega', 'datetime'),\n    Field('pedidonum', 'integer'),\n    Field('vendedor', 'reference auth_user'),\n    Field('cliente', 'reference cliente'),\n    Field('nota'),\n    Field('cantidad', 'integer'),\n    Field('producto', 'reference producto', default=1),\n    Field('preciou', 'double'),\n    Field('total', 'double'),\n    format='%(pedidonum)s'\n)\n\n# ventas\n#  estados\ntipo_entrega = ['pendiente', 'entregado']\ntipo_pago = ['pendiente', 'parcial', 'pagado']\nestado_pedido = ['pendiente', 'anulado', 'finalizado']\n#  tabla de ventas\ndb.define_table(\n    'ventas',\n    Field('fecha', 'datetime'),\n    Field('fentrega', 'datetime'),\n    Field('ventanum', 'integer'),\n    Field('vendedor', 'reference auth_user'),\n    Field('cliente', 'reference cliente'),\n    Field('nota'),\n    Field('cantidad', 'integer'),\n    Field('producto', 'reference producto', default=1),\n    Field('preciou', 'double'),\n    Field('total', 'double'),\n    Field('comprobante'),\n    Field('nro_comprobante', 'integer'),\n    Field('entrega'),\n    Field('pago'),\n    format='%(pedidonum)s'\n)\ndb.ventas.comprobante.requires = IS_IN_SET(tipo_comprobante, multiple=True)\ndb.ventas.entrega.requires = IS_IN_SET(tipo_entrega)\ndb.ventas.pago.requires = IS_IN_SET(tipo_pago)\n\n\n# requires = IS_DATE(format=('%d/%m/%Y %H:%M:%S')\ndb.define_table(\n    'ingresos',\n    Field('fecha', 'datetime'),\n    Field('fecha_prod', 'datetime'),\n    Field('vto', 'datetime'),\n    Field('lote', 'integer'),\n    Field('usuario', default=auth.user_id),\n    Field('cantidad', 'integer'),\n    Field('producto', 'reference producto')\n)\ndb.define_table(\n    'es_caja',\n    Field('nombre'),\n    Field('tipo')\n)\n# db.define_table(\n#    'movimientos',\n#    Field('fecha', 'datetime'),\n#    Field('vendedor', 'reference auth_user'),\n#    Field('comprobante', 'integer'),\n#    Field('descripcion', 'reference es_caja'),\n#    Field('total', 'double')\n#    )\ndb.define_table(\n    'comprobante',\n    Field('nombre'),\n    Field('lastid', 'integer')\n)\ndb.define_table(\n    'dinero',\n    Field('nombre'),\n    Field('valor', 'double')\n)\n# db.define_table(\n#    'pendientes',\n#    Field('operacion'),\n#    Field('ventanum', 'integer')\n#    )\n\n# calcula la fecha de vencimiento para un lote\n\n\ndef fecha_vto(lote):\n    diasvto = 30\n    a = datetime.strptime(str(datetime.now().year) + '11', '%Y%m%d')\n    b = timedelta(days=int(lote) + diasvto - 1)\n    return a + b\n\n\ndef capture_update():\n    log(request.vars.data)\n    # return db().insert(data = request.vars.data)\n\ndef populate_base():\n    # usuario\n    \n    # grupos\n    # producto\n    # clientes\n    # listas\n    \n",
+			"file": "models/modelo.py",
+			"file_size": 4835,
+			"file_write_time": 131986005705967384,
+			"settings":
+			{
+				"buffer_size": 4937,
+				"line_ending": "Unix"
+			}
+		},
+		{
 			"file": "models/util.py",
 			"settings":
 			{
-				"buffer_size": 6375,
+				"buffer_size": 6423,
 				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "models/despacho.py",
-			"settings":
-			{
-				"buffer_size": 9880,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"contents": "",
-			"file": "views/plugin_adminlte/README.md",
-			"file_size": -1,
-			"file_write_time": -1,
-			"settings":
-			{
-				"buffer_size": 0,
 				"line_ending": "Unix"
 			}
 		},
@@ -256,8 +247,10 @@
 	],
 	"file_history":
 	[
-		"/home/marco/web2py/applications/tapa14/models/ivalibros.py",
+		"/home/marco/web2py/applications/tapa14/untitled.sublime-project",
+		"/home/marco/web2py/applications/tapa14/models/despacho.py",
 		"/home/marco/web2py/applications/tapa14/views/plugin_adminlte/README.md",
+		"/home/marco/web2py/applications/tapa14/models/ivalibros.py",
 		"/home/marco/web2py/applications/tapa14/modules/__init__.py",
 		"/home/marco/web2py/applications/tapa14/models/viewadminlte.py",
 		"/home/marco/.config/sublime-text-3/Packages/Anaconda/Anaconda.sublime-settings",
@@ -266,7 +259,7 @@
 	],
 	"find":
 	{
-		"height": 23.0
+		"height": 26.0
 	},
 	"find_in_files":
 	{
@@ -312,16 +305,10 @@
 		"whole_word": false,
 		"wrap": true
 	},
-	"folders":
-	[
-		{
-			"path": "/home/marco/web2py/applications/tapa14"
-		}
-	],
 	"groups":
 	[
 		{
-			"selected": 4,
+			"selected": 2,
 			"sheets":
 			[
 				{
@@ -330,15 +317,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 50525,
+						"buffer_size": 51533,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								46783,
-								46783
+								0,
+								0
 							]
 						],
 						"settings":
@@ -364,7 +351,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 14597.0,
+						"translation.y": 13421.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 3,
@@ -395,27 +382,58 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 1722.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 8,
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
 					"buffer": 2,
-					"file": "models/util.py",
+					"file": "models/modelo.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 6375,
+						"buffer_size": 4937,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								6300,
-								6300
+								4875,
+								4875
+							]
+						],
+						"settings":
+						{
+							"git_gutter_is_enabled": true,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2465.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "models/util.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6423,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
 							]
 						],
 						"settings":
@@ -437,38 +455,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2352.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 5,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "models/despacho.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 9880,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								8455,
-								8455
-							]
-						],
-						"settings":
-						{
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 3402.0,
+						"translation.y": 371.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
@@ -476,35 +463,6 @@
 				},
 				{
 					"buffer": 4,
-					"file": "views/plugin_adminlte/README.md",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 0,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"git_gutter_is_enabled": false,
-							"syntax": "Packages/Markdown/Markdown.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
 					"file": "models/pdf.py",
 					"semi_transient": false,
 					"settings":
@@ -531,11 +489,11 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 5,
 					"type": "text"
 				},
 				{
-					"buffer": 6,
+					"buffer": 5,
 					"file": "models/ivalibros.py",
 					"semi_transient": false,
 					"settings":
@@ -562,11 +520,11 @@
 						"translation.y": 4060.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
-					"buffer": 7,
+					"buffer": 6,
 					"file": "models/util_afip.py",
 					"semi_transient": false,
 					"settings":
@@ -612,7 +570,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 8,
+					"buffer": 7,
 					"file": "models/info_afip.py",
 					"semi_transient": false,
 					"settings":
@@ -658,7 +616,7 @@
 	],
 	"incremental_find":
 	{
-		"height": 23.0
+		"height": 26.0
 	},
 	"input":
 	{
@@ -696,10 +654,10 @@
 		"height": 0.0
 	},
 	"pinned_build_system": "",
-	"project": "",
+	"project": "untitled.sublime-project",
 	"replace":
 	{
-		"height": 42.0
+		"height": 48.0
 	},
 	"save_all_on_build": true,
 	"select_file":

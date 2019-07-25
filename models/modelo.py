@@ -174,3 +174,36 @@ def fecha_vto(lote):
 def capture_update():
     log(request.vars.data)
     # return db().insert(data = request.vars.data)
+
+
+def populate_base():
+    # usuario
+    populate_usuarios()
+    #
+    # grupos
+    # producto
+    # clientes
+    # listas
+
+
+def export_usuarios():
+    filepath = files_dir + 'csv-base/db_auth_user.csv'
+    rows = db(db.auth_user.id).select()
+    rows.export_to_csv_file(open(filepath, 'w', encoding='utf-8', newline=''))
+
+
+def populate_usuarios():
+    # leo de files csv
+    filepath = files_dir + 'csv-base/db_auth_user.csv'
+    try:
+        # borro todo el contenido de la tabla
+        db.auth_user.truncate()
+        db.auth_user.import_from_csv_file(open(filepath, 'r',
+                                          encoding='utf-8',
+                                          newline='',))
+        db.commit()
+        mensaje = 'cargado sin errores'
+        log(mensaje)
+        return ['ok', mensaje]
+    except Exception as e:
+        return ['error', str(e)]
