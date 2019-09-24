@@ -176,16 +176,7 @@ def capture_update():
     # return db().insert(data = request.vars.data)
 
 
-def populate_base():
-    # usuario
-    populate_usuarios()
-    #
-    # grupos
-    # producto
-    # clientes
-    # listas
-
-
+# usurios de sistema
 def export_usuarios():
     filepath = files_dir + 'csv-base/db_auth_user.csv'
     rows = db(db.auth_user.id).select()
@@ -198,6 +189,7 @@ def populate_usuarios():
     try:
         # borro todo el contenido de la tabla
         db.auth_user.truncate()
+        # importo nuevo contenido
         db.auth_user.import_from_csv_file(open(filepath, 'r',
                                           encoding='utf-8',
                                           newline='',))
@@ -207,3 +199,134 @@ def populate_usuarios():
         return ['ok', mensaje]
     except Exception as e:
         return ['error', str(e)]
+
+
+# grupos de sistema
+def export_grupos():
+    filepath = files_dir + 'csv-base/db_auth_group.csv'
+    rows = db(db.auth_user.id).select()
+    rows.export_to_csv_file(open(filepath, 'w', encoding='utf-8', newline=''))
+
+
+def populate_grupos():
+    # leo de files csv
+    filepath = files_dir + 'csv-base/db_auth_group.csv'
+    try:
+        # borro todo el contenido de la tabla
+        db.auth_group.truncate()
+        # importo nuevo contenido
+        db.auth_group.import_from_csv_file(open(filepath, 'r',
+                                          encoding='utf-8',
+                                          newline='',))
+        db.commit()
+        mensaje = 'cargado sin errores'
+        log(mensaje)
+        return ['ok', mensaje]
+    except Exception as e:
+        return ['error', str(e)]
+
+# pertenencia
+def export_grupos():
+    filepath = files_dir + 'csv-base/db_auth_membership.csv'
+    rows = db(db.auth_user.id).select()
+    rows.export_to_csv_file(open(filepath, 'w', encoding='utf-8', newline=''))
+
+
+def populate_pertenencia():
+    # leo de files csv
+    filepath = files_dir + 'csv-base/db_auth_membership.csv'
+    try:
+        # borro todo el contenido de la tabla
+        db.auth_membership.truncate()
+        # importo nuevo contenido
+        db.auth_membership.import_from_csv_file(open(filepath, 'r',
+                                          encoding='utf-8',
+                                          newline='',))
+        db.commit()
+        mensaje = 'cargado sin errores'
+        log(mensaje)
+        return ['ok', mensaje]
+    except Exception as e:
+        return ['error', str(e)]
+
+
+#productos
+def export_grupos():
+    filepath = files_dir + 'csv-base/db_productos.csv'
+    rows = db(db.productos.id).select()
+    rows.export_to_csv_file(open(filepath, 'w', encoding='utf-8', newline=''))
+
+def populate_producto():
+    # leo de files csv
+    filepath = files_dir + 'csv-base/db_producto.csv'
+    try:
+        # borro todo el contenido de la tabla
+        db.producto.truncate()
+        # importo nuevo contenido
+        db.producto.import_from_csv_file(open(filepath, 'r',
+                                          encoding='utf-8',
+                                          newline='',))
+        db.commit()
+        mensaje = 'cargado sin errores'
+        log(mensaje)
+        return ['ok', mensaje]
+    except Exception as e:
+        return ['error', str(e)]
+
+
+#productos
+def export_listas():
+    filepath = files_dir + 'csv-base/db_listas.csv'
+    rows = db(db.listas.id).select()
+    rows.export_to_csv_file(open(filepath, 'w', encoding='utf-8', newline=''))
+
+def populate_listas():
+    # leo de files csv
+    filepath = files_dir + 'csv-base/db_producto.csv'
+    try:
+        # borro todo el contenido de la tabla
+        db.listas.truncate()
+        # importo nuevo contenido
+        db.listas.import_from_csv_file(open(filepath, 'r',
+                                          encoding='utf-8',
+                                          newline='',))
+        db.commit()
+        mensaje = 'cargado sin errores'
+        log(mensaje)
+        return ['ok', mensaje]
+    except Exception as e:
+        return ['error', str(e)]
+
+
+def populate_cliente():
+    filepath = files_dir + 'csv-base/db_cliente.csv'
+    rows = db(db.cliente.id).select()
+    rows.export_to_csv_file(open(filepath, 'w', encoding='utf-8', newline=''))
+
+
+def populate_listas():
+    # leo de files csv
+    filepath = files_dir + 'csv-base/db_cliente.csv'
+    try:
+        # borro todo el contenido de la tabla
+        db.cliente.truncate()
+        # importo nuevo contenido
+        db.cliente.import_from_csv_file(open(filepath, 'r',
+                                          encoding='utf-8',
+                                          newline='',))
+        db.commit()
+        mensaje = 'cargado sin errores'
+        log(mensaje)
+        return ['ok', mensaje]
+    except Exception as e:
+        return ['error', str(e)]
+
+
+def populate_accesos_base():
+    # usuario
+    populate_usuarios()
+    populate_grupos()
+    populate_pertenencia()
+    # producto
+    # clientes
+    # listas

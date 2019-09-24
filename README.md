@@ -49,6 +49,7 @@ web2py nos provee una shell -modelo incluido-
 cd web2py
 python3 web2py.py -S tapa14 -M
 ```
+
 #### datos iniciales
 Desde la shell importamos una base de datos inicial:
 ```
@@ -58,6 +59,13 @@ Desde la shell importamos una base de datos inicial:
 ```
 >>> db.export_to_csv_file(open('nuestras_tablas.csv', 'wb'))
 ```
+
+#### files_privados
+```
+cd web2py/applications/tapa14
+git clone https://github.com/redondomarco/tapa14-files.git files
+```
+
 #### logging
 copiar el archivo web2py/examples/logging.example.conf en el raiz de web2py:
 ```
