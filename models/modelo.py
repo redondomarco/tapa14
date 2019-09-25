@@ -23,6 +23,7 @@ dir_pdf = ('applications/' + str(configuration.get('datos.app_name')) +
 db.define_table(
     'producto',
     Field('codigo', unique=True, length=255),
+    Field('nombre_corto', unique=True, length=6),
     Field('detalle', label=T('Nombre del producto'), unique=True, length=255),
     Field('valor', 'double', default=0),
     Field('stock', 'integer', default=0),
@@ -321,6 +322,10 @@ def populate_listas():
     except Exception as e:
         return ['error', str(e)]
 
+
+# para regenerar tablas se puede borrar todo el contenido de la carpeta
+# databases:
+# rm databases/*
 
 def populate_accesos_base():
     # usuario

@@ -561,6 +561,7 @@
 'Value already in database or empty': 'Value already in database or empty',
 'value already in database or empty': 'el valor ya existe en la base de datos o está vacío',
 'value not allowed': 'valor no permitido',
+'Value not allowed': 'Value not allowed',
 'value not in database': 'el valor no está en la base de datos',
 'Vendedor': 'Vendedor',
 'Verify Password': 'Verificar Contraseña',
