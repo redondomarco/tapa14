@@ -283,7 +283,7 @@ def export_listas():
 
 def populate_listas():
     # leo de files csv
-    filepath = files_dir + 'csv-base/db_producto.csv'
+    filepath = files_dir + 'csv-base/db_listas.csv'
     try:
         # borro todo el contenido de la tabla
         db.listas.truncate()
@@ -299,13 +299,13 @@ def populate_listas():
         return ['error', str(e)]
 
 
-def populate_cliente():
+def export_cliente():
     filepath = files_dir + 'csv-base/db_cliente.csv'
     rows = db(db.cliente.id).select()
     rows.export_to_csv_file(open(filepath, 'w', encoding='utf-8', newline=''))
 
 
-def populate_listas():
+def populate_cliente():
     # leo de files csv
     filepath = files_dir + 'csv-base/db_cliente.csv'
     try:
@@ -316,6 +316,36 @@ def populate_listas():
                                           encoding='utf-8',
                                           newline='',))
         db.commit()
+        mensaje = 'cargado sin errores'
+        log(mensaje)
+        return ['ok', mensaje]
+    except Exception as e:
+        return ['error', str(e)]
+
+
+def export_table(db_name,table_name):
+    filename = str(db_name) + '_' + str(table_name) + '.csv'
+    filepath = files_dir + 'csv-base/' + filename
+    rows = eval(db_name + '(' + db_name + '.' + table_name + '.id).select()')
+    rows.export_to_csv_file(open(filepath, 'w', encoding='utf-8', newline=''))
+
+
+def populate_table(db_name,table_name):
+    # leo de files csv
+    filepath = files_dir + 'csv-base/db_cliente.csv'
+    filename = str(db_name) + '_' + str(table_name) + '.csv'
+    filepath = files_dir + 'csv-base/' + filename
+    try:
+        # borro todo el contenido de la tabla
+        eval(db_name + '.' + table_name + '.truncate()')
+        #db.cliente.truncate()
+        # importo nuevo contenido
+        eval(db_name + '.' + table_name + """.import_from_csv_file(open(filepath, 'r', encoding='utf-8', newline=''))""")
+        #db.cliente.import_from_csv_file(open(filepath, 'r',
+        #                                  encoding='utf-8',
+        #                                  newline='',))
+        eval(db_name + '.commit()')
+        #db.commit()
         mensaje = 'cargado sin errores'
         log(mensaje)
         return ['ok', mensaje]

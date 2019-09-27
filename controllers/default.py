@@ -5,6 +5,7 @@
 # -------------------------------------------------------------------------
 import subprocess
 import shutil
+import json
 from gluon.tools import Expose
 # for ide
 if False:
@@ -489,7 +490,7 @@ def selec_cliente_pedido():
 @auth.requires_membership('vendedor')
 def pedido():
     #clientes=db(db.cliente).select(db.cliente.ALL)
-    listas=db(db.listas).select(db.listas.ALL)
+    listas=db(db.listas).select(db.listas.ALL).as_dict()
     comprobante=db(db.comprobante.nombre=='pedido').select().first()['lastid']
     #creo tabla con productos habilitados para el cliente
     session.productos = []
@@ -601,7 +602,12 @@ def pedido():
         redirect(URL('index'))
     else:
         log('ingreso')
-    return dict(form=form, ids_json=json(idsform), listas_json=json(listas), descuento=descuento, precios_json=json(precios))
+    log(str(idsform))
+    return dict(form=form, ids_json=json.dumps(idsform),
+                listas_json=json.dumps(listas),
+                descuento=descuento,
+                precios_json=json.dumps(precios))
+
 
 @auth.requires_membership('vendedor')
 def pedido_pendiente():
