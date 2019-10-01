@@ -1,1 +1,1 @@
-python3 ../../web2py.py
+python3 ../../web2py.py -v -e --nogui

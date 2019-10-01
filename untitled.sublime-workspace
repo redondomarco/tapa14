@@ -4,6 +4,22 @@
 		"selected_items":
 		[
 			[
+				"tabl",
+				"table_name"
+			],
+			[
+				"tab",
+				"table_name"
+			],
+			[
+				"file",
+				"filename"
+			],
+			[
+				"populate",
+				"populate_pertenencia"
+			],
+			[
 				"fil",
 				"filter\tfunction"
 			],
@@ -50,10 +66,6 @@
 			[
 				"arc",
 				"archivo_elaboracion\tstatement"
-			],
-			[
-				"file",
-				"file_elab\tstatement"
 			],
 			[
 				"reg_",
@@ -155,28 +167,41 @@
 			"file": "controllers/default.py",
 			"settings":
 			{
-				"buffer_size": 51533,
+				"buffer_size": 51645,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"contents": "# -*- coding: utf-8 -*-\n\n\n# -------------------------------------------------------------------------\n# AppConfig configuration made easy. Look inside private/appconfig.ini\n# Auth is for authenticaiton and access control\n# -------------------------------------------------------------------------\nfrom gluon.contrib.appconfig import AppConfig\nfrom gluon.tools import Auth\n\n# for ide\nif False:\n    from gluon import *\n    request = current.request\n    response = current.response\n    session = current.session\n    cache = current.cache\n    T = current.T\n\n# -------------------------------------------------------------------------\n# This scaffolding model makes your app work on Google App Engine too\n# File is released under public domain and you can use without limitations\n# -------------------------------------------------------------------------\n\nif request.global_settings.web2py_version < \"2.15.5\":\n    raise HTTP(500, \"Requires web2py 2.15.5 or newer\")\n\n# -------------------------------------------------------------------------\n# if SSL/HTTPS is properly configured and you want all HTTP requests to\n# be redirected to HTTPS, uncomment the line below:\n# -------------------------------------------------------------------------\n# request.requires_https()\n\n# -------------------------------------------------------------------------\n# once in production, remove reload=True to gain full speed\n# -------------------------------------------------------------------------\nconfiguration = AppConfig(reload=True)\n\nif not request.env.web2py_runtime_gae:\n    # ---------------------------------------------------------------------\n    # if NOT running on Google App Engine use SQLite or other DB\n    # ---------------------------------------------------------------------\n    db = DAL(configuration.get('db.uri'),\n             pool_size=configuration.get('db.pool_size'),\n             migrate_enabled=configuration.get('db.migrate'),\n             check_reserved=['all'])\nelse:\n    # ---------------------------------------------------------------------\n    # connect to Google BigTable (optional 'google:datastore://namespace')\n    # ---------------------------------------------------------------------\n    db = DAL('google:datastore+ndb')\n    # ---------------------------------------------------------------------\n    # store sessions and tickets there\n    # ---------------------------------------------------------------------\n    session.connect(request, response, db=db)\n    # ---------------------------------------------------------------------\n    # or store session in Memcache, Redis, etc.\n    # from gluon.contrib.memdb import MEMDB\n    # from google.appengine.api.memcache import Client\n    # session.connect(request, response, db = MEMDB(Client()))\n    # ---------------------------------------------------------------------\n\n# -------------------------------------------------------------------------\n# by default give a view/generic.extension to all actions from localhost\n# none otherwise. a pattern can be 'controller/function.extension'\n# -------------------------------------------------------------------------\nresponse.generic_patterns = []\nif request.is_local and not configuration.get('app.production'):\n    response.generic_patterns.append('*')\n\n# -------------------------------------------------------------------------\n# choose a style for forms\n# -------------------------------------------------------------------------\nresponse.formstyle = 'bootstrap4_inline'\nresponse.form_label_separator = ''\n\n# -------------------------------------------------------------------------\n# (optional) optimize handling of static files\n# -------------------------------------------------------------------------\n# response.optimize_css = 'concat,minify,inline'\n# response.optimize_js = 'concat,minify,inline'\n\n# -------------------------------------------------------------------------\n# (optional) static assets folder versioning\n# -------------------------------------------------------------------------\n# response.static_version = '0.0.0'\n\n# -------------------------------------------------------------------------\n# Here is sample code if you need for\n# - email capabilities\n# - authentication (registration, login, logout, ... )\n# - authorization (role based authorization)\n# - services (xml, csv, json, xmlrpc, jsonrpc, amf, rss)\n# - old style crud actions\n# (more options discussed in gluon/tools.py)\n# -------------------------------------------------------------------------\n\n# host names must be a list of allowed host names (glob syntax allowed)\nauth = Auth(db, host_names=configuration.get('host.names'))\n\n# -------------------------------------------------------------------------\n# create all tables needed by auth, maybe add a list of extra fields\n# -------------------------------------------------------------------------\nauth.settings.extra_fields['auth_user'] = []\nauth.define_tables(username=False, signature=False)\n\n# -------------------------------------------------------------------------\n# configure email\n# -------------------------------------------------------------------------\nmail = auth.settings.mailer\nif request.is_local:\n    mail.settings.server = 'logging'\nelse:\n    mail.settings.server = configuration.get('smtp.server')\nmail.settings.sender = configuration.get('smtp.sender')\nmail.settings.login = configuration.get('smtp.login')\nmail.settings.tls = configuration.get('smtp.tls') or False\nmail.settings.ssl = configuration.get('smtp.ssl') or False\n\n# -------------------------------------------------------------------------\n# configure auth policy\n# -------------------------------------------------------------------------\nauth.settings.registration_requires_verification = False\nauth.settings.registration_requires_approval = False\nauth.settings.reset_password_requires_verification = True\n\n\n# -------------------------------------------------------------------------\n# read more at http://dev.w3.org/html5/markup/meta.name.html\n# -------------------------------------------------------------------------\nresponse.meta.author = configuration.get('app.author')\nresponse.meta.description = configuration.get('app.description')\nresponse.meta.keywords = configuration.get('app.keywords')\nresponse.meta.generator = configuration.get('app.generator')\nresponse.show_toolbar = configuration.get('app.toolbar')\n\n# -------------------------------------------------------------------------\n# your http://google.com/analytics id\n# -------------------------------------------------------------------------\nresponse.google_analytics_id = configuration.get('google.analytics_id')\n\n# -------------------------------------------------------------------------\n# maybe use the scheduler\n# -------------------------------------------------------------------------\nif configuration.get('scheduler.enabled'):\n    from gluon.scheduler import Scheduler\n    heartbeat = configuration.get('scheduler.heartbeat')\n    scheduler = Scheduler(db, heartbeat=heartbeat)\n\n# -------------------------------------------------------------------------\n# Define your tables below (or better in another model file) for example\n#\n# >>> db.define_table('mytable', Field('myfield', 'string'))\n#\n# Fields can be 'string','text','password','integer','double','boolean'\n#       'date','time','datetime','blob','upload', 'reference TABLENAME'\n# There is an implicit 'id integer autoincrement' field\n# Consult manual for more options, validators, etc.\n#\n# More API examples for controllers:\n#\n# >>> db.mytable.insert(myfield='value')\n# >>> rows = db(db.mytable.myfield == 'value').select(db.mytable.ALL)\n# >>> for row in rows: print row.id, row.myfield\n# -------------------------------------------------------------------------\n\n# -------------------------------------------------------------------------\n# after defining tables, uncomment below to enable auditing\n# -------------------------------------------------------------------------\n# auth.enable_record_versioning(db)\n# fuerzo idioma\nT.force('es-ar')\n\n# directorios\nfiles_dir = 'applications/' + str(configuration.get('app.name')) + '/files/'\n",
-			"file": "models/db.py",
-			"file_size": 8116,
-			"file_write_time": 132089673237475125,
+			"contents": "#tabla_informe {\n    border-collapse: collapse;\n    width: 100%;\n}\n#tabla_informe td, th {\n    border: 1px solid #dddddd;\n    text-align: left;\n    padding: 8px;\n}\n#tabla_informe tr:nth-child(even) {\n    background-color: #dddddd;\n}\n\n",
+			"file": "static/css/tapa14.css",
+			"file_size": 232,
+			"file_write_time": 132137382758731320,
 			"settings":
 			{
-				"buffer_size": 8116,
+				"buffer_size": 234,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "views/default/pedido.html",
+			"settings":
+			{
+				"buffer_size": 3170,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "models/db.py",
+			"settings":
+			{
+				"buffer_size": 8024,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"contents": "# funciones sobre el modelo\n\n# for ide\nif False:\n    from gluon import *\n    request = current.request\n    response = current.response\n    session = current.session\n    cache = current.cache\n    T = current.T\n\n# no usado aun\n# def delete_tables():\n#     \"\"\"borro todo el contenido de las tablas menos los usuarios y permisos\"\"\"\n#     tables_all = db.tables()\n#     try:\n#         tables_all.remove('auth_user')\n#         tables_all.remove('auth_group')\n#         tables_all.remove('auth_permission')\n#         tables_all.remove('auth_membership')\n#         tables_all.remove('auth_event')\n#         tables_all.remove('auth_cas')\n#     except Exception:\n#         pass\n#     for table_name in tables_all:\n#         log('borra ' + table_name)\n#         try:\n#             db[table_name].drop()\n#         except Exception as e:\n#             log('tabla ' + str(table_name) + ' e: ' + str(e))\n#             pass\n#     db.commit()\n\n\ndef blank_data():\n    tables_all = db.tables()\n    # no blanqueo \n    try:\n        tables_all.remove('auth_user')\n        tables_all.remove('auth_group')\n        tables_all.remove('auth_permission')\n        tables_all.remove('auth_membership')\n        tables_all.remove('auth_event')\n        tables_all.remove('auth_cas')\n    except Exception:\n        pass\n    for table_name in tables_all:\n        try:\n            eval('db.' + table_name + '.truncate()')\n            log('blanqueo ' + table_name)\n        except Exception as e:\n            log('error balnqueo ' + str(table_name) + ' e: ' + str(e))\n            pass\n    db.commit()\n\n\n\ndef restore_backup(filepath):\n    try:\n        db.import_from_csv_file(open(filepath, 'r',\n                                encoding='utf-8',\n                                newline='',),\n                                restore=True)\n        db.commit()\n        mensaje = 'cargado sin errores'\n        log(mensaje)\n        return ['ok', mensaje]\n    except Exception as e:\n        return ['error', str(e)]\n\n\ndef arbol_pedidos():\n    pedidos = db(db.pedidos).select(db.pedidos.ALL).as_list()\n    fichas = tree()\n    for i in pedidos:\n        pedidonum = i['pedidonum']\n        cantidad = i['cantidad']\n        idcliente = i['cliente']\n        try:\n            fentrega = i['fentrega'].strftime('%d/%m')\n        except Exception:\n            fentrega = ''\n        cliente = db(db.cliente.id == idcliente).select().first()['nombre']\n        idproducto = i['producto']\n        producto = db(db.producto.id == idproducto).select().first()['codigo']\n        nota = i['nota']\n        total = i['total']\n        fichas[cliente][pedidonum][producto] = [cantidad,\n                                                nota,\n                                                fentrega,\n                                                total]\n    return fichas\n\n# devuelve lista de pedidos pendientes\n\n\ndef lista_pedidos():\n    pedidos = db(db.pedidos).select(db.pedidos.ALL).as_list()\n    lista = []\n    for i in pedidos:\n        lista.append(int(i['pedidonum']))\n    return list(set(lista))\n\n\ndef obtengo_pedido(pedidonum):\n    selector = (db.pedidos.pedidonum == pedidonum)\n    pedido = db(selector).select(db.pedidos.ALL).as_list()\n    cliente_id = pedido[0]['cliente']\n    fentrega = pedido[0]['fentrega']\n    nota = pedido[0]['nota']\n    items = []\n    for i in pedido:\n        selectorp = (db.producto.id == i['producto'])\n        producto = db(selectorp).select().first()['codigo']\n        item = [(int(i['cantidad']), producto, i['preciou'])]\n        items.append(item)\n    return [cliente_id, fentrega, nota, items]\n\n\ndef elimino_pedido(pedidonum):\n    # muevo el pedido a tabla pedidos eliminados\n    selector = (db.pedidos.pedidonum == pedidonum)\n    pedido = db(selector).select(db.pedidos.ALL).as_list()\n    for i in pedido:\n        db.pedidos_hist.insert(\n            fecha=i['fecha'],\n            fentrega=i['fentrega'],\n            pedidonum=i['pedidonum'],\n            vendedor=i['vendedor'],\n            cliente=i['cliente'],\n            nota=i['nota'],\n            cantidad=i['cantidad'],\n            producto=i['producto'],\n            preciou=i['preciou'],\n            total=i['total']\n        )\n    db(db.pedidos.pedidonum == pedidonum).delete()\n    db.commit()\n    log('eliminado pedido:' + str(pedidonum))\n\n\ndef obtengo_cliente(clienteid):\n    selector = (db.cliente.id == clienteid)\n    return db(selector).select(db.cliente.ALL).as_dict()[clienteid]\n\n\n# from sets import Set\n# def quito_ce(palabra):\n#    caracteres_permitidos='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'\n#    allowed_chars = Set(caracteres_permitidos)\n#    if palabra==None:\n#       return 'error'\n#    resultado=''\n#    for i in palabra:\n#        if i in allowed_chars:\n#            resultado=resultado+i\n#    return resultado\n\n# if Set(string).issubset(allowed_chars):\n#    return string\n# else:\n#   mensaje='caracter invalido '+str(string)\n#    log(mensaje)\n#    return ['error',mensaje]\n",
 			"file": "models/funciones.py",
-			"file_size": 4948,
-			"file_write_time": 132033008119209287,
 			"settings":
 			{
 				"buffer_size": 4948,
@@ -184,33 +209,33 @@
 			}
 		},
 		{
-			"contents": "# -*- coding: utf-8 -*-\n# db.define_table(\n#   'imagen',\n#   Field('titulo', unique=True, length=255),\n#   Field('archivo', 'upload'),\n#   format = '%(titulo)s')\n\n# combos cliente\nfrom collections import OrderedDict\n# for ide\nif False:\n    from db import *\n    from util import *\n\n\ntipo_iva = ['RI', 'monotributo', 'consumidor final', 'nc']\ntipo_comprobante = ['factura A', 'factura B', 'nota de venta', 'recibo']\ntipo_cta = ['contado', 'cta cte']\nestado_pedido = ['borrado', 'vendido']\ndir_pdf = ('applications/' + str(configuration.get('datos.app_name')) +\n           '/files/pdf')\n\ndb.define_table(\n    'producto',\n    Field('codigo', unique=True, length=255),\n    Field('detalle', label=T('Nombre del producto'), unique=True, length=255),\n    Field('valor', 'double', default=0),\n    Field('stock', 'integer', default=0),\n    Field('reserva', 'integer', default=0),\n    Field('stock_alias', 'reference producto'),\n    format='%(detalle)s'\n)\ndb.define_table(\n    'listas',\n    Field('lista', unique=True, length=255),\n    Field('valor', 'double'),\n    format='%(lista)s'\n)\n\ndb.define_table(\n    'cliente',\n    Field('nombre', unique=True, length=255),\n    Field('lista', 'reference listas'),\n    Field('productos', 'list:reference producto'),\n    Field('saldo', 'double', default=0),\n    Field('tipocuenta', default=tipo_cta[0]),\n    Field('iva'),\n    Field('comprobante'),\n    Field('correo'),\n    Field('aviso', 'boolean'),\n    Field('cuit'),\n    Field('razon_social'),\n    Field('domicilio', length=255),\n    Field('localidad', length=255),\n    Field('provincia', length=255),\n    Field('telefono'),\n    Field('activo', 'boolean'),\n    format='%(nombre)s'\n)\ndb.cliente.iva.requires = IS_IN_SET(tipo_iva)\ndb.cliente.comprobante.requires = IS_IN_SET(tipo_comprobante, multiple=True)\ndb.cliente.tipocuenta.requires = IS_IN_SET(tipo_cta, multiple=True)\n\n# tabla de pedidos\ndb.define_table(\n    'pedidos',\n    Field('fecha', 'datetime'),\n    Field('fentrega', 'datetime'),\n    Field('pedidonum', 'integer'),\n    Field('vendedor', 'reference auth_user'),\n    Field('cliente', 'reference cliente'),\n    Field('nota'),\n    Field('cantidad', 'integer'),\n    Field('producto', 'reference producto', default=1),\n    Field('preciou', 'double'),\n    Field('total', 'double'),\n    format='%(pedidonum)s'\n)\n\ndb.define_table(\n    'pedidos_hist',\n    Field('fecha', 'datetime'),\n    Field('fentrega', 'datetime'),\n    Field('pedidonum', 'integer'),\n    Field('vendedor', 'reference auth_user'),\n    Field('cliente', 'reference cliente'),\n    Field('nota'),\n    Field('cantidad', 'integer'),\n    Field('producto', 'reference producto', default=1),\n    Field('preciou', 'double'),\n    Field('total', 'double'),\n    format='%(pedidonum)s'\n)\n\n# ventas\n#  estados\ntipo_entrega = ['pendiente', 'entregado']\ntipo_pago = ['pendiente', 'parcial', 'pagado']\nestado_pedido = ['pendiente', 'anulado', 'finalizado']\n#  tabla de ventas\ndb.define_table(\n    'ventas',\n    Field('fecha', 'datetime'),\n    Field('fentrega', 'datetime'),\n    Field('ventanum', 'integer'),\n    Field('vendedor', 'reference auth_user'),\n    Field('cliente', 'reference cliente'),\n    Field('nota'),\n    Field('cantidad', 'integer'),\n    Field('producto', 'reference producto', default=1),\n    Field('preciou', 'double'),\n    Field('total', 'double'),\n    Field('comprobante'),\n    Field('nro_comprobante', 'integer'),\n    Field('entrega'),\n    Field('pago'),\n    format='%(pedidonum)s'\n)\ndb.ventas.comprobante.requires = IS_IN_SET(tipo_comprobante, multiple=True)\ndb.ventas.entrega.requires = IS_IN_SET(tipo_entrega)\ndb.ventas.pago.requires = IS_IN_SET(tipo_pago)\n\n\n# requires = IS_DATE(format=('%d/%m/%Y %H:%M:%S')\ndb.define_table(\n    'ingresos',\n    Field('fecha', 'datetime'),\n    Field('fecha_prod', 'datetime'),\n    Field('vto', 'datetime'),\n    Field('lote', 'integer'),\n    Field('usuario', default=auth.user_id),\n    Field('cantidad', 'integer'),\n    Field('producto', 'reference producto')\n)\ndb.define_table(\n    'es_caja',\n    Field('nombre'),\n    Field('tipo')\n)\n# db.define_table(\n#    'movimientos',\n#    Field('fecha', 'datetime'),\n#    Field('vendedor', 'reference auth_user'),\n#    Field('comprobante', 'integer'),\n#    Field('descripcion', 'reference es_caja'),\n#    Field('total', 'double')\n#    )\ndb.define_table(\n    'comprobante',\n    Field('nombre'),\n    Field('lastid', 'integer')\n)\ndb.define_table(\n    'dinero',\n    Field('nombre'),\n    Field('valor', 'double')\n)\n# db.define_table(\n#    'pendientes',\n#    Field('operacion'),\n#    Field('ventanum', 'integer')\n#    )\n\n# calcula la fecha de vencimiento para un lote\n\n\ndef fecha_vto(lote):\n    diasvto = 30\n    a = datetime.strptime(str(datetime.now().year) + '11', '%Y%m%d')\n    b = timedelta(days=int(lote) + diasvto - 1)\n    return a + b\n\n\ndef capture_update():\n    log(request.vars.data)\n    # return db().insert(data = request.vars.data)\n\n\ndef populate_base():\n    # usuario\n    populate_usuarios()\n    #\n    # grupos\n    # producto\n    # clientes\n    # listas\n\n\n# archivos base\nusuarios_base = files_dir + 'csv-base/db_auth_user.csv'\nusuarios_ods_base = files_dir + 'csv-base/db_auth_user.ods'\nusuarios_xls_base = files_dir + 'csv-base/db_auth_user.xls'\ngrupos_base = files_dir + 'csv-base/db_auth_group.csv'\nmiembros_base = files_dir + 'csv-base/db_auth_membership.csv'\n\n\ndef export_usuarios_base(file):\n    rows = db(db.auth_user.id).select()\n    rows.export_to_csv_file(open(file, 'w', encoding='utf-8',\n                                 newline=''))\n\n\ndef usuario_ods():\n    rows = db(db.auth_user.id).select()\n    lista = rows.as_list()\n    columnas = list(lista[0].keys())\n    planilla = [columnas]\n    for registro in rows.as_list():\n        planilla.append(list(registro.values()))\n    data = OrderedDict()\n    data.update({\"Sheet 1\": planilla})\n    save_data(usuarios_ods_base, data)\n\n\nimport pyexcel\ndef usuario_xls():\n    lista = db(db.auth_user.id).select().as_list()\n    pyexcel.save_as(records=lista, dest_file_name=usuarios_xls_base)\n    \n\ndef re_populate_usuarios_base():\n    # guardo bkp\n    try:\n        dir_bkp = files_dir + 'csv-bkp'\n        subprocess.run([\"mkdir\", \"-p\", dir_bkp])\n        export_usuarios_base(dir_bkp + 'usuarios' + idtemp_generator(3))\n    except Exception as e:\n        log('no se puedo guardar bkp: ' + str(e))\n    # leo de files csv\n    filepath = files_dir + 'csv-base/db_auth_user.csv'\n    try:\n        # borro todo el contenido de la tabla\n        db.auth_user.truncate()\n        db.auth_user.import_from_csv_file(open(filepath, 'r',\n                                          encoding='utf-8',\n                                          newline='',))\n        db.commit()\n        mensaje = 'cargado sin errores'\n        log(mensaje)\n        return ['ok', mensaje]\n    except Exception as e:\n        return ['error', str(e)]\n\n\ndef export_grupos_base(file):\n    rows = db(db.auth_group.id).select()\n    rows.export_to_csv_file(open(file, 'w', encoding='utf-8', newline=''))\n\n\ndef populate_grupos_base():\n    # leo de files csv\n    filepath = files_dir + 'csv-base/db_auth_group.csv'\n    try:\n        # borro todo el contenido de la tabla\n        db.auth_user.truncate()\n        db.auth_user.import_from_csv_file(open(filepath, 'r',\n                                          encoding='utf-8',\n                                          newline='',))\n        db.commit()\n        mensaje = 'cargado sin errores'\n        log(mensaje)\n        return ['ok', mensaje]\n    except Exception as e:\n        return ['error', str(e)]",
 			"file": "models/modelo.py",
-			"file_size": 7493,
-			"file_write_time": 132090611832655947,
 			"settings":
 			{
-				"buffer_size": 7493,
+				"buffer_size": 11087,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"contents": "# -*- coding: utf-8 -*-\nimport logging\nfrom collections import defaultdict\nimport hashlib\nimport string\nimport datetime\nimport random\nimport csv\nimport os\nimport json\nfrom pyexcel_ods import save_data\nfrom pyexcel_ods import get_data\n\n# for ide\nif False:\n    from gluon import *\n    request = current.request\n    response = current.response\n    session = current.session\n    cache = current.cache\n    T = current.T\n\n# logs\nlogger = logging.getLogger(\"web2py\")\nlogger.setLevel(logging.DEBUG)\nlog_remove = [\n    'Set-Cookie: ',\n    'session_id_tapa14=']\n\n\ndef log(palabra):\n    \"\"\"funcion auditoria que incorpora el usuario si es que existe\"\"\"\n    if hasattr(auth.user, 'email'):\n        mensaje = (str(auth.user.email) + ' ' + str(request.function) +\n                   ' ' + str(palabra))\n        for i in log_remove:\n            mensaje = mensaje.replace(str(i), '')\n        logger.info(mensaje)\n    else:\n        logger.info('usuario: admin ' + str(palabra))\n\n\ndef debug(palabra):\n    if hasattr(auth.user, 'email'):\n        mensaje = 'DEBUG-' + str(palabra) + '-FIN'\n        for i in log_remove:\n            mensaje = mensaje.replace(str(i), '')\n        logger.info(mensaje)\n    else:\n        logger.info('usuario: admin ' + str(palabra))\n\n# websocket\n# from gluon.contrib.websocket_messaging import websocket_send\n\n\ndef tree():\n    return defaultdict(tree)\n\n\n# BUF_SIZE is totally arbitrary, change for your app!\nBUF_SIZE = 65536  # lets read stuff in 64kb chunks!\n\n\ndef md5sum(filepath):\n    md5 = hashlib.md5()\n    with open(filepath, 'rb') as f:\n        while True:\n            data = f.read(BUF_SIZE)\n            if not data:\n                break\n            md5.update(data)\n\n\ndef idtemp_generator(\n    size=50,\n    chars=(string.ascii_uppercase + string.digits +\n           string.ascii_lowercase)):\n    dia = (str(datetime.datetime.now().year) + '-' +\n           str(datetime.datetime.now().month) + '-' +\n           str(datetime.datetime.now().day) + '_')\n    return dia + ''.join(random.choice(chars) for _ in range(size))\n\n\ndef hoy_string():\n    dia = (str(datetime.datetime.now().year) + '-' +\n           str(datetime.datetime.now().month) + '-' +\n           str(datetime.datetime.now().day))\n    return dia\n\n\ndef dict_to_table(diccionario, orden=[]):\n    '''recibe un diccionario y devuelve una tabla html 2xn'''\n    if type(diccionario) == dict:\n        claves = diccionario.keys()\n        aux_filas = []\n        for i in reversed(orden):\n            try:\n                claves.insert(0, claves.pop(claves.index(i)))\n            except Exception:\n                pass\n        for i in claves:\n            aux_filas.append(TR(TD(i), TD(diccionario[i])))\n        return TABLE(aux_filas, _id=\"tabla_informe\")\n    elif type(diccionario) == str:\n        return diccionario\n    else:\n        # aux_filas=['error',str(diccionario)]\n        aux_filas = [TR(TD('bug!'), TD(str(diccionario)))]\n        return TABLE(aux_filas, _id=\"tabla_informe\")\n\n\ndef list_of_dict_to_csv(nombre, lista, **kwargs):\n    \"\"\"recibe nombre y una lista de dicts y lo graba en disco,\n    devuelve string nombre+hash\"\"\"\n    if 'dir' in kwargs:\n        directorio = str(kwargs['dir'])\n    else:\n        directorio = ('applications/' + str(configuration.get('app.name')) +\n                      '/files/csv/')\n    if 'norandom' in kwargs:\n        nombre_archivo = str(nombre) + '.csv'\n    else:\n        nombre_archivo = str(nombre) + '_' + str(idtemp_generator(10)) + '.csv'\n    log(directorio + nombre_archivo)\n    try:\n        keys = lista[0].keys()\n        with open(directorio + nombre_archivo, 'w',\n                  encoding='utf8', newline='') as output_file:\n            dict_writer = csv.DictWriter(output_file, keys)\n            dict_writer.writeheader()\n            dict_writer.writerows(lista)\n            return ['ok', nombre_archivo]\n    except Exception as e:\n        log(e.args)\n        return ['error', e.args]\n\n\ndef test_list_of_dict_to_csv():\n    lista = [{'cantidad': 3,\n              'cliente': 'PANIFICADORA ÑESTADIO S.A.',\n              'fa_n': '0010000400000000000000003892',\n              'fecha': datetime.date(2019, 2, 1),\n              'lote': ['32'],\n              'producto': 'TPC300x16'},\n             {'cantidad': 20,\n              'cliente': 'VASCO RAMON FERNANDO',\n              'fa_n': '0010000400000000000000003893',\n              'fecha': datetime.date(2019, 2, 2),\n              'lote': ['33'],\n              'producto': 'TDC123x18'}]\n    return list_of_dict_to_csv('test', lista)\n\n\n\ndef list_dict_to_table_sortable(lista):\n    '''recibe una lista de diccionarios(clave-valor iguales) y\n     devuelve una tabla html'''\n    if type(lista) == list:\n        if type(lista[0]) == dict:\n            claves = lista[0].keys()\n            orden = ['fecha', 'dni', 'usuario', 'apellido y nombre',\n                     'apellido', 'nombre']\n            for i in reversed(orden):\n                try:\n                    claves.insert(0, claves.pop(claves.index(i)))\n                except Exception:\n                    pass\n                    # log(e)\n            # cabecera tabla\n            tabla = '<table data-toggle=\"table\"> <thead> <tr>'\n            for i in claves:\n                tabla = tabla + '<th data-field=\"%s\" data-sortable=\"true\">%s</th>'%(i,i)\n            tabla = tabla + '</tr> </thead> <tbody>'\n            # contenido tabla\n            for i in lista:\n                tabla = tabla + '<tr>'\n                for j in claves:\n                    tabla = tabla + '<td>%s</td>' % (i[j])\n                tabla = tabla + '</tr>'\n            tabla = tabla + '</tbody> </table>'\n            cantidad = len(lista)\n            leyenda_cantidad = MARKMIN(\"Cantidad de registros analizados: \" + str(cantidad))\n            session.nombre_archivo = list_of_dict_to_csv('informe_documentos',lista)[1]\n            # open_archivo = open('applications/' + str(configuration.get('app.name')) + '/files/csv/'+session.nombre_archivo, \"r\")\n            boton_csv = A('Descarga tabla como CSV...',\n                          _href=URL('descarga_csv'),\n                          _class='btn btn-default')\n            # return CENTER(TABLE(boton_csv,XML(tabla)))\n            return DIV(boton_csv, leyenda_cantidad, XML(tabla))\n\n\ndef todos_los_archivos(directorio):\n    archivos = []\n    for path, subdirs, files in os.walk(directorio):\n        for name in files:\n            archivos.append(os.path.join(path, name))\n    return archivos\n\n\n# ods format\n# {\"Sheet 1\": [[1, 2, 3], [4, 5, 6]]}\n#\ndef csv_to_ods(csv, content):\n    \n    data = OrderedDict()\n    data.update(content)\n    save_data(files_dir + 'csv-bkp/' + str(filename) + '.ods', data)\n\n\ndef load_ods(filename):\n    data = get_data(\"your_file.ods\")\n    return json.dumps(data)",
-			"file": "models/util.py",
-			"file_size": 6746,
-			"file_write_time": 132089707009181321,
+			"file": "views/plugin_adminlte/layout_starter.html",
 			"settings":
 			{
-				"buffer_size": 6744,
+				"buffer_size": 17522,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"contents": "# -*- coding: utf-8 -*-\n\nimport pdftotext\nimport os\nimport shutil\n# from os import walk\n\n# for ide\nif False:\n    from util import *\n\n\ndef analizo_fa(path_factura, **kwargs):\n    # solo abro pdf\n    # log('analizo '+str(path_factura))\n    if path_factura[-4:] == '.pdf':\n        with open(path_factura, \"rb\") as f:\n            pdf = pdftotext.PDF(f)\n        a = pdf[0]\n        b = a.split('\\n')\n        c = []\n        for i in b:\n            c.append(i.split())\n        if 'debug' in kwargs.keys():\n            return c\n        # compruebo que la factura se ajuste\n        if c[1][-2] == u'A':\n            condiciones_a = [\n                c[14] == [u'Subtotal', u'c/IVA'],\n                c[-19] == [u'Otros', u'Tributos'],\n                c[-7] == [u'Importe', u'Otros', u'Tributos:', u'$', u'0,00']\n            ]\n            for i in condiciones_a:\n                if i is False:\n                    return ['error', 'faltan condiciones' + str(condiciones_a)]\n            proceso = leo_fa_a(c)\n            hash_md5 = md5sum(path_factura)\n            proceso[1]['md5'] = hash_md5\n            proceso[1]['nombre_archivo'] = str(os.path.basename(path_factura))\n            return proceso\n        else:\n            mensaje = path_factura + ' formato desconocido'\n            # log(mensaje)\n            return ['error', mensaje]\n    else:\n        mensaje = 'archivo invalido: ' + path_factura\n        log(mensaje)\n        return['error', mensaje]\n\n\ndef leo_fa_a(c):\n    return 'terminar'\n    # analizo c\n    # datos de la factura\n    # salida={}\n#     salida['f_copia']=tostring(c[0][0])\n#     salida['f_nom_doc']=tostring(c[1][-1])\n#     salida['f_tipo']=tostring(c[1][-2])\n#     salida['f_cod']=tostring(c[2][-1])\n#     salida['f_ptovta']=tostring(c[3][-4])\n#     salida['f_nro']=tostring(c[3][-1])\n#     salida['f_fechae']=tostring(c[4][-1])\n#     #f_cae\n#     #f_vtocae\n#     salida['f_nrocodbar']=tostring(c[-2][0])\n#     ##datos del emisor\n#     salida['e_rsocial']=tostring(c[4][2:-4])\n#     #\n#     #armo domicilio multilinea\n#     marca=c[6].index(u'Ingresos')\n#     sda_parte=''\n#     #if marca>0:\n#     salida['e_domicilio']=tostring(c[5][2:-2])+sda_parte\n#     salida['e_cuit']=tostring(c[5][-1])\n#     salida['e_iibb']=tostring(c[6][-1])\n#     marca=c[7].index(u'Fecha')\n#     salida['e_condiva']=tostring(c[7][4:marca])\n#     salida['e_fia']=tostring(c[7][-1])\n#     #\n#     ##datos del receptor\n#     salida['r_cuit']=tostring(c[8][1])\n#     marca=c[8].index(u'Social:')+1\n#     salida['r_rsocial']=tostring(c[8][marca:])\n#     marca1=c[9].index(u'IVA:')+1\n#     marca2=c[9].index(u'Domicilio')\n#     salida['r_condiva']=tostring(c[9][marca1:marca2])\n#     marca=c[9].index(u'Comercial:')+1\n#     salida['r_domicilio']=tostring(c[9][marca:])\n#     salida['r_condvta']=tostring(c[10][-1])\n#     ##detalle de la venta\n#     #detecto primera linea\n#     articulos=[]\n#     marca_primera_linea=c.index([u'Subtotal', u'c/IVA'])+1\n#     marca_segunda_linea=c.index([u'Subtotal', u'c/IVA'])+2\n#     marca_ultima_linea=c.index([u'Otros', u'Tributos'])-1\n#     #testeo si hay nota\n#     #no hay nota si hay 'unidades' o 'docenas' en primera Y segunda linea'\n#        if ('unidades' in str(c[marca_primera_linea])) or\n#           ('docenas' in str(c[marca_primera_linea])):\n#        if ('unidades' in str(c[marca_segunda_linea])) or\n#            ('docenas' in str(c[marca_segunda_linea])):\n#             salida['nota']=''\n#             marca_segunda_linea=marca_primera_linea\n#         elif marca_ultima_linea==marca_primera_linea:\n#             #hay una sola linea\n#             salida['nota']=''\n#         else:\n#             salida['nota']='hay nota'\n#     elif ('unidades' in str(c[marca_primera_linea])) or\n#     ('docenas' in str(c[marca_primera_linea])):\n#         if marca_ultima_linea==marca_primera_linea:\n#             #hay una sola linea\n#             salida['nota']=''\n#         else:\n#             salida['nota']='hay nota'\n#     else:\n#         salida['nota']='hay nota'\n#     if salida['nota']!='':\n#         #log('hay nota')\n#         #hay nota-> identifico (producto + nota) + resto de columnas\n#         try:\n#             #supongo q la primera linea contiene resto de columnas-unidades\n#             marca=c[marca_primera_linea].index(u'unidades')-1\n#             salida['nota']=tostring(c[marca_primera_linea][0:marca])\n#         except Exception as e1:\n#             #log('e1 '+str(e1))\n#             try:\n#                 #la primera linea contiene resto de columnas-docenas\n#                 marca=c[marca_primera_linea].index(u'docenas')-1\n#                 salida['nota']=tostring(c[marca_segunda_linea][0:marca])\n#             except Exception as e2:\n#                 pass\n#                 #log('e2 '+str(e2))\n#       try:\n#           #la segunda linea contiene resto de columnas\n#           marca=c[marca_segunda_linea].index(u'unidades')-1\n#           salida['nota']=tostring(c[marca_segunda_linea][0:marca])\n#       except Exception as e3:\n#           #log('e3 '+str(e3))\n#           try:\n#               #la segunda linea contiene resto de columnas\n#               marca=c[marca_segunda_linea].index(u'docenas')-1\n#               salida['nota']=tostring(c[marca_segunda_linea][0:marca])\n#           except Exception as e4:\n#               #log('e4 '+str(e4))\n#               pass\n#       #armo primer articulo\n#   #armo primer articulo para facturas con nota detecto linea.\n#   if salida['nota']!='':\n#       #log('tiene nota')\n#       articulos=[[\n#       '',\n#       tostring(c[marca_primera_linea+1]),\n#       tostring(c[marca_primera_linea][-7]),\n#       tostring(c[marca_primera_linea][-6]),\n#       tostring(c[marca_primera_linea][-5]),\n#       tostring(c[marca_primera_linea][-4]),\n#       tostring(c[marca_primera_linea][-3]),\n#       tostring(c[marca_primera_linea][-2]),\n#       tostring(c[marca_primera_linea][-1])]]\n#       rango=range(marca_segunda_linea+1,marca_ultima_linea)\n#   else:\n#       #no tiene nota arranco por el primer elemento\n#       rango=range(marca_primera_linea,marca_ultima_linea)\n#       if rango==[]:\n#           #para el caso de un articulo\n#           rango=[marca_primera_linea]\n#   #proceso resto de articulos\n#   for n in rango:\n#       #cod,prod,cant,umed,puni,boni,subt,alic,suci\n#       cod=''\n#       prod=tostring(c[n][0:-7])\n#       cant=tostring(c[n][-7])\n#       umed=tostring(c[n][-6])\n#       puni=tostring(c[n][-5])\n#       boni=tostring(c[n][-4])\n#       subt=tostring(c[n][-3])\n#       alic=tostring(c[n][-2])\n#       suci=tostring(c[n][-1])\n#       articulos.append([cod,prod,cant,umed,puni,boni,subt,alic,suci])\n#   salida['d_art']=articulos\n#   #datos de importes\n#   #it_siva\n#   #it_iva\n#   salida['it_total']=tostring(c[-6][3])\n#   return ['ok',salida]\n\n# def leo_fa_b(c):\n#   #analizo c\n#   ##datos de la factura\n#   salida={}\n#   salida['f_copia']=tostring(c[0][0])\n#   salida['f_nom_doc']=tostring(c[1][-1])\n#   salida['f_tipo']=tostring(c[1][-2])\n#   salida['f_cod']=tostring(c[2][-1])\n#   salida['f_ptovta']=tostring(c[3][-4])\n#   salida['f_nro']=tostring(c[3][-1])\n#   salida['f_fechae']=tostring(c[4][-1])\n#   #f_cae\n#   #f_vtocae\n#   salida['f_nrocodbar']=tostring(c[-2][0])\n#   ##datos del emisor\n#   salida['e_rsocial']=tostring(c[4][2:-4])\n#   #\n#   #armo domicilio multilinea\n#   marca=c[6].index(u'Ingresos')\n#   sda_parte=''\n#   if marca>0:\n#       sda_parte=' '+tostring(c[6][0:marca])\n#   salida['e_domicilio']=tostring(c[5][2:-2])+sda_parte\n#   salida['e_cuit']=tostring(c[5][-1])\n#   salida['e_iibb']=tostring(c[6][-1])\n#   marca=c[7].index(u'Fecha')\n#   salida['e_condiva']=tostring(c[7][4:marca])\n#   salida['e_fia']=tostring(c[7][-1])\n#   #\n#   ##datos del receptor\n#   salida['r_cuit']=tostring(c[8][1])\n#   marca=c[8].index(u'Social:')+1\n#   salida['r_rsocial']=tostring(c[8][marca:])\n#   marca1=c[9].index(u'IVA:')+1\n#   marca2=c[9].index(u'Domicilio:')\n#   salida['r_condiva']=tostring(c[9][marca1:marca2])\n#   #marca=c[9].index(u'Comercial:')+1\n#   salida['r_domicilio']=tostring(c[9][marca2+1:])\n#   salida['r_condvta']=tostring(c[10][-1])\n#   ##detalle de la venta\n#   #detecto primera linea\n#   articulos=[]\n#   marca_primera_linea=c.index([u'Subtotal', u'c/IVA'])+1\n#   marca_segunda_linea=c.index([u'Subtotal', u'c/IVA'])+2\n#   marca_ultima_linea=c.index([u'Otros', u'Tributos'])-1\n#   #testeo si hay nota\n#   #no hay nota si hay 'unidades' o 'docenas' en primera Y segunda linea'\n#   if ('unidades' in str(c[marca_primera_linea])) or\n# ('docenas' in str(c[marca_primera_linea])):\n#       if ('unidades' in str(c[marca_segunda_linea])) or\n# ('docenas' in str(c[marca_segunda_linea])):\n#           salida['nota']=''\n#           marca_segunda_linea=marca_primera_linea\n#       elif marca_ultima_linea==marca_primera_linea:\n#           #hay una sola linea\n#           salida['nota']=''\n#       else:\n#           salida['nota']='hay nota'\n#   elif ('unidades' in str(c[marca_primera_linea])) or\n# ('docenas' in str(c[marca_primera_linea])):\n#       if marca_ultima_linea==marca_primera_linea:\n#           #hay una sola linea\n#           salida['nota']=''\n#       else:\n#           salida['nota']='hay nota'\n#   else:\n#       salida['nota']='hay nota'\n#   if salida['nota']!='':\n#       #log('hay nota')\n#       #hay nota-> identifico (producto + nota) + resto de columnas\n#       try:\n#           #supongo q la primera linea contiene resto de columnas-unidades\n#           marca=c[marca_primera_linea].index(u'unidades')-1\n#           salida['nota']=tostring(c[marca_primera_linea][0:marca])\n#       except Exception as e1:\n#           #log('e1 '+str(e1))\n#           try:\n#               #la primera linea contiene resto de columnas-docenas\n#               marca=c[marca_primera_linea].index(u'docenas')-1\n#               salida['nota']=tostring(c[marca_segunda_linea][0:marca])\n#           except Exception as e2:\n#               #log('e2 '+str(e2))\n#               pass\n#       try:\n#           #la segunda linea contiene resto de columnas\n#           marca=c[marca_segunda_linea].index(u'unidades')-1\n#           salida['nota']=tostring(c[marca_segunda_linea][0:marca])\n#       except Exception as e3:\n#           #log('e3 '+str(e3))\n#           try:\n#               #la segunda linea contiene resto de columnas\n#               marca=c[marca_segunda_linea].index(u'docenas')-1\n#               salida['nota']=tostring(c[marca_segunda_linea][0:marca])\n#           except Exception as e4:\n#               #log('e4 '+str(e4))\n#               pass\n#       #armo primer articulo\n#   #armo primer articulo para facturas con nota detecto linea.\n#   if salida['nota']!='':\n#       #log('tiene nota')\n#       articulos=[[\n#       '',\n#       tostring(c[marca_primera_linea+1]),\n#       tostring(c[marca_primera_linea][-7]),\n#       tostring(c[marca_primera_linea][-6]),\n#       tostring(c[marca_primera_linea][-5]),\n#       tostring(c[marca_primera_linea][-4]),\n#       tostring(c[marca_primera_linea][-3]),\n#       tostring(c[marca_primera_linea][-2]),\n#       tostring(c[marca_primera_linea][-1])]]\n#       rango=range(marca_segunda_linea+1,marca_ultima_linea)\n#   else:\n#       #no tiene nota arranco por el primer elemento\n#       rango=range(marca_primera_linea,marca_ultima_linea)\n#       if rango==[]:\n#           #para el caso de un articulo\n#           rango=[marca_primera_linea]\n#   #proceso resto de articulos\n#   for n in rango:\n#       #cod,prod,cant,umed,puni,boni,subt,alic,suci\n#       cod=''\n#       prod=tostring(c[n][0:-7])\n#       cant=tostring(c[n][-7])\n#       umed=tostring(c[n][-6])\n#       puni=tostring(c[n][-5])\n#       boni=tostring(c[n][-4])\n#       subt=tostring(c[n][-3])\n#       alic=tostring(c[n][-2])\n#       suci=tostring(c[n][-1])\n#       articulos.append([cod,prod,cant,umed,puni,boni,subt,alic,suci])\n#   salida['d_art']=articulos\n#   #datos de importes\n#   #it_siva\n#   #it_iva\n#   salida['it_total']=tostring(c[-6][3])\n#   return ['ok',salida]\n\n# def test_fa_b():\n#   c=analizo_fa(base_dir+\n# '/errores/20143513972_006_00004_00000178.pdf', debug=True)\n#   aux=leo_fa_b(c)\n#   return aux\n\n\ndef tostring(argumento):\n    \"\"\"list of unicodes to string with spaces\"\"\"\n    # log(argumento)\n    if type(argumento) == list:\n        str_result = ''\n        for i in argumento:\n            str_result = str_result + i.encode('utf8') + ' '\n        return str_result[0:-1]\n    elif type(argumento) == unicode:\n        return argumento.encode('utf8')\n\n\ndef test_leo():\n    dir, subdirs, archivos = next(walk('applications/dev/files/facturas/'))\n    resultado = []\n    for factura in archivos:\n        # log('analizo: '+dir+factura)\n        fleida = analizo_fa(dir + factura)\n        if fleida[0] == 'error':\n            log('error con factura: ' + str(factura))\n        else:\n            resultado.append(fleida[1])\n    return resultado\n\n\n\n\n# descripcion biblioteca\n# directorio raiz /home/$user/web2py/application/$app/files\n# upload -> directorio donde subo archivos a procesar\n# errores -> archivos procesados con errores\n# duplicados -> archivos duplicados\n# csv -> informes sueltos en csv\n# pdf/\n#   /%año/%mes/%dia/\n#                   nv -> notas de venta\n#                   fa -> facturas+csv de los pdf que contiene la carpeta\n#                   re -> registro de elaboracion\n#                   rd -> registro de despacho\n\n\nbase_dir = ('applications/' + str(configuration.get('app.name')) +\n            '/files')\n\n\ndef proceso_fa():\n    # intento leer facturas en directorio x\n    # segun fecha, tipo, hash\n    #  * si el hash esta duplicado descarto el archivo\n    #  * si hay errores muevo a carpeta 'errores'\n    #  * intento mover a la biblioteca (creo carpetas)\n    # si se agregaron archivos genero csv del contenido del directorio\n    dir_origen = '/facturas/'\n    dir, subdirs, archivos = next(walk(base_dir + dir_origen))\n    resultado = []\n    for factura in archivos:\n        # log('analizo: '+dir+factura)\n        fleida = analizo_fa(dir + factura)\n        if fleida[0] == 'error':\n            log('error con factura: ' + str(factura))\n            shutil.move(\n                base_dir + dir_origen + factura,\n                base_dir + '/errores/' + factura)\n            log('movido ' + str(factura))\n        else:\n            resultado.append(fleida[1])\n    for i in resultado:\n        fecha_dir = i['f_fechae'].split('/')\n        dir_dest = (base_dir + '/pdf/' + str(fecha_dir[2]) + '/' +\n                    str(fecha_dir[1]) + '/' + str(fecha_dir[0]) + '/fa/')\n        file_orig = base_dir + dir_origen + i['nombre_archivo']\n        # intento creo directorio si no existe\n        try:\n            os.makedirs(dir_dest)\n        except Exception:\n            pass\n        # intento abrir csv si existe\n        try:\n            lista = open(directorio + '/archivos.csv', 'r').read().split()\n        except Exception:\n            lista = []\n        if i['md5'] in str(lista):\n            shutil.move(\n                file_orig,\n                base_dir + dir_origen + '/duplicados/' + i['nombre_archivo'])\n        else:\n            # considero que no esta en la carpeta, muevo el archivo\n            shutil.move(\n                file_orig,\n                dir_dest + i['nombre_archivo'])\n            log('movido ' + str(file_orig))\n            aux = genero_csv_dir(dir_dest)\n            log(aux)\n\n\ndef genero_csv_dir(dir):\n    dir, subdirs, archivos = next(walk(dir))\n    resultado = []\n    # proceso solo pdfs\n    for i in archivos:\n        if i[-3:] != 'pdf':\n            archivos.remove(i)\n    log(archivos)\n    for factura in archivos:\n        # log('analizo: '+dir+factura)\n        fleida = analizo_fa(dir + factura)\n        if fleida[0] == 'error':\n            log('error con factura: ' + str(factura))\n            log('aqui no deberia haber error!!!!')\n        else:\n            resultado.append(fleida[1])\n    nombre_csv = 'infodir' + str(dir)[27:37].replace('/', '-')\n    return list_of_dict_to_csv(nombre_csv, resultado, dir=dir, norandom='yes')\n",
+			"file": "models/util.py",
+			"settings":
+			{
+				"buffer_size": 6423,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
 			"file": "models/pdf.py",
-			"file_size": 15926,
-			"file_write_time": 132061376693854545,
 			"settings":
 			{
 				"buffer_size": 15925,
@@ -219,10 +244,7 @@
 			}
 		},
 		{
-			"contents": "# -*- coding: utf-8 -*-\n#\nimport hashlib\n# for ide\nif False:\n    from gluon import *\n    request = current.request\n    response = current.response\n    session = current.session\n    cache = current.cache\n    T = current.T\n    from db import *\n    from util import *\n    # from util_afip import *  # funciones de pyafipws\n    # from info_afip import *  # datos de pyafipws\n\n\n# \"Fecha\",\"Tipo\",\"Punto de Venta\",\"Número Desde\",\"Número Hasta\",\n# \"Cód. Autorización\",\"Tipo Doc. Receptor\",\"Nro. Doc. Receptor\",\n# \"Denominación Receptor\",\"Tipo Cambio\", \"Moneda\",\"Imp. Neto Gravado\",\n# \"Imp. Neto No Gravado\",\"Imp. Op. Exentas\",\"IVA\",\"Imp. Total\"\n\n# modelo cabecera, alicuotas, ventas, detalle\n\n# defino clave para documentos, compuesto por\n# reg[\"tipo_cbte\"], reg[\"punto_vta\"], reg[\"cbt_numero\"]\n# (completado los zeros)\n\n\ndef registros_id(lista):\n    tipo_cbte_size = 3\n    punto_vta_size = 5\n    cbt_numero_size = 20\n    salida = (str(lista[0]).zfill(tipo_cbte_size) +\n              str(lista[1]).zfill(punto_vta_size) +\n              str(lista[2]).zfill(cbt_numero_size))\n    return(salida)\n\n\nformato_decimal = 'decimal(25,2)'\n\n\ndef detalle_id(lista, cyd):\n    m = hashlib.md5()\n    m.update(cyd.encode('utf-8'))\n    salida = registros_id(lista) + m.hexdigest()\n    return salida\n\n\ndef test_detalle_id():\n    a = id_detalle([0, 1, 2], 'detalle')\n    if a == '0000000100000000000000000002f019564bfcfa0a562d25341e83ca087b':\n        return True\n\n\n# corresponde a ALICUOTAS: REGINFO_CV_VENTAS_CBTE_ALICUOTA, 63\ndb.define_table(\n    'cbte_ALICUOTAS',\n    Field('comprobante', 'string', unique=True),\n    Field('tipo_cbte', 'integer'),\n    Field('punto_vta', 'integer'),\n    Field('cbt_numero', 'integer'),\n    Field('base_imp', formato_decimal),\n    Field('iva_id', 'integer'),\n    Field('importe', formato_decimal),\n    Field('fecha_carga', 'datetime'),\n    Field('fecha_mod', 'datetime'),\n    format='%(comprobante)s'\n)\n\n# corresponde VENTAS: REGINFO_CV_VENTAS_CBTE_NUEVO, 267\ndb.define_table(\n    'cbte_VENTAS',\n    Field('comprobante', 'string', unique=True),\n    Field('fecha_cbte', 'datetime'),\n    Field('tipo_cbte', 'integer'),\n    Field('punto_vta', 'integer'),\n    Field('cbt_numero', 'integer'),\n    Field('cbte_nro_reg', 'integer'),\n    Field('tipo_doc', 'integer'),\n    Field('nro_doc', 'integer'),\n    Field('nombre', 'string'),\n    Field('imp_total', formato_decimal),\n    Field('imp_tot_conc', formato_decimal),\n    Field('impto_liq_rni', formato_decimal),\n    Field('imp_op_ex', formato_decimal),\n    Field('impto_perc', formato_decimal),\n    Field('imp_iibb', formato_decimal),\n    Field('impto_perc_mun', formato_decimal),\n    Field('imp_internos', formato_decimal),\n    Field('moneda_id', 'string'),\n    Field('moneda_ctz', formato_decimal),\n    Field('cant_alicuota_iva', 'integer'),\n    Field('codigo_operacion', 'string'),\n    Field('imp_trib', formato_decimal),\n    Field('fecha_venc_pago', 'datetime'),\n    Field('fecha_carga', 'datetime'),\n    Field('fecha_mod', 'datetime'),\n    format='%(comprobante)s'\n)\n# corresponde CABECERA: CAB_FAC_TIPO1, 291\n\ndb.define_table(\n    'cbte_CABECERA',\n    Field('comprobante', 'string', unique=True),\n    Field('tipo_reg', 'integer'),\n    Field('fecha_cbte', 'datetime'),\n    Field('tipo_cbte', 'integer'),\n    Field('ctl_fiscal', 'string'),\n    Field('punto_vta', 'integer'),\n    Field('cbt_numero', 'integer'),\n    Field('cbte_nro_reg', 'integer'),\n    Field('cant_hojas', 'integer'),\n    Field('tipo_doc', 'integer'),\n    Field('nro_doc', 'integer'),\n    Field('nombre', 'string'),\n    Field('imp_total', formato_decimal),\n    Field('imp_tot_conc', formato_decimal),\n    Field('imp_neto', formato_decimal),\n    Field('impto_liq', formato_decimal),\n    Field('impto_liq_rni', formato_decimal),\n    Field('imp_op_ex', formato_decimal),\n    Field('impto_perc', formato_decimal),\n    Field('imp_iibb', formato_decimal),\n    Field('impto_perc_mun', formato_decimal),\n    Field('imp_internos', formato_decimal),\n    Field('transporte', formato_decimal),\n    Field('categoria', 'integer'),\n    Field('imp_moneda_id', 'string'),\n    Field('imp_moneda_ctz', formato_decimal),\n    Field('alicuotas_iva', 'integer'),\n    Field('codigo_operacion', 'string'),\n    Field('cae', 'integer'),\n    Field('fecha_vto', 'datetime'),\n    Field('fecha_anulacion', 'datetime'),\n    Field('fecha_carga', 'datetime'),\n    Field('fecha_mod', 'datetime'),\n)\n\n\n# corresponde DETALLE: DETALLE_TIPO1, 190\ndb.define_table(\n    'cbte_DETALLE',\n    Field('comprobante', 'string'),\n    Field('tipo_cbte', 'integer'),\n    Field('ctl_fiscal', 'string'),\n    Field('fecha_cbte', 'datetime'),\n    Field('punto_vta', 'integer'),\n    Field('cbt_numero', 'integer'),\n    Field('cbte_nro_reg', 'integer'),\n    Field('cantidad', 'integer'),\n    Field('xxx1', 'string'),\n    Field('pro_umed', 'string'),\n    Field('pro_precio_uni', formato_decimal),\n    Field('imp_bonif', formato_decimal),\n    Field('imp_ajuste', formato_decimal),\n    Field('imp_total', formato_decimal),\n    Field('alicuota_iva', formato_decimal),\n    Field('gravado', 'string'),\n    Field('anulacion', 'string'),\n    Field('cyd', 'string'),\n    Field('fecha_carga', 'datetime'),\n    Field('fecha_mod', 'datetime'),\n    format='%(comprobante)s'\n)\n\n\ndef ingreso_cbtes(tipo, cbtes_dict):\n    # tipos alicuotas, ventas, cabecera, detalle\n    if type(cbtes_dict) != dict:\n        return ['error', '']\n    if tipo == 'alicuotas':\n        for i in cbtes_dict.keys():\n            pass\n\n\ndef dev_ingreso_cabecera():\n    t_procesos = test_proceso_REGISTRO()\n    # registro: 0 cabecera, 1 ventas, 2 alicuotas, 3 detalle\n    registro = {0: 'CABECERA',\n                1: 'VENTAS',\n                2: 'ALICUOTAS',\n                3: 'DETALLE'\n                }\n    actual = 0\n    k_procesos = t_procesos[actual][1].keys()\n    for key in k_procesos:\n        hoy = datetime.datetime.now()\n        if db(db.cbte_cabecera.comprobante == str(key)).select().first():\n            # ya existe lo actualizo\n            t_procesos[actual][1][key]['fecha_mod'] = hoy\n            # log(str(t_procesos[actual][1][key]['fecha_mod']))\n            # log('actualizo ' + str(key))\n            db(db['cbte_' + registro[actual]].comprobante == str(key)).update(\n                **t_procesos[actual][1][key])\n            # log(a)\n            # return t_procesos[0][1][key]\n        else:\n            t_procesos[registro][1][key]['comprobante'] = str(key)\n            t_procesos[registro][1][key]['fecha_carga'] = hoy\n            t_procesos[registro][1][key]['fecha_mod'] = hoy\n            db['cbte_cabecera'].insert(**t_procesos[0][1][key])\n    # a[0][1][(1, 4, 3892)]['fecha_carga'] = datetime.datetime.now()\n    # a[0][1][(1, 4, 3892)][''] = datetime.datetime.now()\n    # db['cbte_cabecera'].insert(**a[0][1][(1, 4, 3892)])\n    db.commit()\n\n\ndef subo_cbtes(ARCHIVO):\n    hoy = datetime.datetime.now()\n    # determino tipo\n    tipo = identifico_registro(ARCHIVO)\n    if tipo[0] == 'ok':\n        log('proceso archivo tipo: ' + str(tipo[1]))\n        nombre_cbte = 'cbte_' + str(tipo[1])\n        t_procesos = proceso_REGISTRO(ARCHIVO)\n        reg_updates = []\n        reg_inserts = []\n        if t_procesos[0] == 'ok':\n            k_procesos = t_procesos[1].keys()\n            for key in k_procesos:\n                selector = 'db.' + nombre_cbte + '.comprobante'\n                if db(eval(selector) == str(key)).select().first():\n                    t_procesos[1][key]['fecha_mod'] = hoy\n                    db(db[nombre_cbte].comprobante == str(key)).update(\n                        **t_procesos[1][key])\n                    reg_updates.append(key)\n                else:\n                    t_procesos[1][key]['comprobante'] = str(key)\n                    t_procesos[1][key]['fecha_carga'] = hoy\n                    t_procesos[1][key]['fecha_mod'] = hoy\n                    db[nombre_cbte].insert(**t_procesos[1][key])\n                    reg_inserts.append(key)\n            db.commit()\n            mensaje = (str(len(reg_updates)) + ' registros actualizados: ' +\n                       str(len(reg_inserts)) + ' registros agregados')\n            log(mensaje)\n            return ['ok', mensaje]\n        else:\n            log('error t-procesos')\n            return t_procesos\n    else:\n        log('error tipo')\n        return tipo\n\n\ndef test_subo_cbtes():\n    ARCHIVO = 'applications/tapa14/files/DETALLE.txt'\n    return subo_cbtes(ARCHIVO)\n\n\ndef identifico_registro(ARCHIVO):\n    \"\"\"segun longitud de la linea determino el tipo de archivo afip\"\"\"\n    try:\n        for linea in open(ARCHIVO, 'r', encoding='latin1'):\n            longitud = len(linea)\n            for tipo in TIPOS_REGISTROS.keys():\n                if TIPOS_REGISTROS[tipo][1] == longitud:\n                    return ['ok', tipo]\n            # si llego aca es que no correponde a ningun tipo conocido\n            return ['error', 'la longitud no corresponde a ningun tipo']\n    except Exception as e:\n        mensaje = ['error', str(e)]\n        log(mensaje)\n        return mensaje\n\n\ndef proceso_REGISTRO(ARCHIVO):\n    \"\"\" proceso archivo de afip y lo convierto en un diccionario\"\"\"\n    tipo = identifico_registro(ARCHIVO)\n    if tipo[0] == 'ok':\n        log('proceso archivo tipo: ' + str(tipo[1]))\n        tiporeg = TIPOS_REGISTROS[tipo[1]][0]\n        cantreg = TIPOS_REGISTROS[tipo[1]][1]\n    else:\n        return tipo\n    procesado = {}\n    try:\n        for linea in open(ARCHIVO, 'r', encoding='latin1'):\n            if len(linea) == cantreg:\n                reg = leer(linea, eval(tiporeg))\n                cbte = [reg[\"tipo_cbte\"],\n                        reg[\"punto_vta\"],\n                        reg[\"cbt_numero\"]]\n                if tipo[1] == 'DETALLE':\n                    key = detalle_id(cbte, reg['cyd'])\n                else:\n                    key = registros_id(cbte)\n                procesado[key] = reg\n            else:\n                mensaje = \"Error en longitud de la linea %s , %s\" % (\n                    linea, len(linea))\n                log(mensaje)\n        return ['ok', procesado]\n    except Exception as e:\n        mensaje = 'Error: ' + str(e)\n        log(mensaje)\n        return ['error', mensaje]\n\n\ndef test_proceso_REGISTRO():\n    path = ('applications/' + str(configuration.get('app.name')) +\n            '/files/')\n    cabecera = proceso_REGISTRO(path + 'CABECERA.txt')\n    ventas = proceso_REGISTRO(path + 'VENTAS.txt')\n    alicuotas = proceso_REGISTRO(path + 'ALICUOTAS.txt')\n    detalle = proceso_REGISTRO(path + 'DETALLE.txt')\n    return cabecera, ventas, alicuotas, detalle\n\n\ndef subo_registros_batch():\n    archivos = todos_los_archivos(files_dir + 'facturacion')\n    for archivo in archivos:\n        subo_cbtes(archivo)\n\n",
 			"file": "models/ivalibros.py",
-			"file_size": 10683,
-			"file_write_time": 132061381219192199,
 			"settings":
 			{
 				"buffer_size": 10678,
@@ -231,10 +253,7 @@
 			}
 		},
 		{
-			"contents": "# -*- coding: utf-8 -*-\nfrom decimal import Decimal\n\n# for ide\nif False:\n    from gluon import *\n    request = current.request\n    response = current.response\n    session = current.session\n    cache = current.cache\n    T = current.T\n    from info_afip import *\n\n\n# de utils.py https://github.com/reingart/pyafipws\n\ndef leer(linea, formato, expandir_fechas=False):\n    \"Analiza una linea de texto dado un formato, devuelve un diccionario\"\n    dic = {}\n    comienzo = 1\n    for fmt in formato:\n        clave, longitud, tipo = fmt[0:3]\n        dec = (len(fmt) > 3 and isinstance(fmt[3], int)) and fmt[3] or 2\n        valor = linea[comienzo - 1:comienzo - 1 + longitud].strip()\n        try:\n            # log('debug: '+ str(fmt[0]) + ':' + valor)\n            if chr(8) in valor or chr(127) in valor or chr(255) in valor:\n                valor = None        # nulo\n            elif tipo == tipodato['N']:\n                if valor:\n                    valor = int(valor)\n                else:\n                    valor = 0\n                if clave.lower().startswith(\"fec\"):\n                    valor = datetime.datetime.strptime(str(valor), '%Y%m%d')\n            elif tipo == tipodato['I']:\n                if valor:\n                    try:\n                        if '.' in valor:\n                                valor = float(valor)\n                        else:\n                            valor = valor.strip(\" \")\n                            if valor[0] == \"-\":\n                                sign = -1\n                                valor = valor[1:]\n                            else:\n                                sign = +1\n                            valor = sign * float(\n                                (\"%%s.%%0%sd\" % dec) % (\n                                    int(valor[:-dec] or\n                                        '0'), int(valor[-dec:] or '0')))\n                            valor = Decimal(valor)\n                    except ValueError:\n                        raise ValueError(\"Campo invalido: %s = '%s'\" % (\n                            clave, valor))\n                else:\n                    valor = Decimal(0.00)\n            elif (clave.lower().startswith(\"fec\") and longitud <= 8):\n                if valor:\n                    if valor == '00000000':\n                        valor = None\n                    else:\n                        log('aaa')\n                        valor = datetime.datetime.strptime(str(valor), '%Y%m%d')\n                    # valor = \"%s-%s-%s\" % (valor[0:4], valor[4:6], valor[6:8])\n                else:\n                    valor = None\n            else:\n                # valor = valor.decode(\"ascii\", \"ignore\")\n                # log('debug-' + valor + '-')\n                pass\n            if not valor and clave in dic and len(linea) <= comienzo:\n                pass    # ignorar - compatibilidad hacia atrás (cambios tamaño)\n            else:\n                dic[clave] = valor\n            comienzo += longitud\n        except Exception as e:\n            raise ValueError(\"Error al leer campo %s pos %s val '%s': %s\" % (\n                clave, comienzo, valor, str(e)))\n    return dic\n",
 			"file": "models/util_afip.py",
-			"file_size": 3144,
-			"file_write_time": 131994669141567993,
 			"settings":
 			{
 				"buffer_size": 3142,
@@ -243,10 +262,7 @@
 			}
 		},
 		{
-			"contents": "# -*- coding: utf-8 -*-\n\n# de utils.py de https://github.com/reingart/pyafipws\n# Tipos de datos (código RG1361)\n\n# cambio por tipodato - compatibilidad web2py A()\n# N = 'Numerico'      # 2\n# A = 'Alfanumerico'  # 3\n# I = 'Importe'       # 4\n# C = A               # 1 (caracter alfabetico)\n# B = A               # 9 (blanco)\n\ntipodato = {\n    'N': 'Numerico',\n    'A': 'Alfanumerico',\n    'I': 'Importe',\n    'C': 'Alfanumerico',\n    'B': 'Alfanumerico',\n}\n\nTIPOS_REGISTROS = {\n    'ALICUOTAS': ['REGINFO_CV_VENTAS_CBTE_ALICUOTA', 63],\n    'VENTAS': ['REGINFO_CV_VENTAS_CBTE_NUEVO', 267],\n    'CABECERA': ['CAB_FAC_TIPO1', 291],\n    'DETALLE': ['DETALLE_TIPO1', 190],\n}\n\n# de sired.py de https://github.com/reingart/pyafipws\n# Diseño de registro de Importación de comprobantes de Ventas\n\ncategorias = {\"responsable inscripto\": \"01\",  # IVA Responsable Inscripto\n              \"responsable no inscripto\": \"02\",  # IVA Responsable no Inscripto\n              \"no responsable\": \"03\",  # IVA no Responsable\n              \"exento\": \"04\",  # IVA Sujeto Exento\n              \"consumidor final\": \"05\",  # Consumidor Final\n              \"monotributo\": \"06\",  # Responsable Monotributo\n              \"responsable monotributo\": \"06\",  # Responsable Monotributo\n              \"no categorizado\": \"07\",  # Sujeto no Categorizado\n              \"importador\": \"08\",  # Importador del Exterior\n              \"exterior\": \"09\",  # Cliente del Exterior\n              \"liberado\": \"10\",  # IVA Liberado Ley Nº 19.640\n              \"responsable inscripto - agente de percepción\": \"11\",\n              # IVA Responsable Inscripto - Agente de Percepcion\n              }\n\ncodigos_operacion = {\n    \"Z\": \"Exportaciones a la zona franca\",\n    \"X\": \"Exportaciones al Exterior\",\n    \"E\": \"Operaciones Exentas\",\n}\n\nCAB_FAC_TIPO1 = [ # \n    ('tipo_reg', 1, tipodato['N']),\n    ('fecha_cbte', 8, tipodato['N']),\n    ('tipo_cbte', 2, tipodato['N']),\n    ('ctl_fiscal', 1, tipodato['C']),\n    ('punto_vta', 4, tipodato['N']),\n    ('cbt_numero', 8, tipodato['N']),\n    ('cbte_nro_reg', 8, tipodato['N']),\n    ('cant_hojas', 3, tipodato['N']),\n    ('tipo_doc', 2, tipodato['N']),\n    ('nro_doc', 11, tipodato['N']),\n    ('nombre', 30, tipodato['A']),\n    ('imp_total', 15, tipodato['I']),\n    ('imp_tot_conc', 15, tipodato['I']),\n    ('imp_neto', 15, tipodato['I']),\n    ('impto_liq', 15, tipodato['I']),\n    ('impto_liq_rni', 15, tipodato['I']),\n    ('imp_op_ex', 15, tipodato['I']),\n    ('impto_perc', 15, tipodato['I']),\n    ('imp_iibb', 15, tipodato['I']),\n    ('impto_perc_mun', 15, tipodato['I']),\n    ('imp_internos', 15, tipodato['I']),\n    ('transporte', 15, tipodato['I']),\n    ('categoria', 2, tipodato['N']),\n    ('imp_moneda_id', 3, tipodato['A']),\n    ('imp_moneda_ctz', 10, tipodato['I']),\n    ('alicuotas_iva', 1, tipodato['N']),\n    ('codigo_operacion', 1, tipodato['C']),\n    ('cae', 14, tipodato['N']),\n    ('fecha_vto', 8, tipodato['N']),\n    ('fecha_anulacion', 8, tipodato['A']),\n]\n\n# campos especiales del encabezado:\nIMPORTES = ('imp_total', 'imp_tot_conc', 'imp_neto', 'impto_liq',\n            'impto_liq_rni', 'imp_op_ex', 'impto_perc', 'imp_iibb',\n            'impto_perc_mun', 'imp_internos')\n\n# total\nCAB_FAC_TIPO2 = [\n    ('tipo_reg', 1, tipodato['N']),\n    ('periodo', 6, tipodato['N']),\n    ('relleno', 13, tipodato['B']),\n    ('cant_reg_tipo_1', 8, tipodato['N']),\n    ('relleno', 17, tipodato['B']),\n    ('cuit', 11, tipodato['N']),\n    ('relleno', 22, tipodato['B']),\n    ('imp_total', 15, tipodato['I']),\n    ('imp_tot_conc', 15, tipodato['I']),\n    ('imp_neto', 15, tipodato['I']),\n    ('impto_liq', 15, tipodato['I']),\n    ('impto_liq_rni', 15, tipodato['I']),\n    ('imp_op_ex', 15, tipodato['I']),\n    ('impto_perc', 15, tipodato['I']),\n    ('imp_iibb', 15, tipodato['I']),\n    ('impto_perc_mun', 15, tipodato['I']),\n    ('imp_internos', 15, tipodato['I']),\n    ('relleno', 62, tipodato['B']),\n]\n\nDETALLE = [\n    ('tipo_cbte', 2, tipodato['N']),\n    ('ctl_fiscal', 1, tipodato['C']),\n    ('fecha_cbte', 8, tipodato['N']),\n    ('punto_vta', 4, tipodato['N']),\n    ('cbt_numero', 8, tipodato['N']),\n    ('cbte_nro_reg', 8, tipodato['N']),\n    ('qty', 12, tipodato['I']),\n    ('pro_umed', 2, tipodato['N']),\n    ('pro_precio_uni', 16, tipodato['I']),\n    ('imp_bonif', 15, tipodato['I']),\n    ('imp_ajuste', 16, tipodato['I']),\n    ('imp_total', 16, tipodato['I']),\n    ('alicuota_iva', 4, tipodato['I']),\n    ('gravado', 1, tipodato['C']),\n    ('anulacion', 1, tipodato['C']),\n    ('codigo', 50, tipodato['A']),\n    ('ds', 150, tipodato['A']),\n]\n\n\nVENTAS_TIPO1 = [\n    ('tipo_reg', 1, tipodato['N']),\n    ('fecha_cbte', 8, tipodato['N']),\n    ('tipo_cbte', 2, tipodato['N']),\n    ('ctl_fiscal', 1, tipodato['C']),\n    ('punto_vta', 4, tipodato['N']),\n    ('cbt_numero', 20, tipodato['N']),\n    ('cbte_nro_reg', 20, tipodato['N']),\n    ('tipo_doc', 2, tipodato['N']),\n    ('nro_doc', 11, tipodato['N']),\n    ('nombre', 30, tipodato['A']),\n    ('imp_total', 15, tipodato['I']),\n    ('imp_tot_conc', 15, tipodato['I']),\n    ('imp_neto', 15, tipodato['I']),\n    ('alicuota_iva', 4, tipodato['I']),\n    ('impto_liq', 15, tipodato['I']),\n    ('impto_liq_rni', 15, tipodato['I']),\n    ('imp_op_ex', 15, tipodato['I']),\n    ('impto_perc', 15, tipodato['I']),\n    ('imp_iibb', 15, tipodato['I']),\n    ('impto_perc_mun', 15, tipodato['I']),\n    ('imp_internos', 15, tipodato['I']),\n    ('categoria', 2, tipodato['N']),\n    ('imp_moneda_id', 3, tipodato['A']),\n    ('imp_moneda_ctz', 10, tipodato['I']),\n    ('alicuotas_iva', 1, tipodato['N']),\n    ('codigo_operacion', 1, tipodato['C']),\n    ('cae', 14, tipodato['N']),\n    ('fecha_vto', 8, tipodato['N']),\n    ('fecha_anulacion', 8, tipodato['A']),\n    ('info_adic', 75 - 0, tipodato['B']),\n]\n\nVENTAS_TIPO2 = [\n    ('tipo_reg', 1, tipodato['N']),\n    ('periodo', 6, tipodato['N']),\n    ('relleno', 29, tipodato['B']),\n    ('cant_reg_tipo_1', 12, tipodato['N']),\n    ('relleno', 10, tipodato['B']),\n    ('cuit', 11, tipodato['N']),\n    ('relleno', 30, tipodato['B']),\n    ('imp_total', 15, tipodato['I']),\n    ('imp_tot_conc', 15, tipodato['I']),\n    ('imp_neto', 15, tipodato['I']),\n    ('Relleno', 4, tipodato['B']),\n    ('impto_liq', 15, tipodato['I']),\n    ('impto_liq_rni', 15, tipodato['I']),\n    ('imp_op_ex', 15, tipodato['I']),\n    ('impto_perc', 15, tipodato['I']),\n    ('imp_iibb', 15, tipodato['I']),\n    ('impto_perc_mun', 15, tipodato['I']),\n    ('imp_internos', 15, tipodato['I']),\n    ('relleno', 122, tipodato['B']),\n]\n\n# de rg3685.py de https://github.com/reingart/pyafipws\n\n# Diseño de registro de Importación de comprobantes de Ventas\n\nREGINFO_CV_VENTAS_CBTE = [\n    ('fecha_cbte', 8, tipodato['N']),\n    ('tipo_cbte', 2, tipodato['N']),\n    ('punto_vta', 5, tipodato['N']),\n    ('cbt_desde', 20, tipodato['N']),\n    ('cbt_hasta', 20, tipodato['N']),\n    ('tipo_doc', 2, tipodato['N']),\n    ('nro_doc', 20, tipodato['N']),\n    ('nombre', 30, tipodato['A']),\n    ('imp_total', 15, tipodato['I']),\n    ('imp_tot_conc', 15, tipodato['I']),\n    ('impto_liq_rni', 15, tipodato['I']),\n    ('imp_op_ex', 15, tipodato['I']),\n    ('impto_perc', 15, tipodato['I']),\n    ('imp_iibb', 15, tipodato['I']),\n    ('impto_perc_mun', 15, tipodato['I']),\n    ('imp_internos', 15, tipodato['I']),\n    ('moneda_id', 3, tipodato['A']),\n    ('moneda_ctz', 10, tipodato['I'], 6),\n    ('cant_alicuota_iva', 1, tipodato['N']),\n    ('codigo_operacion', 1, tipodato['C']),\n    ('imp_trib', 15, tipodato['I']),\n    ('fecha_venc_pago', 8, tipodato['A']),\n]\n\nREGINFO_CV_VENTAS_CBTE_NUEVO = [\n    ('fecha_cbte', 8, tipodato['N']),  # 8\n    ('tipo_cbte', 3, tipodato['N']),  # 11\n    ('punto_vta', 5, tipodato['N']),  # 16\n    ('cbt_numero', 20, tipodato['N']),  # 36\n    ('cbte_nro_reg', 20, tipodato['N']),  # 56\n    ('tipo_doc', 2, tipodato['N']),  # 58\n    ('nro_doc', 20, tipodato['N']),  # 78\n    ('nombre', 30, tipodato['A']),  # 108\n    ('imp_total', 15, tipodato['I']),  # 123\n    ('imp_tot_conc', 15, tipodato['I']),  # 138\n    ('impto_liq_rni', 15, tipodato['I']),  # 153\n    ('imp_op_ex', 15, tipodato['I']),  # 168\n    ('impto_perc', 15, tipodato['I']),  # 183\n    ('imp_iibb', 15, tipodato['I']),  # 198\n    ('impto_perc_mun', 15, tipodato['I']),  # 213\n    ('imp_internos', 15, tipodato['I']),  # 228\n    ('moneda_id', 3, tipodato['A']),  # 231\n    ('moneda_ctz', 10, tipodato['I']),  # 241\n    ('cant_alicuota_iva', 1, tipodato['N']),  # 242\n    ('codigo_operacion', 1, tipodato['C']),  # 243\n    ('imp_trib', 15, tipodato['I']),  # 258\n    ('fecha_venc_pago', 8, tipodato['A'])  # 266\n]\n\n# Diseño de registro de Importación de Alícuotas de comprobantes de Ventas\n\nREGINFO_CV_VENTAS_CBTE_ALICUOTA = [\n    ('tipo_cbte', 3, tipodato['N']),\n    ('punto_vta', 5, tipodato['N']),\n    ('cbt_numero', 20, tipodato['N']),\n    ('base_imp', 15, tipodato['I']),\n    ('iva_id', 4, tipodato['N']),\n    ('importe', 15, tipodato['I']),\n]\n\n# Detalle -provisorio-\n\nDETALLE_TIPO1 = [\n    ('tipo_cbte', 2, tipodato['N']),  # 2\n    ('ctl_fiscal', 1, tipodato['C']),  # 3\n    ('fecha_cbte', 8, tipodato['N']),  # 11\n    ('punto_vta', 4, tipodato['N']),  # 15\n    ('cbt_numero', 8, tipodato['N']),  # 23\n    ('cbte_nro_reg', 8, tipodato['N']),  # 31\n    ('cantidad', 7, tipodato['N']),  # 38\n    ('xxx1', 5, tipodato['N']),  # 43\n    ('pro_umed', 2, tipodato['N']),  # 45\n    ('pro_precio_uni', 15, tipodato['I']),  # 60\n    ('imp_bonif', 15, tipodato['I']),  # 75\n    ('imp_ajuste', 15, tipodato['I']),  # 90\n    ('imp_total', 18, tipodato['I']),  # 108\n    ('alicuota_iva', 4, tipodato['I']),  # 112\n    ('gravado', 1, tipodato['C']),  # 113 -G-\n    ('anulacion', 1, tipodato['C']),  # 114\n    ('cyd', 75, tipodato['A']),  # 189\n]",
 			"file": "models/info_afip.py",
-			"file_size": 9659,
-			"file_write_time": 132016241181741385,
 			"settings":
 			{
 				"buffer_size": 9649,
@@ -299,10 +315,17 @@
 	},
 	"expanded_folders":
 	[
-		"/home/marco/web2py/applications/tapa14"
+		"/home/marco/web2py/applications/tapa14",
+		"/home/marco/web2py/applications/tapa14/static",
+		"/home/marco/web2py/applications/tapa14/static/css",
+		"/home/marco/web2py/applications/tapa14/uploads"
 	],
 	"file_history":
 	[
+		"/home/marco/web2py/applications/tapa14/views/default/index.html",
+		"/home/marco/web2py/applications/tapa14/files/analisis.txt",
+		"/home/marco/web2py/applications/tapa14/README.md",
+		"/home/marco/web2py/applications/tapa14/requirements.txt",
 		"/home/marco/web2py/applications/tapa14/models/modelo.py",
 		"/home/marco/web2py/applications/tapa14/untitled.sublime-project",
 		"/home/marco/web2py/applications/tapa14/models/despacho.py",
@@ -310,8 +333,7 @@
 		"/home/marco/web2py/applications/tapa14/models/ivalibros.py",
 		"/home/marco/web2py/applications/tapa14/modules/__init__.py",
 		"/home/marco/web2py/applications/tapa14/models/viewadminlte.py",
-		"/home/marco/.config/sublime-text-3/Packages/Anaconda/Anaconda.sublime-settings",
-		"/home/marco/web2py/applications/tapa14/README.md"
+		"/home/marco/.config/sublime-text-3/Packages/Anaconda/Anaconda.sublime-settings"
 	],
 	"find":
 	{
@@ -329,6 +351,9 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"as_d",
+			"idsform",
+			"ids_json",
 			"mkdi",
 			"export",
 			"def subir",
@@ -366,7 +391,7 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 1,
 			"sheets":
 			[
 				{
@@ -375,15 +400,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 51533,
+						"buffer_size": 51645,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								51533,
-								51533
+								21906,
+								21906
 							]
 						],
 						"settings":
@@ -409,19 +434,79 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 16577.0,
+						"translation.y": 7146.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "static/css/tapa14.css",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 234,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								234,
+								234
+							]
+						],
+						"settings":
+						{
+							"git_gutter_is_enabled": true,
+							"syntax": "Packages/CSS/CSS.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
 					"type": "text"
 				},
 				{
-					"buffer": 1,
+					"buffer": 2,
+					"file": "views/default/pedido.html",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3170,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1976,
+								1976
+							]
+						],
+						"settings":
+						{
+							"git_gutter_is_enabled": true,
+							"syntax": "Packages/HTML/HTML.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
 					"file": "models/db.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 8116,
+						"buffer_size": 8024,
 						"regions":
 						{
 						},
@@ -440,14 +525,14 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2345.0,
+						"translation.y": 5.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 4,
 					"type": "text"
 				},
 				{
-					"buffer": 2,
+					"buffer": 4,
 					"file": "models/funciones.py",
 					"semi_transient": false,
 					"settings":
@@ -459,8 +544,8 @@
 						"selection":
 						[
 							[
-								4187,
-								4187
+								1384,
+								1384
 							]
 						],
 						"settings":
@@ -471,27 +556,27 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 1948.0,
+						"translation.y": 445.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 5,
 					"type": "text"
 				},
 				{
-					"buffer": 3,
+					"buffer": 5,
 					"file": "models/modelo.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 7493,
+						"buffer_size": 11087,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								6019,
-								6019
+								10686,
+								10686
 							]
 						],
 						"settings":
@@ -502,27 +587,58 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 3639.0,
+						"translation.y": 4765.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
-					"buffer": 4,
-					"file": "models/util.py",
+					"buffer": 6,
+					"file": "views/plugin_adminlte/layout_starter.html",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 6744,
+						"buffer_size": 17522,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								6534,
-								6534
+								5806,
+								5806
+							]
+						],
+						"settings":
+						{
+							"git_gutter_is_enabled": true,
+							"syntax": "Packages/HTML/HTML.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1530.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "models/util.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6423,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6423,
+								6423
 							]
 						],
 						"settings":
@@ -544,14 +660,14 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2955.0,
+						"translation.y": 180.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 7,
 					"type": "text"
 				},
 				{
-					"buffer": 5,
+					"buffer": 8,
 					"file": "models/pdf.py",
 					"semi_transient": false,
 					"settings":
@@ -578,11 +694,11 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 7,
+					"stack_index": 11,
 					"type": "text"
 				},
 				{
-					"buffer": 6,
+					"buffer": 9,
 					"file": "models/ivalibros.py",
 					"semi_transient": false,
 					"settings":
@@ -609,11 +725,11 @@
 						"translation.y": 4060.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
+					"stack_index": 10,
 					"type": "text"
 				},
 				{
-					"buffer": 7,
+					"buffer": 10,
 					"file": "models/util_afip.py",
 					"semi_transient": false,
 					"settings":
@@ -652,14 +768,14 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 582.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 8,
 					"type": "text"
 				},
 				{
-					"buffer": 8,
+					"buffer": 11,
 					"file": "models/info_afip.py",
 					"semi_transient": false,
 					"settings":
@@ -697,7 +813,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 9,
 					"type": "text"
 				}
 			]
