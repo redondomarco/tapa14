@@ -489,61 +489,79 @@ def selec_cliente_pedido():
 
 @auth.requires_membership('vendedor')
 def pedido():
-    #clientes=db(db.cliente).select(db.cliente.ALL)
-    listas=db(db.listas).select(db.listas.ALL).as_dict()
-    comprobante=db(db.comprobante.nombre=='pedido').select().first()['lastid']
-    #creo tabla con productos habilitados para el cliente
+    listas = db(db.listas).select(db.listas.ALL).as_dict()
+    s_cbte = (db.comprobante.nombre == 'pedido')
+    comprobante = db(s_cbte).select().first()['lastid']
+    # creo tabla con productos habilitados para el cliente
     session.productos = []
     idsform = []
     precios = []
-    productos_cliente=db(db.cliente.nombre==session.cliente).select().first()['productos']
-    listaidcliente=db(db.cliente.nombre==session.cliente).select().first()['lista']
-    descuento=db(db.listas.id==listaidcliente).select().first()['valor']
-    if productos_cliente==None:
-        session.mensaje='El cliente no tiene productos habilitados'
+    s_cliente = (db.cliente.nombre == session.cliente)
+    productos_cliente = db(s_cliente).select().first()['productos']
+    listaidcliente = db(s_cliente).select().first()['lista']
+    descuento = db(db.listas.id == listaidcliente).select().first()['valor']
+    if productos_cliente is None:
+        session.mensaje = 'El cliente no tiene productos habilitados'
         redirect(URL('mensajes'))
-    #genero tabla para form
-    tabla2 = [THEAD(TR(TH('cant'), TH('detalle'), TH('cod.'),TH('dto'),TH('sub')))]
+    # genero tabla para form
+    tabla2 = [THEAD(TR(TH('cant'),
+                       TH('detalle'),
+                       TH('cod.'),
+                       TH('dto'),
+                       TH('sub')))]
     for item in productos_cliente:
-        producto=db(db.producto.id==item).select().first()
-        if producto==None:
-            session.mensaje='Revisar productos habilitados'
+        producto = db(db.producto.id == item).select().first()
+        if producto is None:
+            session.mensaje = 'Revisar productos habilitados'
             redirect(URL('mensajes'))
-        session.productos.append([producto['codigo'],producto['detalle'],producto['valor']])
-        idcant='c'+str(producto['codigo'])
-        idvalor='v'+str(producto['codigo'])
-        iddto='d'+str(producto['codigo'])
-        idsubt='s'+str(producto['codigo'])
+        session.productos.append([producto['codigo'],
+                                  producto['detalle'],
+                                  producto['valor']])
+        idcant = 'c' + str(producto['codigo'])
+        idvalor = 'v' + str(producto['codigo'])
+        iddto = 'd' + str(producto['codigo'])
+        idsubt = 's' + str(producto['codigo'])
         tabla2.append(TR(
-            TD(INPUT(_id=idcant, _name=idcant,_type='number',_min='0',_step='1', _class='cantidad')),
+            TD(INPUT(_id=idcant, _name=idcant, _type='number', _min='0',
+                     _step='1', _class='cantidad')),
             TD(producto['detalle']),
             TD(producto['codigo'], _id=idvalor),
-            TD(INPUT(_id=iddto, _name=iddto,_type='number',_min='0',_max='100',_step='1', _class='cantidad')),
-            TD(INPUT(_id=idsubt, _type="number",_class='precio', _disabled="disabled"))))
-        idsform.append([idcant,idvalor,iddto,idsubt])
+            TD(INPUT(_id=iddto, _name=iddto, _type='number', _min='0',
+                     _max='100', _step='1', _class='cantidad')),
+            TD(INPUT(_id=idsubt, _type="number", _class='precio',
+                     _disabled="disabled"))))
+        idsform.append([idcant, idvalor, iddto, idsubt])
         precios.append(producto['valor'])
     tabla2.append(TFOOT(TR(
-        TH(''), TH(''),TH(''), TH('Total',_id='totaltitle'),TH(INPUT(_id='totalt', _type="number",_class='precio', _disabled="disabled")))))
-    form = FORM(
-        CENTER(
-            TAG('<label class="control-label">Pedido </label>'),BR(),
-            TABLE(
-                TR(
-                    #TAG('<label class="control-label">Cliente </label>'),
-                    TAG('<label for="clienteinput">cliente</label>'),
-                    INPUT(_value=str(session.cliente), _name='cliente', _type='text',_disabled="disabled", _id="clienteinput",_class="form-control string"),
-                    TAG('<label class="control-label">Pedido nº </label>'),
-                    INPUT(_value=str(int(comprobante)).zfill(10),_disabled="disabled",_class="form-control string",_id='nrocomp')),
-                TR(
-                    TAG('<label for="notainput">nota</label>'),
-                    INPUT(_name='nota',  _type='text',_id="notainput",_class="form-control string"),
-                    TAG('<label for="fechaent">Fecha entrega</label>'),
-                    INPUT(_name='entrega',  _type='date',_id="fechaent",_class="form-control string")),
+        TH(''), TH(''), TH(''),
+        TH('Total', _id='totaltitle'),
+        TH(INPUT(_id='totalt', _type="number", _class='precio',
+                 _disabled="disabled")))))
+    form = FORM(CENTER(
+        TAG('<label class="control-label">Pedido </label>'), BR(),
+        TABLE(
+            TR(
+                # TAG('<label class="control-label">Cliente </label>'),
+                TAG('<label for="clienteinput">cliente</label>'),
+                INPUT(_value=str(session.cliente), _name='cliente',
+                      _type='text', _disabled="disabled", _id="clienteinput",
+                      _class="form-control string"),
+                TAG('<label class="control-label">Pedido nº </label>'),
+                INPUT(_value=str(int(comprobante)).zfill(10),
+                      _disabled="disabled", _class="form-control string",
+                      _id='nrocomp')),
+            TR(
+                TAG('<label for="notainput">nota</label>'),
+                INPUT(_name='nota', _type='text', _id="notainput",
+                      _class="form-control string"),
+                TAG('<label for="fechaent">Fecha entrega</label>'),
+                INPUT(_name='entrega', _type='date', _id="fechaent",
+                      _class="form-control string")),
             _id='tablacliente'
-            )
-        ),
-        TABLE( tabla2, _class='t2', _id="suma"),
-        CENTER(INPUT(_type="submit", _class="btn btn-primary btn-medium", _value='Generar Pedido',_id='button14')),
+        )),
+        TABLE(tabla2, _class='t2', _id="suma"),
+        CENTER(INPUT(_type="submit", _class="btn btn-primary btn-medium",
+                     _value='Generar Pedido', _id='button14')),
         _id='formventa')
     if form.accepts(request, session):
         log('aceptado')

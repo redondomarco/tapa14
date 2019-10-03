@@ -338,15 +338,10 @@ def populate_table(db_name,table_name):
     try:
         # borro todo el contenido de la tabla
         eval(db_name + '.' + table_name + '.truncate()')
-        #db.cliente.truncate()
         # importo nuevo contenido
         eval(db_name + '.' + table_name + """.import_from_csv_file(open(filepath, 'r', encoding='utf-8', newline=''))""")
-        #db.cliente.import_from_csv_file(open(filepath, 'r',
-        #                                  encoding='utf-8',
-        #                                  newline='',))
         eval(db_name + '.commit()')
-        #db.commit()
-        mensaje = 'cargado sin errores'
+        mensaje = str(table_name) + 'cargado sin errores en ' + str(db_name)
         log(mensaje)
         return ['ok', mensaje]
     except Exception as e:
@@ -360,9 +355,14 @@ def populate_table(db_name,table_name):
 
 def populate_accesos_base():
     # usuario
-    populate_usuarios()
-    populate_grupos()
-    populate_pertenencia()
+    base = 'db'
+    populate_table(base, 'auth_user')
+    populate_table(base, 'auth_group')
+    populate_table(base, 'auth_membership')
+    populate_table(base, 'listas')
+    populate_table(base, 'producto')
+    populate_table(base, 'cliente')
+    populate_table(base, 'comprobante')
     # producto
     # clientes
     # listas

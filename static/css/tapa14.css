@@ -10,3 +10,15 @@
 #tabla_informe tr:nth-child(even) {
     background-color: #dddddd;
 }
+
+
+/*ajustes especificos class . */
+
+/*pedido */
+.cantidad {
+	width: 30px;
+	-webkit-appearance: none;
+	-moz-appearance:textfield;
+    appearance: none;
+    margin: 0;
+}
