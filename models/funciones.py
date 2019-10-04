@@ -82,7 +82,7 @@ def arbol_pedidos():
             fentrega = ''
         cliente = db(db.cliente.id == idcliente).select().first()['nombre']
         idproducto = i['producto']
-        producto = db(db.producto.id == idproducto).select().first()['codigo']
+        producto = db(db.producto.id == idproducto).select().first()['nombre_corto']
         nota = i['nota']
         total = i['total']
         fichas[cliente][pedidonum][producto] = [cantidad,
