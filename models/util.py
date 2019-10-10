@@ -20,35 +20,6 @@ if False:
 # directorios
 files_dir = 'applications/' + str(configuration.get('app.name')) + '/files/'
 
-# logs
-logger = logging.getLogger("web2py")
-logger.setLevel(logging.DEBUG)
-log_remove = [
-    'Set-Cookie: ',
-    'session_id_tapa14=']
-
-
-def log(palabra):
-    """funcion auditoria que incorpora el usuario si es que existe"""
-    if hasattr(auth.user, 'email'):
-        mensaje = (str(auth.user.email) + ' '
-        + str(request.function) + ' ' + str(palabra))
-        for i in log_remove:
-            mensaje = mensaje.replace(str(i), '')
-        logger.info(mensaje)
-    else:
-        logger.info('usuario: admin ' + str(palabra))
-
-
-def debug(palabra):
-    if hasattr(auth.user, 'email'):
-        mensaje = 'DEBUG-' + str(palabra) + '-FIN'
-        for i in log_remove:
-            mensaje = mensaje.replace(str(i), '')
-        logger.info(mensaje)
-    else:
-        logger.info('usuario: admin ' + str(palabra))
-
 # websocket
 # from gluon.contrib.websocket_messaging import websocket_send
 

@@ -144,6 +144,37 @@ def obtengo_cliente(clienteid):
     return db(selector).select(db.cliente.ALL).as_dict()[clienteid]
 
 
+# funciones pedido
+
+def listasp():
+    '''devuelvo listas de precios'''
+    return db(db.listas).select(db.listas.ALL).as_dict()
+
+
+def ultimo_comprobante(tipo):
+    s_cbte = (db.comprobante.nombre == str(tipo))
+    comprobante = db(s_cbte).select().first()['lastid']
+    return comprobante
+
+
+def datos_cliente(cliente):
+    s_cliente = (db.cliente.nombre == cliente)
+    datos = db(s_cliente).select().first().as_dict()
+    # agrego datos de los valores especificos
+    s_lista = (db.listas.id == datos['lista'])
+    # ordeno lista de productos
+    datos['productos'] = sorted(datos['productos'])
+    datos['lista_valor'] = db(s_lista).select().first()['valor']
+    return datos
+
+
+def datos_productos():
+    datos = db(db.producto).select().as_dict()
+    for i in datos:
+        s_lista = (db.listas.id == datos[i]['lista'])
+        datos[i]['lista_valor'] = db(s_lista).select().first()['valor']
+    return datos
+
 # from sets import Set
 # def quito_ce(palabra):
 #    caracteres_permitidos='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'

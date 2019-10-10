@@ -9,18 +9,31 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <!-- ccs propio -->
   <link rel="stylesheet" href="{{=URL('static','css/tapa14.css')}}"/>
+
+  <!-- Bootstrap min
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
-  <!-- Font Awesome -->
+  -->
+  <link rel="stylesheet" href="{{=URL('static','cdnjs/bootstrap.min.css')}}"/>
+  <!-- Font Awesome
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <!-- Ionicons -->
+  -->
+  <link rel="stylesheet" href="{{=URL('static','fonts/font-awesome-4.7.0/css/font-awesome.min.css')}}"/>
+  <!-- Ionicons 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/4.0.0-6/css/ionicons.min.css">
-  <!-- Theme style -->
+  -->
+  <link rel="stylesheet" href="{{=URL('static','fonts/ionicons/package/dist/css/ionicons.min.css')}}"/>
+  <!-- Theme style
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.2/css/AdminLTE.min.css">
+  -->
+  <link rel="stylesheet" href="{{=URL('static','cdnjs/AdminLTE.min.css')}}"/>
   <!-- AdminLTE Skins. We have chosen the skin-blue for this starter
         page. However, you can choose any other skin. Make sure you
-        apply the skin class to the body tag so the changes take effect. -->
+        apply the skin class to the body tag so the changes take effect.
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.2/css/skins/skin-blue.min.css">
+  -->
+    <link rel="stylesheet" href="{{=URL('static','cdnjs/skin-blue.min.css')}}"/>
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -29,9 +42,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 
-  <!-- Google Font -->
+  <!-- Google Font 
   <link rel="stylesheet"
         href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+  -->
 
   <!-- web2py stuffs -->
   <meta name="application-name" content="{{=request.application}}" />
@@ -43,10 +57,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
   <!-- This includes the web2py styles, noticeably the flash banner.
        However it also brings some visual imperfection to the AdminLTE styles.
+  <link rel="stylesheet" href="{{=URL('static','css/web2py-bootstrap3.css')}}"/>
   -->
-  <link rel="stylesheet" href="{{=URL('static','css/web2py-bootstrap3.css')}}"/> <!--
+  <link rel="stylesheet" href="{{=URL('static','css/web2py-bootstrap4.css')}}"/>
+
+  <!--
   Now we need to override the padding and margin defined in app scaffold of web2py 2.14.6
-  --><style>
+  -->
+  <style>
   body {padding:0; margin: 0}
   header {margin:0}
   </style>
@@ -72,7 +90,7 @@ desired effect
 |---------------------------------------------------------|
 -->
 <body class="hold-transition skin-blue sidebar-mini">
-<div class="w2p_flash alert alert-dismissable">{{=response.flash or ''}}</div>
+<!-- <div class="w2p_flash alert alert-dismissable">{{=response.flash or ''}}</div> -->
 <div class="wrapper">
 
   <!-- Main Header -->
@@ -95,7 +113,8 @@ desired effect
       <!-- Navbar Right Menu -->
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
-          {{if "auth" in globals() and auth.user:}}
+          <!-- Coloco False para todos los menus -->  
+          {{if "auth" in globals() and auth.user and False:}}
           <!-- Messages: style can be found in dropdown.less-->
           <li class="dropdown messages-menu">
             <!-- Menu toggle button -->
@@ -111,8 +130,9 @@ desired effect
                   <li><!-- start message -->
                     <a href="#">
                       <div class="pull-left">
-                        <!-- User Image -->
-                        <img src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.2/img/avatar5.png" class="img-circle" alt="User Image">
+                        <!-- User Image
+                        <img src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.2/img/avatar5.png" class="img-circle" alt="User Image">-->
+                        <img src={{=URL('static','cdnjs/avatar5.png')}} class="img-circle" alt="User Image">
                       </div>
                       <!-- Message title and timestamp -->
                       <h4>
@@ -131,7 +151,6 @@ desired effect
             </ul>
           </li>
           <!-- /.messages-menu -->
-
           <!-- Notifications Menu -->
           <li class="dropdown notifications-menu">
             <!-- Menu toggle button -->
@@ -202,15 +221,20 @@ desired effect
           <li class="dropdown user user-menu">
             <!-- Menu Toggle Button -->
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <!-- The user image in the navbar-->
-              <img src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.2/img/avatar5.png" class="user-image" alt="User Image">
+              <!-- The user image in the navbar
+              <img src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.2/img/avatar5.png" class="user-image" alt="User Image">-->
+              <img src={{=URL('static','cdnjs/avatar5.png')}} class="user-image" alt="User Image">
               <!-- hidden-xs hides the username on small devices so only the image appears. -->
               <span class="hidden-xs">{{=auth.user.first_name}} {{=auth.user.last_name}}</span>
             </a>
             <ul class="dropdown-menu">
               <!-- The user image in the menu -->
               <li class="user-header">
+                <!--
                 <img src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.2/img/avatar5.png" class="img-circle" alt="User Image">
+                -->
+                <img src={{=URL('static','cdnjs/avatar5.png')}} class="img-circle" alt="User Image">
+
 
                 <p>
                   {{=auth.user.first_name}} {{=auth.user.last_name}}
@@ -264,10 +288,13 @@ desired effect
     <section class="sidebar">
 
       <!-- Sidebar user panel (optional) -->
-      {{if 'auth' in globals() and auth.user:}}
+      {{if 'auth' in globals() and auth.user and False:}}
       <div class="user-panel">
         <div class="pull-left image">
+          <!--
           <img src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.2/img/avatar5.png" class="img-circle" alt="User Image">
+          -->
+          <img src={{=URL('static','cdnjs/avatar5.png')}} class="img-circle" alt="User Image">
         </div>
         <div class="pull-left info">
           <p>{{=auth.user.first_name}} {{=auth.user.last_name}}</p>
@@ -278,6 +305,7 @@ desired effect
       {{pass}}
 
       <!-- search form (Optional) -->
+      {{if False:}}
       <form action="#" method="get" class="sidebar-form">
         <div class="input-group">
           <input type="text" name="q" class="form-control" placeholder="Search...">
@@ -287,11 +315,12 @@ desired effect
             </span>
         </div>
       </form>
+      {{pass}}
       <!-- /.search form -->
 
       <!-- Sidebar Menu -->
       {{if response.menu:}}
-      {{=MENU(response.menu, _class='sidebar-menu')}} <!-- TODO: Customize MENU(...) to include icons -->
+      {{=MENU(response.menu)}} <!-- TODO: Customize MENU(...) to include icons -->
       {{pass}}
       <!-- /.sidebar-menu -->
     </section>
@@ -426,14 +455,18 @@ desired effect
 
 <!-- REQUIRED JS SCRIPTS -->
 
-<!-- jQuery 3 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<!-- Bootstrap 3.3.7 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="{{=URL('static','js/web2py-bootstrap3.js')}}"></script>
-<!-- AdminLTE App -->
+<!-- jQuery 3 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>-->
+<script src="{{=URL('static','cdnjs/jquery.min.js')}}"></script>
+<!-- Bootstrap 3.3.7 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>-->
+<script src="{{=URL('static','cdnjs/bootstrap.min.js')}}"></script>
+<!--<script src="{{=URL('static','js/web2py-bootstrap3.js')}}"></script>-->
+<script src="{{=URL('static','js/web2py-bootstrap4.js')}}"></script>
+<!-- AdminLTE App 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.2/js/adminlte.min.js"></script>
-
+-->
+<script src="{{=URL('static','cdnjs/adminlte.min.js')}}"></script>
 <!-- Optionally, you can add Slimscroll and FastClick plugins.
      Both of these plugins are recommended to enhance the
      user experience. -->

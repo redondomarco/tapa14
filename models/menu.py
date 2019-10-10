@@ -35,13 +35,16 @@ menutest = (T('lista de funciones'), False, None,
 menuvendedor = (T('Venta'), False, URL('default', 'venta'), [])
 menureserva = (T('Reserva'), False, URL('default', 'reserva'), [])
 menuingreso = (T('Ingreso'), False, URL('default', 'ingreso'), [])
-menupedido = (T('Pedidos'), False, None,
+
+
+menupedido = ('pedidos', False, '#',
               [(T('Nuevo'), False,
                URL('default', 'selec_cliente_pedido')),
               (T('Listado'), False,
                URL('default', 'pedido_pendiente'))
                ]
               )
+
 menufacturas = (T('Facturas'), False, None,
                 [(T('Subir'), False,
                  URL('default', 'subir_facturas')),
@@ -54,7 +57,9 @@ menufacturas = (T('Facturas'), False, None,
                  ]
                 )
 menuappadmin = (T('appadmin'), False, URL('appadmin', 'index'), [])
-menuadmin = (T('general'), False, None,
+
+
+menuadmin = (T('general'), False, '#',
              [(T('Archivo'), False, URL('default', 'archivo')),
               (T('Guardar Backup'), False, URL('default', 'save_backup')),
               (T('Restaurar Backup'), False, URL('default', 'load_backup')),
@@ -82,7 +87,8 @@ if auth.user:
             response.menu.append(menuadmin)
             response.menu.append(menufacturas)
         if auth.user.email == 'redondomarco@gmail.com':
-            response.menu.append(menuappadmin)
+            #response.menu.append(menuappadmin)
+            pass
 # response.menu.append(menucalculadora)
 # response.menu.append(menutest)
 

@@ -1,8 +1,9 @@
-{{extend 'plugin_adminlte/layout_starter.html'}}
+{{#extend 'plugin_adminlte/layout_starter.html'}}
+{{extend 'layout.html'}}
 
 {{=form_ingreso}}
 {{=H4('Ulitmos ingresos')}}
-{{=session.ultimosingresos}}
+{{=ultimosingresos}}
 {{block page_js}}
 <script type="text/javascript">
 

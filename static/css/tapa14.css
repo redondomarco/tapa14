@@ -21,7 +21,7 @@
 }
 
 .precio {
-	width: 80px;
+	width: 70px;
 	-moz-appearance:textfield;
 }
 
@@ -30,6 +30,14 @@
   -moz-appearance:textfield;
 }
 
+.user-image {
+    float: left;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 15px;
+    margin-top: -2px;
+}
 /*ajustes especificos id # */
 
 #fechaingreso {
@@ -45,6 +53,7 @@
   margin-left: 4px;
   margin-right: 4px;
 }
+
 #totalt {
 	font-size: 16px;
 	font: monospace;
@@ -126,10 +135,28 @@
 #bloques {
     display: grid;
     grid-gap: 5px;
-    grid-template-columns: repeat(auto-fit, 195px);
-    grid-template-rows: repeat(2, 60px);
+    grid-template-columns: repeat(auto-fit, 190px);
+    grid-template-rows: repeat(2, 70px);
+    min-width: 385px;
+    max-width: 385px;
+}
+
+#indexb {
+    display: grid;
+    grid-gap: 5px;
+    grid-template-columns: repeat(auto-fit, 200px);
+    grid-template-rows: repeat(2, 100px);
     min-width: 200px;
-    max-width: 420px;
+    max-width: 410px;
+}
+
+#admin {
+    display: grid;
+    grid-gap: 5px;
+    grid-template-columns: repeat(auto-fit, 200px);
+    grid-template-rows: repeat(2, 100px);
+    min-width: 200px;
+    max-width: 410px;
 }
 /*#ingresolote {
   width: 35px;

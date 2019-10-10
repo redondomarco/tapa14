@@ -21,17 +21,6 @@ dir_pdf = ('applications/' + str(configuration.get('datos.app_name')) +
            '/files/pdf')
 
 db.define_table(
-    'producto',
-    Field('codigo', unique=True, length=255),
-    Field('nombre_corto', unique=True, length=6),
-    Field('detalle', label=T('Nombre del producto'), unique=True, length=255),
-    Field('valor', 'double', default=0),
-    Field('stock', 'integer', default=0),
-    Field('reserva', 'integer', default=0),
-    Field('stock_alias', 'reference producto'),
-    format='%(detalle)s'
-)
-db.define_table(
     'listas',
     Field('lista', unique=True, length=255),
     Field('valor', 'double'),
@@ -39,14 +28,27 @@ db.define_table(
 )
 
 db.define_table(
+    'producto',
+    Field('codigo', unique=True, length=255),
+    Field('nombre_corto', unique=True, length=6),
+    Field('detalle', label=T('Nombre del producto'), unique=True, length=255),
+    Field('lista', 'reference listas', default=1, notnull=True),
+    Field('valor', 'double', default=0, notnull=True),
+    Field('stock', 'integer', default=0),
+    Field('reserva', 'integer', default=0),
+    Field('stock_alias', 'reference producto'),
+    format='%(detalle)s'
+)
+
+db.define_table(
     'cliente',
     Field('nombre', unique=True, length=255),
-    Field('lista', 'reference listas'),
-    Field('productos', 'list:reference producto'),
+    Field('lista', 'reference listas', notnull=True),
+    Field('productos', 'list:reference producto', notnull=True),
     Field('saldo', 'double', default=0),
     Field('tipocuenta', default=tipo_cta[0]),
     Field('iva'),
-    Field('comprobante'),
+    Field('comprobante', notnull=True),
     Field('correo'),
     Field('aviso', 'boolean'),
     Field('cuit'),
@@ -55,7 +57,7 @@ db.define_table(
     Field('localidad', length=255),
     Field('provincia', length=255),
     Field('telefono'),
-    Field('activo', 'boolean'),
+    Field('activo', 'boolean', default=True),
     format='%(nombre)s'
 )
 db.cliente.iva.requires = IS_IN_SET(tipo_iva)
@@ -146,6 +148,7 @@ db.define_table(
 #    Field('descripcion', 'reference es_caja'),
 #    Field('total', 'double')
 #    )
+
 db.define_table(
     'comprobante',
     Field('nombre'),
@@ -164,11 +167,42 @@ db.define_table(
 
 # calcula la fecha de vencimiento para un lote
 
+# materias primas
+db.define_table(
+    'proveedor',
+    Field('nombre'),
+    Field('descripcion'),
+    format='%(nombre)s')
+
+
+db.define_table(
+    'tipos_mat_primas',
+    Field('nombre'),
+    Field('descripcion'),
+    format='%(nombre)s')
+
+
+db.define_table(
+    'marcas',
+    Field('nombre'),
+    Field('descripcion'),
+    format='%(nombre)s')
+
+
+db.define_table(
+    'mat_primas',
+    Field('nombre', 'reference tipos_mat_primas'),
+    Field('marca', 'reference marcas'),
+    Field('lote'),
+    Field('f_ingreso', 'datetime'),
+    Field('proveedor', 'reference proveedor'))
+
 
 def fecha_vto(lote):
     diasvto = 30
-    a = datetime.strptime(str(datetime.now().year) + '11', '%Y%m%d')
-    b = timedelta(days=int(lote) + diasvto - 1)
+    a = datetime.datetime.strptime(
+        str(datetime.datetime.now().year) + '11', '%Y%m%d')
+    b = datetime.timedelta(days=int(lote) + diasvto - 1)
     return a + b
 
 
@@ -275,11 +309,12 @@ def populate_producto():
         return ['error', str(e)]
 
 
-#productos
+# productos
 def export_listas():
     filepath = files_dir + 'csv-base/db_listas.csv'
     rows = db(db.listas.id).select()
     rows.export_to_csv_file(open(filepath, 'w', encoding='utf-8', newline=''))
+
 
 def populate_listas():
     # leo de files csv
@@ -289,8 +324,8 @@ def populate_listas():
         db.listas.truncate()
         # importo nuevo contenido
         db.listas.import_from_csv_file(open(filepath, 'r',
-                                          encoding='utf-8',
-                                          newline='',))
+                                       encoding='utf-8',
+                                       newline='',))
         db.commit()
         mensaje = 'cargado sin errores'
         log(mensaje)
@@ -313,8 +348,8 @@ def populate_cliente():
         db.cliente.truncate()
         # importo nuevo contenido
         db.cliente.import_from_csv_file(open(filepath, 'r',
-                                          encoding='utf-8',
-                                          newline='',))
+                                        encoding='utf-8',
+                                        newline='',))
         db.commit()
         mensaje = 'cargado sin errores'
         log(mensaje)
@@ -323,25 +358,26 @@ def populate_cliente():
         return ['error', str(e)]
 
 
-def export_table(db_name,table_name):
+def export_table(db_name, table_name):
     filename = str(db_name) + '_' + str(table_name) + '.csv'
     filepath = files_dir + 'csv-base/' + filename
     rows = eval(db_name + '(' + db_name + '.' + table_name + '.id).select()')
     rows.export_to_csv_file(open(filepath, 'w', encoding='utf-8', newline=''))
 
 
-def populate_table(db_name,table_name):
+def populate_table(db_name, table_name):
     # leo de files csv
-    filepath = files_dir + 'csv-base/db_cliente.csv'
+    filepath = files_dir + 'csv-base/db_' + str(table_name) + '.csv'
     filename = str(db_name) + '_' + str(table_name) + '.csv'
-    filepath = files_dir + 'csv-base/' + filename
+    # filepath = files_dir + 'csv-base/' + filename
     try:
         # borro todo el contenido de la tabla
         eval(db_name + '.' + table_name + '.truncate()')
         # importo nuevo contenido
-        eval(db_name + '.' + table_name + """.import_from_csv_file(open(filepath, 'r', encoding='utf-8', newline=''))""")
+        eval(db_name + '.' + table_name +
+             """.import_from_csv_file(open(filepath, 'r', encoding='utf-8', newline=''))""")
         eval(db_name + '.commit()')
-        mensaje = str(table_name) + 'cargado sin errores en ' + str(db_name)
+        mensaje = str(table_name) + ' cargado sin errores en ' + str(db_name)
         log(mensaje)
         return ['ok', mensaje]
     except Exception as e:
@@ -353,16 +389,21 @@ def populate_table(db_name,table_name):
 # rm databases/*
 
 
+# es importante el orden
+tablas = ['auth_user', 'auth_group', 'auth_membership',
+          'listas', 'cliente',
+          'producto', 'comprobante',
+          'proveedor', 'marcas', 'tipos_mat_primas',
+          'mat_primas']
+
+base = 'db'
+
+
+def genera_csv_tablas():
+    for tabla in tablas:
+        export_table(base, tabla)
+
+
 def populate_accesos_base():
-    # usuario
-    base = 'db'
-    populate_table(base, 'auth_user')
-    populate_table(base, 'auth_group')
-    populate_table(base, 'auth_membership')
-    populate_table(base, 'listas')
-    populate_table(base, 'producto')
-    populate_table(base, 'cliente')
-    populate_table(base, 'comprobante')
-    # producto
-    # clientes
-    # listas
+    for tabla in tablas:
+        populate_table(base, tabla)

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 
 # -------------------------------------------------------------------------
 # AppConfig configuration made easy. Look inside private/appconfig.ini
@@ -170,3 +171,52 @@ if configuration.get('scheduler.enabled'):
 # auth.enable_record_versioning(db)
 # fuerzo idioma
 T.force('es-ar')
+
+# logs
+logger = logging.getLogger("web2py")
+logger.setLevel(logging.DEBUG)
+log_remove = [
+    'Set-Cookie: ',
+    'session_id_tapa14=']
+
+
+def log(palabra):
+    """funcion auditoria que incorpora el usuario si es que existe"""
+    if hasattr(auth.user, 'email'):
+        ip = str(request.client)
+        mensaje = (str(auth.user.email) + ' ' + ip + ' '
+        + str(request.function) + ' ' + str(palabra))
+        
+        for i in log_remove:
+            mensaje = mensaje.replace(str(i), '')
+        logger.info(mensaje)
+    else:
+        logger.info('usuario: admin ' + str(palabra))
+
+
+def debug(palabra):
+    if hasattr(auth.user, 'email'):
+        mensaje = 'DEBUG-' + str(palabra) + '-FIN'
+        for i in log_remove:
+            mensaje = mensaje.replace(str(i), '')
+        logger.info(mensaje)
+    else:
+        logger.info('usuario: admin ' + str(palabra))
+
+
+response.logo = A(IMG(_src=URL('static', 'images/tapa14.png'),
+                      _href=URL('default', 'index'),
+                      _class="navbar-brand"))
+
+#response.title = request.application.replace('_',' ').title()
+response.title = 'Tapa14'
+response.subtitle = ''
+
+## read more at http://dev.w3.org/html5/markup/meta.name.html
+response.meta.author = 'Marco Redondo <redondomarco@gmail.com>'
+response.meta.description = 'Sistema Tapa14'
+response.meta.keywords = 'tapa14'
+response.meta.generator = 'tapa14'
+
+## your http://google.com/analytics id
+response.google_analytics_id = None
