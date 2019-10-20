@@ -37,7 +37,7 @@ menureserva = (T('Reserva'), False, URL('default', 'reserva'), [])
 menuingreso = (T('Ingreso'), False, URL('default', 'ingreso'), [])
 
 
-menupedido = ('pedidos', False, '#',
+menupedido = ('Pedidos', False, '#',
               [(T('Nuevo'), False,
                URL('default', 'selec_cliente_pedido')),
               (T('Listado'), False,
@@ -45,10 +45,10 @@ menupedido = ('pedidos', False, '#',
                ]
               )
 
-menufacturas = (T('Facturas'), False, None,
-                [(T('Subir'), False,
+menufacturas = (T('Comprobantes'), False, None,
+                [(T('Subir facturas'), False,
                  URL('default', 'subir_facturas')),
-                (T('Procesar'), False,
+                (T('Procesar facturas'), False,
                  URL('default', 'procesar_facturas')),
                 (T('subir datos afip'), False,
                  URL('default', 'subir_datos_afip_paso1')),
@@ -58,8 +58,9 @@ menufacturas = (T('Facturas'), False, None,
                 )
 menuappadmin = (T('appadmin'), False, URL('appadmin', 'index'), [])
 
+menuconf = (I(' Config', _class='fa fa-gear'), False, URL('default', 'admin'))
 
-menuadmin = (T('general'), False, '#',
+menuadmin = (T('General'), False, '#',
              [(T('Archivo'), False, URL('default', 'archivo')),
               (T('Guardar Backup'), False, URL('default', 'save_backup')),
               (T('Restaurar Backup'), False, URL('default', 'load_backup')),
@@ -77,7 +78,8 @@ if auth.user:
 # logger.info(str(auth.user))
     for group in groups:
         if group.role == 'vendedor':
-            response.menu.append(menupedido)
+            pass
+            #response.menu.append(menupedido)
 # response.menu.append(menureserva)
 # if group.role == 'productor':
 #  response.menu.append(menuingreso)
@@ -86,6 +88,7 @@ if auth.user:
         if group.role == 'admin':
             response.menu.append(menuadmin)
             response.menu.append(menufacturas)
+            response.menu.append(menuconf)
         if auth.user.email == 'redondomarco@gmail.com':
             #response.menu.append(menuappadmin)
             pass

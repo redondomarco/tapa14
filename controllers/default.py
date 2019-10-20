@@ -19,84 +19,171 @@ if False:
 #    from util import *
 
 
-# @auth.requires_membership('vendedor')
-# def index():
-#     log('ingreso')
-#     form = FORM(CENTER(TABLE(
-#         TR(H4('pedidos'),
-#            CENTER(A('nuevo', _class="btn btn-primary",
-#                   _href=URL('selec_cliente_pedido'))),
-#            CENTER(A('pendientes', _class="btn btn-primary",
-#                   _href=URL('pedido_pendiente')))
-#            ),
-#         TR(H4('stock'),
-#            CENTER(A('ingreso', _class="btn btn-primary",
-#                   _href=URL('ingreso'))),
-#            CENTER(A('venta', _class="btn btn-primary",
-#                   _href=URL('selec_cliente'))),
-#            ),
-#         TR(),
-#         TR(H4('consultas'),
-#            CENTER(A('ingresos', _class="btn btn-primary",
-#                   _href=URL('consulta_ingreso_stock'))),
-#            CENTER(A('ventas', _class="btn btn-primary",
-#                   _href=URL('consulta_venta_stock'))),
-#            CENTER(A('stock', _class="btn btn-primary",
-#                   _href=URL('consulta_stock')))
-#            ),
-#         TR(),
-#         TR(),
-#         TR(
-#             H4('materia prima'),
-#             CENTER(A('ingreso', _class="btn btn-primary",
-#                    _href=URL('ingreso_mp'))),
-#             CENTER(A('baja', _class="btn btn-primary",
-#                    _href=URL('baja_mp')))
-#         ),
-#         _id='tablaindex'
-#     ),
-#     )
-#     )
-#     return dict(form=form)
+def icon_title(icon, title):
+    return I(' ' + str(title), _class='fa ' + str(icon) + ' fa-1x')
+
+
+# iconos en https://fontawesome.com/v4.7.0/icon/list
+def grand_button(nombre, link, icono, **kwargs):
+    """ nombre: 1 a 3 palabras"""
+    lista = nombre.split()
+    spanlist = []
+    for i in lista:
+        spanlist.append(SPAN(i.title()))
+        spanlist.append(BR())
+    result = DIV(spanlist)
+    if 'vars' in kwargs:
+        url = URL(link, vars=kwargs['vars'])
+    else:
+        url = URL(link)
+    boton = A(TABLE(I(_class='fa ' + str(icono) + ' fa-3x'), result),
+              _class="btn-square-blue",
+              _href=url)
+    return boton
+
 
 @auth.requires_membership('vendedor')
 def index():
-    log('ingreso')
+    log('acceso')
     # menu favoritos
     form = CENTER(FORM(
-        DIV(H5('Pedidos'), TABLE(TR(
-            TD(A('nuevo', _class="btn btn-primary",
-                 _href=URL('selec_cliente_pedido'))),
-            TD(A('lista', _class="btn btn-primary",
-                 _href=URL('pedido_pendiente')))))),
-        DIV(H5('Ingresos'), TABLE(TR(
-            TD(A('nuevo', _class="btn btn-primary",
-                 _href=URL('ingreso'))),
-            TD(A('lista', _class="btn btn-primary",
-                 _href=URL('consulta_ingreso_stock')))))),
-        _id='indexb'))
+        DIV(I(' Pedidos', _class='fa fa-ticket fa-2x'),
+            DIV(grand_button('nuevo pedido',
+                             'selec_cliente_pedido',
+                             'fa-cart-plus'),
+                grand_button('pedidos pendientes',
+                             'pedido_pendiente',
+                             'fa-th-large'),
+                grand_button('hoja de ruta',
+                             'hoja_de_ruta',
+                             'fa-truck'),
+                _id='mini_grid')
+            ),
+        DIV(I('  Produccion', _class='fa fa-industry fa-2x'),
+            DIV(grand_button('ingreso productos terminados',
+                             'ingreso_produccion',
+                             'fa-database'),
+                grand_button('consulta productos',
+                             'consulta_ingreso_stock',
+                             'fa-list'),
+                grand_button('Ingreso materias primas',
+                             'admin_tabla',
+                             'fa-qrcode',
+                             vars={'tabla': 'mat_primas'}),
+                _id='mini_grid')
+            ),
+        _id='panel_grid'))
     return dict(form=form)
 
 
+def admin():
+    log('acceso')
+    form = CENTER(FORM(
+        DIV(I(' Tapa14', _class='fa fa-cogs fa-2x'),
+            DIV(grand_button('modificar productos',
+                             'admin_tabla',
+                             'fa-product-hunt',
+                             vars={'tabla': 'producto'}),
+                grand_button('materias primas',
+                             'admin_tabla',
+                             'fa-leaf',
+                             vars={'tabla': 'mat_primas'}),
+                _id='mini_grid'),
+            ),
+        DIV(I(' Clientes', _class='fa fa-cogs fa-2x'),
+            DIV(grand_button('modificar clientes',
+                             'admin_tabla',
+                             'fa-users',
+                             vars={'tabla': 'cliente'}),
+                grand_button('listas de precios',
+                             'admin_tabla',
+                             'fa-percent',
+                             vars={'tabla': 'listas'}),
+                _id='mini_grid')
+            ),
+        DIV(I(' Proveedores', _class='fa fa-cogs fa-2x'),
+            DIV(grand_button('Proveedores',
+                             'admin_tabla',
+                             'fa-suitcase',
+                             vars={'tabla': 'proveedor'}),
+                grand_button('tipo materias primas',
+                             'admin_tabla',
+                             'fa-puzzle-piece',
+                             vars={'tabla': 'tipos_mat_primas'}),
+                grand_button('marcas',
+                             'admin_tabla',
+                             'fa-trademark',
+                             vars={'tabla': 'marcas'}),
+                _id='mini_grid')
+            ),
+        DIV(I(' Anula', _class='fa fa-cogs fa-2x'),
+            DIV(grand_button('pedido',
+                             'admin_tabla',
+                             'fa-trademark',
+                             vars={'tabla': 'marcas'}),
+                _id='mini_grid')
+            ),
+        _id='panel_grid'))
+    return dict(form=form)
+
+
+def opt_tabla(tabla):
+    if tabla == 'cliente':
+        fields = ('db.cliente.id, db.cliente.nombre, db.cliente.lista,' +
+                  'db.cliente.saldo, db.cliente.tipocuenta, db.cliente.cuit')
+    else:
+        fields = 'None'
+    return {'fields': fields}
+
+
+@auth.requires_login()
+@auth.requires_membership('admin')
+def admin_tabla():
+    if 'tabla' in request.vars:
+        tabla = request.vars['tabla']
+        titulo = DIV(
+            A(icon_title('fa-arrow-left', 'Volver'), _id='boton_r',
+              _class="btn-grid", _href=URL('admin')),
+            CENTER(H4('Admin ' + (str(tabla).title()))))
+        log('acceso grid ' + str(tabla))
+        grid = SQLFORM.smartgrid(eval('db.' + str(tabla)),
+                                 maxtextlength=20,
+                                 linked_tables=['child'],
+                                 fields=eval(opt_tabla(tabla)['fields']))
+        return dict(grid=grid, titulo=titulo)
+    else:
+        redirect(URL('index'))
+
+
+
 @auth.requires_membership('vendedor')
-def ingreso():
-    # armo cabecera de datos fecha,lote,maquina,harina,margarina,sal,conservantes
-    tabla_cabecera = DIV(CENTER(
-        DIV(TAG('<label for="clienteinput">Cliente</label>'),
-            INPUT(_value=str(session.cliente), _name='cliente',
-                  _type='text', _disabled="disabled",
-                  _class="form-control string")),
-        DIV(TAG('<label class="control-label">Pedido nº </label>'),
-            INPUT(_value=str(int(comprobante)).zfill(10),
+def ingreso_produccion():
+    log('acceso')
+    # armo cabecera de datos fecha, lote, maquina, harina, margarina,
+    # sal, conservantes
+    cabecera = DIV(CENTER(
+        DIV(TAG('<label for="fecha_p">Fecha Produccion</label>'),
+            INPUT(_name='ffechap', _type='date', _id="fechap",
+                  _class="form-control string",
+                  requires=IS_NOT_EMPTY())),
+        DIV(TAG('<label class="control-label">Hoja nº </label>'),
+            INPUT(_value=str(int(ultimo_comprobante('ingreso'))).zfill(10),
                   _disabled="disabled", _class="form-control string")),
+        DIV(TAG('<label for="lote"> Lote </label>'),
+            INPUT(_name='flote', _type='number',
+                  _min='1', _max='365', _id='lote',
+                  _class="form-control string")),
+        DIV(TAG('<label for="fecha_p">Fecha Vencimiento</label>'),
+            INPUT(_name='ffechav', _type='date', _id="fechap",
+                  _class="form-control string")),
+        DIV(TAG('<label for="fecha_p">Lote Harina</label>'),
+            SELECT(['a', 'b'],_name='fharina', _id="fharina",
+                  _class="form-control string")),
         DIV(TAG('<label for="notainput">Nota</label>'),
             INPUT(_name='nota', _type='text', _id="notainput",
                   _class="form-control string"), _id="ancho190"),
-        DIV(TAG('<label for="fechaent">Fecha entrega</label>'),
-            INPUT(_name='entrega', _type='date', _id="fechaent",
-                  _class="form-control string")),
         _id='bloques'))
-    # armo tabla de productos
+    # armo ultimos ingresos
     ultimosingresos = SQLFORM.grid(
         db.ingresos,
         fields=(db.ingresos.fecha, db.ingresos.lote,
@@ -108,7 +195,8 @@ def ingreso():
     session.productos = []
     session.idsform = []
     tabla1 = [[THEAD(TR(TH('cant'), TH('det'), TH('fis'), TH('net')))]]
-    prod_real = db(db.producto.stock_alias == None).select()
+    prod_real = db(db.producto.stock_alias == None and
+                   db.producto.tipo == 'propio').select()
     for item in prod_real:
         session.productos.append([item.codigo,
                                   item.nombre_corto,
@@ -134,15 +222,7 @@ def ingreso():
     form_ingreso = FORM(
         CENTER(
             H3('Ingreso de producción'),
-            TABLE(
-                TR(
-                    TAG('<label class="tabla-label">Fecha: </label>'),
-                    INPUT(_class='date', _name='ingresofecha',
-                          _id='fechaingreso'),
-                    TAG('<label for="clienteinput">Lote:</label>'),
-                    INPUT(_name='ingresolote', _type='number', _min='1',
-                          _max='365', _step='1', _class='nrolote')),
-                _id='tablaingreso'),
+            cabecera,
             TABLE(tabla1, _class='t2', _id="suma"),
             TABLE(TR(A('Volver', _href=request.env.http_referer,
                   _class='btn btn-primary btn-medium'),
@@ -302,237 +382,31 @@ def ventaold():
                 clientes_json=json(clientes), listas_json=json(listas))
 
 
-@auth.requires_membership('vendedor')
-def selec_cliente():
-    clientes = db(db.cliente).select(db.cliente.ALL)
-    form = FORM(
-        CENTER(
-            H3('Venta'),
-            TABLE(
-                TR(TAG('<label for="clienteinput"> cliente</label>'),
-                   SELECT([" "] + [(p.nombre) for p in clientes],
-                          _name='cliente', _type='text', _id="clienteinput",
-                          _class="form-control string"),
-                   ),
-                TR(TAG('<label class="tabla-label">Fecha Entrega: </label>'),
-                   SELECT(["Inmediata"] + ["Posterior"], _name='entrega',
-                          _type='text', _id="clienteinput",
-                          _class="form-control string")
-                   ),
-                _id='tablaselec',
-            ),
-            INPUT(_type="submit", _class="btn btn-primary btn-medium",
-                  _value='continuar', _id='button14'),
-        ),
-        _id='formventa')
-    if form.accepts(request, session):
-        session.cliente = request.vars['cliente']
-        session.entrega = request.vars['entrega']
-        debug(str(session.cliente))
-        if session.cliente != " ":
-            log('aceptado')
-            redirect(URL('venta'))
-        else:
-            redirect(URL('selec_cliente'))
-    return dict(form=form)
-
-
-@auth.requires_membership('vendedor')
-def venta():
-    listas = db(db.listas).select(db.listas.ALL)
-    s_venta = (db.comprobante.nombre == 'venta')
-    comprobante = db(s_venta).select().first()['lastid']
-    session.ultimasventas = SQLFORM.grid(
-        db.ventas,
-        fields=(db.ventas.fecha, db.ventas.ventanum, db.ventas.vendedor,
-                db.ventas.cliente, db.ventas.cantidad, db.ventas.producto,
-                db.ventas.total),
-        orderby=[~db.ventas.fecha],
-        searchable=False, editable=False, deletable=False, create=False,
-        sortable=True, details=False, maxtextlength=25)
-#   creo tabla con productos habilitados para el cliente
-    session.productos = []
-    idsform = []
-    precios = []
-    selector = (db.cliente.nombre == session.cliente)
-    productos_cliente = db(selector).select().first()['productos']
-    tipocuenta = db(selector).select().first()['tipocuenta']
-    log(tipocuenta)
-    log(session.cliente)
-    # if idtipocuenta==None:
-    #    session.mensaje='El cliente no tiene tipo de cuenta valida'
-    #    redirect(URL('mensajes'))
-    listaidcliente = db(selector).select().first()['lista']
-    descuento = db(db.listas.id == listaidcliente).select().first()['valor']
-    if productos_cliente is None:
-        session.mensaje = 'El cliente no tiene productos habilitados'
-        redirect(URL('mensajes'))
-    nro_venta = TR(TAG('<label class="tabla-label">Venta nº </label>'),
-                   INPUT(_value=str(int(comprobante)).zfill(10),
-                         _disabled="disabled", _id='nrocomp'))
-    nombre_cliente = TR(TAG('<label for="clienteinput">cliente</label>'),
-                        INPUT(_value=str(session.cliente), _name='cliente',
-                              _disabled="disabled", _type='text',
-                              _id="clienteinput"))
-    tipo_cuenta = TR(TAG('<label for="tipocuenta">cuenta</label>'),
-                     INPUT(_value=str(tipo_cta), _name='tipocuenta',
-                           _disabled="disabled", _type='text',
-                           _id="tipocuenta"))
-    if tipocuenta == '|efectivo|':
-        tablacliente = TABLE(nro_venta,
-                             nombre_cliente,
-                             tipo_cuenta,
-                             _id='tablacliente'
-                             )
-    elif tipocuenta == '|cta cte|':
-        saldo_cliente = db(selector).select().first()['saldo']
-        if saldo_cliente < 0:
-            tagid = 'saldonegativo'
-        else:
-            tagid = 'tipocuenta'
-        saldo = TR(TAG('<label for="tipocuenta">saldo</label>'),
-                   INPUT(_value=str(saldo_cliente), _disabled="disabled",
-                         _type="number", _class=tagid))
-        if session.entrega == 'Inmediata':
-            fecha_entrega = ""
-        elif session.entrega == "Posterior":
-            fecha_entrega = TR(TAG('<label class="tabla-label">' +
-                                   'Entrega: </label>'),
-                               INPUT(_class='date', _name='fechaentrega',
-                                     _id='fechaingreso'))
-        tablacliente = TABLE(nro_venta,
-                             nombre_cliente,
-                             tipo_cuenta,
-                             saldo,
-                             fecha_entrega,
-                             _id='tablacliente'
-                             )
-    else:
-        session.mensaje = 'El cliente no tiene tipo de cuenta valida'
-        redirect(URL('mensajes'))
-    # genero tabla para form
-    tabla2 = []
-    tabla2.append(THEAD(TR(TH('cant'), TH('detalle'), TH('cod.'), TH('sub'))))
-    for item in productos_cliente:
-        producto = db(db.producto.id == item).select().first()
-        session.productos.append([producto['codigo'],
-                                  producto['detalle'],
-                                  producto['valor']])
-        tabla2.append(TR(
-            TD(INPUT(_id='c' + str(producto['codigo']),
-                     _name='c' + str(producto['codigo']),
-                     _type='number', _min='0', _step='1', _class='cantidad')),
-            TD(producto['detalle']),
-            TD(producto['codigo'], _id='v' + str(producto['codigo'])),
-            TD(INPUT(_id='s' + str(producto['codigo']), _type="number",
-                     _class='precio', _disabled="disabled"))))
-        idsform.append(['c' + str(producto['codigo']),
-                        'v' + str(producto['codigo']),
-                        's' + str(producto['codigo'])
-                        ])
-        precios.append(producto['valor'])
-    tabla2.append(TFOOT(TR(
-        TH(''), TH(''), TH('Total', _id='totaltitle'),
-        TH(INPUT(_id='totalt', _type="number", _class='precio',
-                 _disabled="disabled")))))
-    form = FORM(DIV(
-        CENTER(tablacliente),
-        TABLE(tabla2, _class='t2', _id="suma"), _id='capture'),
-        CENTER(INPUT(_type="submit", _class="btn btn-primary btn-medium",
-                     _value='vender', _id='button14')),
-        _id='formventa')
-    if form.accepts(request, session):
-        productovendido = False
-        log('aceptado')
-        sel_cbte = (db.comprobante.nombre == 'venta')
-        ventanumactual = db(sel_cbte).select()[0].lastid
-        sel_cliente = (db.cliente.nombre == session.cliente)
-        listaid = db(sel_cliente).select().first()['lista']
-        # desc_lista = db(db.listas.id == listaid).select().first()['valor']
-        for item in productos_cliente:
-            producto = db(db.producto.id == item).select().first()
-            cant = 'c' + str(item.codigo)
-            if request.vars[cant] == '':
-                cantidad = int(0)
-            else:
-                cantidad = int(str(request.vars[cant]))
-            if cantidad != 0:
-                productovendido = True
-                # logica descuento stock
-                if producto['stock_alias'] is None:
-                    sel_prod = (db.producto.codigo == producto['codigo'])
-                    db(sel_prod).update(
-                        stock=db(sel_prod).select()[0].stock - int(cantidad))
-                else:
-                    sel_id = (db.producto.id == producto['stock_alias'])
-                    stockprod = db(sel_id).select().first()
-                    sel_cod = (db.producto.codigo == stockprod['codigo'])
-                    db(sel_cod).update(
-                        stock=db(sel_cod).select()[0].stock - int(cantidad))
-                valor = float(producto['valor'])
-                detalle = producto['detalle']
-                productoid = producto['id']
-                sel_email = (db.auth_user.email == auth.user.email)
-                vendedorid = db(sel_email).select().first()['id']
-                sel_cli_nom = (db.cliente.nombre == session.cliente)
-                clienteid = db(sel_cli_nom).select().first()['id']
-                # listaid = db(sel_cli_nom).select().first()['lista']
-                preciou = round(valor * descuento, 2)
-                total = preciou * int(cantidad)
-                log('venta #' + str(ventanumactual) + ' cant ' +
-                    str(cantidad) + ' ' + str(detalle) + ' pu ' +
-                    str(preciou) + ' total ' + str(total) + ' a ' +
-                    str(session.cliente))
-                db.ventas.insert(
-                    fecha=datetime.now(),
-                    vendedor=vendedorid,
-                    cliente=clienteid,
-                    ventanum=ventanumactual,
-                    cantidad=int(cantidad),
-                    producto=productoid,
-                    preciou=preciou,
-                    total=total
-                )
-        # solo subo el numero de venta si no fue todo 0
-        if productovendido:
-            sel_cbte = (db.comprobante.nombre == 'venta')
-            db(sel_cbte).update(
-                lastid=db(sel_cbte).select()[0].lastid + 1)
-        db.commit()
-        redirect(URL('index'))
-    else:
-        log('ingreso')
-    return dict(form=form, ids_json=json(idsform), listas_json=json(listas),
-                descuento=descuento, precios_json=json(precios))
-
-
 def selec_cliente_pedido():
     clientes = db(db.cliente).select(db.cliente.ALL)
     form = FORM(CENTER(
-        TAG('<label class="control-label">Pedido </label>'), BR(),
-        TABLE(
-            TR(TAG('<label for="clienteinput"> cliente</label>'),
-               SELECT([" "] + [(p.nombre) for p in clientes], _name='cliente',
-                      _type='text', _id="clienteinput",
-                      _class="form-control string")),
-            _id='tablacliente',),
+        H4('Pedido'),
+        BR(),
+        TAG('<label for="clienteinput">Cliente</label>'),
+        SELECT([" "] + [(p.nombre) for p in clientes], _name='cliente',
+               _type='text', _id="clienteinput",
+               _class="form-control string"),
         BR(),
         INPUT(_type="submit", _class="btn btn-primary btn-medium",
-              _value='continuar', _id='button14'), BR(),
-    ), _id='formventa')
+              _value='Continuar')
+    ))
     if form.accepts(request, session):
         session.cliente = request.vars['cliente']
         log('seleccionado ' + str(session.cliente))
         redirect(URL('pedido'))
     else:
-        log('ingreso')
+        log('acceso')
     return dict(form=form)
 
 
 @auth.requires_membership('vendedor')
 def pedido():
     # creo tabla con productos habilitados para el cliente
-    session.productos = []
     idsform = []
     precios = []
     d_cliente = datos_cliente(session.cliente)
@@ -544,30 +418,31 @@ def pedido():
         redirect(URL('mensajes'))
 
     # genero tabla cabecera
-    tabla_cabecera = DIV(CENTER(
-        DIV(TAG('<label for="clienteinput">Cliente</label>'),
-            INPUT(_value=str(session.cliente), _name='cliente',
-                  _type='text', _disabled="disabled",
-                  _class="form-control string")),
-        DIV(TAG('<label class="control-label">Pedido nº </label>'),
-            INPUT(_value=str(int(ultimo_comprobante('pedido'))).zfill(10),
-                  _disabled="disabled", _class="form-control string")),
-        DIV(TAG('<label for="notainput">Nota</label>'),
-            INPUT(_name='nota', _type='text', _id="notainput",
-                  _class="form-control string"), _id="ancho190"),
-        DIV(TAG('<label for="fechaent">Fecha entrega</label>'),
-            INPUT(_name='entrega', _type='date', _id="fechaent",
-                  _class="form-control string")),
-        _id='bloques'))
-
+    tabla_cabecera = DIV(H4('Pedido'),
+        DIV(DIV(TAG('<label for="clienteinput">Cliente</label>'),
+                INPUT(_value=str(session.cliente), _name='cliente',
+                      _type='text', _disabled="disabled",
+                      _class="form-control string")),
+            DIV(TAG('<label class="control-label">Pedido nº </label>'),
+                INPUT(_value=str(int(ultimo_comprobante('pedido'))).zfill(10),
+                      _disabled="disabled", _class="form-control string")),
+            _id='bloques'),
+        DIV(DIV(TAG('<label for="notainput">Nota</label>'),
+                INPUT(_name='nota', _type='text', _id="notainput",
+                      _class="form-control string"), _id="ancho190"),
+            DIV(TAG('<label for="fechaent">Fecha entrega</label>'),
+                INPUT(_name='entrega', _type='date', _id="fechaent",
+                      _class="form-control string")),
+            _id='bloques'))
     # genero tabla para productos habilitados
     t_productos = [THEAD(TR(TH('cant'),
-                            TH('prod'),
-                            TH('cod'),
+                            TH('pr'),
+                            TH('c'),
                             TH('unit'),
                             TH('dto'),
                             TH('sub')))]
 
+    session.productos = []
     for item in d_cliente['productos']:
         codigo = d_productos[item]['codigo']
         detalle = d_productos[item]['detalle']
@@ -598,11 +473,8 @@ def pedido():
         TH('TOT', _id='totaltitle'),
         TH(INPUT(_id='totalt', _type="number", _class='precio',
                  _disabled="disabled")))))
-    form = FORM(CENTER(
-        TAG('<label class="control-label">Pedido </label>'),
-        BR(),
-        tabla_cabecera),
-        CENTER(BR()),
+    form = FORM(
+        tabla_cabecera,
         CENTER(
             TABLE(t_productos, _class='t2', _id="suma"),
             INPUT(_type="submit", _class="btn btn-primary btn-medium",
@@ -616,45 +488,69 @@ def pedido():
         # cliente
         s_cliente = (db.cliente.nombre == session.cliente)
         listaid = db(s_cliente).select().first()['lista']
-        # vlaor lista
+        # valor lista
         v_lista = db(db.listas.id == listaid).select().first()['valor']
         # capturo nota
         nota = request.vars.nota
-        log(str(request.vars.entrega))
+        # log(str(request.vars.entrega))
         if request.vars.entrega != "":
             fentrega = datetime.strptime(
                 request.vars.entrega.replace('/', '-') + ' 12:00:00',
                 '%Y-%m-%d %H:%M:%S')
         else:
             fentrega = request.vars.entrega
-        # fentrega=request.vars.entrega
-        # log(str(fentrega)+' '+str(type(fentrega)))
-        for item in productos_cliente:
+        log('f_entrega: ' + fentrega + ' - nota: ' + str(nota))
+        # log(request.vars)
+        resultado = {'cliente': session.cliente,
+                     'n° pedido': pedidonumactual,
+                     'nota': nota,
+                     'fecha entrega': fentrega,
+                     'total': 0
+                     }
+        for item in d_cliente['productos']:
             producto = db(db.producto.id == item).select().first()
             cant = 'c' + str(item.codigo)
-            desc = 'd' + str(item.codigo)
+            dto = 'd' + str(item.codigo)
             # cantidad=int(str(request.vars[cant]))
+            # saco cantidad del request
             if request.vars[cant] == '':
-                cantidad=int(0)
+                cantidad = int(0)
             else:
-                cantidad=int(str(request.vars[cant]))
-
+                cantidad = int(str(request.vars[cant]))
+            # saco descuento del request
+            if request.vars[dto] == '':
+                descuento = int(0)
+            else:
+                descuento = int(str(request.vars[cant]))
             if cantidad != 0:
-                #logica descuento stock
-                if producto['stock_alias'] == None:
-                    db(db.producto.codigo==producto['codigo']).update(stock=db(db.producto.codigo==producto['codigo']).select()[0].stock-int(cantidad))
+                # logica descuento stock
+                if producto['stock_alias'] is None:
+                    # no es un alias
+                    codigo = item
                 else:
-                    stockprod=db(db.producto.id==producto['stock_alias']).select().first()
-                    db(db.producto.codigo==stockprod['codigo']).update(stock=db(db.producto.codigo==stockprod['codigo']).select()[0].stock-int(cantidad))
-                valor=float(producto['valor'])
-                detalle=producto['detalle']
-                productoid=producto['id']
-                vendedorid=db(db.auth_user.email==auth.user.email).select().first()['id']
-                clienteid=db(db.cliente.nombre==session.cliente).select().first()['id']
-                listaid=db(db.cliente.nombre==session.cliente).select().first()['lista']
-                preciou=round(valor*v_lista,2)
-                total=preciou*int(cantidad)
-                log('pedido #'+str(pedidonumactual)+' cant '+str(cantidad)+' '+str(detalle)+' pu '+str(preciou)+' total '+str(total)+' a '+str(session.cliente))
+                    # es un alias, obtengo el producto real
+                    codigo = get_producto(producto['stock_alias'])['id']
+                # finalmente resto el stock
+                add_stock(codigo, -cantidad)
+                # lo sumo a reserva
+                add_reserva(codigo, cantidad)
+                valor = float(producto['valor'])
+                detalle = producto['detalle']
+                productoid = producto['id']
+                s_mail = (db.auth_user.email == auth.user.email)
+                vendedorid = db(s_mail).select().first()['id']
+                s_name = (db.cliente.nombre == session.cliente)
+                clienteid = db(s_name).select().first()['id']
+                listaid = db(s_name).select().first()['lista']
+                preciou = round(valor * v_lista, 2)
+                total = preciou * int(cantidad)
+                log(' #' + str(pedidonumactual) +
+                    ' cant ' + str(cantidad) +
+                    ' dto ' + str(descuento) +
+                    ' ' + str(detalle) +
+                    ' pu ' + str(preciou) +
+                    ' total ' + str(total) +
+                    ' cli ' + str(session.cliente))
                 db.pedidos.insert(
                     fecha=datetime.datetime.now(),
                     fentrega=fentrega,
@@ -663,16 +559,24 @@ def pedido():
                     cliente=clienteid,
                     nota=str(nota),
                     cantidad=int(cantidad),
+                    descuento=int(descuento),
                     producto=productoid,
                     preciou=preciou,
                     total=total
-                    )
-
-        db(db.comprobante.nombre=='pedido').update(lastid=db(db.comprobante.nombre=='pedido').select()[0].lastid+1)
+                )
+                prod_show = (str(cantidad) + ' ' + str(detalle) + ' ' +
+                             str(total))
+                clave_show = '~item' + str(item)
+                resultado[clave_show] = prod_show
+                resultado['total'] += total
+        # aumento cuenta nro pedido
+        s_ped = (db.comprobante.nombre == 'pedido')
+        db(s_ped).update(lastid=db(s_ped).select()[0].lastid + 1)
         db.commit()
-        redirect(URL('index'))
+        session.mensaje = resultado
+        redirect(URL('mensajes'))
     else:
-        log('ingreso')
+        log('acceso')
     # log(str(idsform))
     return dict(form=form, ids_json=json.dumps(idsform),
                 listas_json=json.dumps(listasp()),
@@ -682,6 +586,7 @@ def pedido():
 
 @auth.requires_membership('vendedor')
 def pedido_pendiente():
+    log('acceso')
     pedidos = arbol_pedidos()
     # genero elementos grilla
     conjunto_fichas = []
@@ -693,7 +598,7 @@ def pedido_pendiente():
             # setpedidos.append(pedido)
             s_pedido = (db.pedidos.pedidonum == int(pedido))
             nota = db(s_pedido).select(db.pedidos.nota).first()['nota']
-            productosficha.append(H4('Pedido n°' + str(pedido),
+            productosficha.append(H6('Pedido n°' + str(pedido),
                                      _id='itemficha'))
             productosficha.append(DIV(nota))
             for producto in pedidos[cliente][pedido].keys():
@@ -706,36 +611,46 @@ def pedido_pendiente():
                         str(fentrega))
                 productosficha.append(TR(
                     TD(item, _id='itemficha')))
-            productosficha.append(TR(
-                TD(DIV(A('Generar NV',
-                         _href=URL('nota_de_venta',
-                                   vars=dict(pedido=pedido)),
-                         _class='btn btn-default'))),
-                TD(DIV(A('Ingresar Pago',
-                         _href=URL('ingreso_pago',
-                                   vars=dict(pedido=pedido)),
-                         _class='btn btn-default')))))
+            productosficha.append(
+                TR(TD(DIV(A('NV',
+                            _href=URL('nota_de_venta',
+                                      vars=dict(pedido=pedido)),
+                            _class='btn-grid')))))
+            productosficha.append(
+                TR(TD(DIV(A('Pago',
+                            _href=URL('ingreso_pago',
+                                      vars=dict(pedido=pedido)),
+                            _class='btn-grid')))))
             productosficha.append(TR(BR()))
             unaficha = DIV(CENTER(
-                H3(cliente),
+                H5(cliente, _class='gridfont'),
                 TABLE(productosficha)),
                 BR(),
                 DIV('TOTAL $ ' + str(total), _id='aderecha'),
                 _class="grid__item js-item")
         conjunto_fichas.append(unaficha)
     # armo div grilla
-    grilla = DIV(conjunto_fichas, _class="grid")
+    grilla = CENTER(DIV(conjunto_fichas, _class="grid"))
     # auxnum.append(pedidonum)
     # pedidonum=set(auxnum)
-
     grid = SQLFORM.grid(
         db.pedidos,
-        fields=(
-            db.pedidos.fecha, db.pedidos.pedidonum, db.pedidos.vendedor,
-            db.pedidos.cliente, db.pedidos.cantidad, db.pedidos.producto,
-            db.pedidos.preciou, db.pedidos.total),
-        searchable=True, editable=False, deletable=False,
-        create=False, sortable=True, details=False, maxtextlength=25)
+        fields=[db.pedidos.fecha, db.pedidos.pedidonum, db.pedidos.vendedor,
+                db.pedidos.cliente, db.pedidos.cantidad, db.pedidos.producto,
+                db.pedidos.total],
+        headers={db.pedidos.pedidonum: 'n'},
+        orderby=[~db.pedidos.fecha],
+        searchable=False,
+        editable=False,
+        deletable=False,
+        create=False,
+        sortable=True,
+        details=False,
+        paginate=20,
+        csv=False,
+        maxtextlength=30,)
+    ultimos_pedidos = DIV(CENTER(TAG('Ultimos Pedidos')),
+                          grid)
     form = FORM(CENTER(TABLE(
         TR(TAG('<label class="control-label">Finalizar pedido nº </label>'),
            INPUT(_name="pedidonum", _class="form-control string",
@@ -747,7 +662,15 @@ def pedido_pendiente():
     if form.accepts(request, session):
         session.pedido = request.vars.pedidonum
         redirect(URL('finaliza_pedido'))
-    return dict(grid=grid, form=form, grilla=grilla)
+    return dict(grid=ultimos_pedidos, form=form, grilla=grilla)
+
+
+def anula_pedido():
+    log('acceso')
+    grid = SQLFORM.smartgrid(
+        db.pedidos)
+    return locals()
+    # ingreso pedido
 
 
 def nota_de_venta():
@@ -937,55 +860,10 @@ def listas():
     return locals()
 
 
-@auth.requires_membership('admin')
-def productos():
-    log('acceso admin')
-    grid = SQLFORM.grid(db.producto, maxtextlength=30)
-    form1 = FORM(
-        H5('Cargar productos mediante csv'),
-        INPUT(_name='archivocsv', _type='file',
-              requires=IS_LENGTH(1048576, 8)),
-           INPUT(_type="submit", _class="btn btn-primary btn-medium"))
-    table = TABLE(H4('Administracion'), form1)
-    if form1.accepts(request, session):
-        #terminar
-        log('form1')
-        # archivocsv = request.vars.archivocsv
-        # path = ('applications/' + str(configuration.get('app.name')) +
-        #         '/files/upload/bkp/' + hoy_string() + '/')
-        # subprocess.run(["mkdir", "-p", path])
-        # fecha_h = idtemp_generator(4)
-        # nombre = archivocsv.filename
-        # contenido = archivocsv.file
-        # filename = fecha_h + '_' + nombre
-        # filepath = path + filename
-        # shutil.copyfileobj(contenido, open(filepath, 'wb'))
-        # log('subidos en ' + path + str(filename))
-        # blank_data()
-        # session.mensaje = restore_backup(path + filename)
-        # session.mensaje = path + filename + ' restaurado'
-        # redirect(URL('mensajes'))
-    else:
-        log('acceso ' + str(request.function))
-    return locals()
-
-
-# @auth.requires_membership('admin')
-# def productos():
-#    log('acceso admin')
-#    grid=SQLFORM.grid(db.producto)
-#    return locals()
-
-# db.producto.truncate()
-# db.producto.import_from_csv_file(open('file,
-# 'r', encoding='utf-8', newline=''))
-# db.commit()
-
-
 @auth.requires_membership('productor')
 def consulta_ingreso_stock():
     log('ingreso')
-    grid = SQLFORM.grid(
+    grid = SQLFORM.smartgrid(
         db.ingresos,
         fields=(db.ingresos.fecha, db.ingresos.usuario,
                 db.ingresos.cantidad, db.ingresos.producto,
@@ -998,10 +876,23 @@ def consulta_ingreso_stock():
 @auth.requires_membership('vendedor')
 def consulta_venta_stock():
     log('ingreso')
-    grid=SQLFORM.grid(
+    grid = SQLFORM.grid(
         db.ventas,
-        fields=(db.ventas.fecha,db.ventas.ventanum,db.ventas.vendedor,db.ventas.cliente,db.ventas.cantidad,db.ventas.producto,db.ventas.preciou,db.ventas.total),
-        searchable=True,editable=False,deletable=False,create=False,sortable=True,details=False,maxtextlength=25)
+        fields=(db.ventas.fecha,
+                db.ventas.ventanum,
+                db.ventas.vendedor,
+                db.ventas.cliente,
+                db.ventas.cantidad,
+                db.ventas.producto,
+                db.ventas.preciou,
+                db.ventas.total),
+        searchable=True,
+        editable=False,
+        deletable=False,
+        create=False,
+        sortable=True,
+        details=False,
+        maxtextlength=25)
     return locals()
 
 @auth.requires_membership('vendedor')
@@ -1023,67 +914,6 @@ def test_nv():
     return dict(files=files)
 
 
-def admin():
-    log('ingreso')
-    form = CENTER(FORM(
-        DIV(H5('tapa14'), TABLE(TR(
-            TD(A('productos', _class="btn btn-primary",
-                 _href=URL('admin_tabla', vars=dict(tabla='producto')))),
-            TD(A('mat_primas', _class="btn btn-primary",
-                 _href=URL('admin_tabla', vars=dict(tabla='mat_primas'))))))),
-        DIV(H5('clientes'), TABLE(TR(
-            TD(A('cliente', _class="btn btn-primary",
-                 _href=URL('admin_tabla', vars=dict(tabla='cliente')))),
-            TD(A('listas', _class="btn btn-primary",
-                 _href=URL('admin_tabla', vars=dict(tabla='listas'))))))),
-        DIV(H5('proveedores'), TABLE(TR(
-            TD(A('proveedor', _class="btn btn-primary",
-                 _href=URL('admin_tabla', vars=dict(tabla='proveedor')))),
-            TD(A('tipos mat prima', _class="btn btn-primary",
-                 _href=URL('admin_tabla',
-                           vars=dict(tabla='tipos_mat_primas')))),
-            TD(A('marcas', _class="btn btn-primary",
-                 _href=URL('admin_tabla', vars=dict(tabla='marcas'))))))),
-        _id='admin'))
-    # form = CENTER(
-    #     H3('Administrar tablas'),
-    #     TABLE(
-    #         TR(
-    #             H4('ABM'),
-    #             A('productos', _class="btn btn-primary",
-    #               _href=URL('admin_tabla', vars=dict(tabla='producto'))),
-    #             A('clientes', _class="btn btn-primary", _href=URL('clientes')),
-    #             A('listas', _class="btn btn-primary", _href=URL('listas'))
-    #         ),
-    #         TR(),
-    #         TR(
-    #             H4('anula'),
-    #             A('ingreso', _class="btn btn-primary",
-    #               _href=URL('anula_ingreso')),
-    #             A('venta', _class="btn btn-primary", _href=URL('anula_venta')),
-    #             A('pedido', _class="btn btn-primary",
-    #               _href=URL('anula_pedido'))
-    #         ),
-    #         TR(A('test_nv', _class="btn btn-primary", _href=URL('test_nv'))),
-    #         TR(),
-    #         _id='tablaindex'
-    #     )
-    # )
-    return dict(form=form)
-
-
-@auth.requires_login()
-@auth.requires_membership('admin')
-def admin_tabla():
-    if 'tabla' in request.vars:
-        tabla = request.vars['tabla']
-        log('acceso grid ' + str(tabla))
-        grid = SQLFORM.grid(eval('db.' + str(tabla)), maxtextlength=20)
-        return locals()
-    else:
-        redirect(URL('index'))
-
-
 @auth.requires_login()
 @auth.requires_membership('vendedor')
 def archivo():
@@ -1096,7 +926,12 @@ def archivo():
 
 def mensajes():
     if isinstance(session.mensaje, dict):
-        contenido = dict_to_table(session.mensaje)
+        tabla = dict_to_table(session.mensaje, id='tablaresult')
+        aceptar = A('Aceptar', _id='boton_r',
+                    _class="btn-grid",
+                    _href=URL('index'))
+        titulo = H4('Resultado')
+        contenido = CENTER(titulo, tabla, aceptar)
         return dict(contenido=contenido)
     if isinstance(session.mensaje, str):
         log('muestro: ' + str(session.mensaje))

@@ -59,7 +59,7 @@ def hoy_string():
     return dia
 
 
-def dict_to_table(diccionario, orden=[]):
+def dict_to_table(diccionario, orden=[], id=id):
     '''recibe un diccionario y devuelve una tabla html 2xn'''
     if type(diccionario) == dict:
         claves = diccionario.keys()
@@ -71,13 +71,13 @@ def dict_to_table(diccionario, orden=[]):
                 pass
         for i in claves:
             aux_filas.append(TR(TD(i), TD(diccionario[i])))
-        return TABLE(aux_filas, _id="tabla_informe")
+        return TABLE(aux_filas, _id=str(id))
     elif type(diccionario) == str:
         return diccionario
     else:
         # aux_filas=['error',str(diccionario)]
         aux_filas = [TR(TD('bug!'), TD(str(diccionario)))]
-        return TABLE(aux_filas, _id="tabla_informe")
+        return TABLE(aux_filas, _id=str(id))
 
 
 def list_of_dict_to_csv(nombre, lista, **kwargs):

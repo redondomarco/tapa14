@@ -13,6 +13,7 @@ if False:
     from util import *
 
 
+tipo_producto = ['propio', 'terceros']
 tipo_iva = ['RI', 'monotributo', 'consumidor final', 'nc']
 tipo_comprobante = ['factura A', 'factura B', 'nota de venta', 'recibo']
 tipo_cta = ['contado', 'cta cte']
@@ -27,6 +28,8 @@ db.define_table(
     format='%(lista)s'
 )
 
+
+
 db.define_table(
     'producto',
     Field('codigo', unique=True, length=255),
@@ -35,10 +38,22 @@ db.define_table(
     Field('lista', 'reference listas', default=1, notnull=True),
     Field('valor', 'double', default=0, notnull=True),
     Field('stock', 'integer', default=0),
+    Field('stock_min', 'integer', default=20),
+    Field('stock_max', 'integer', default=500),
+    Field('tipo'),
     Field('reserva', 'integer', default=0),
     Field('stock_alias', 'reference producto'),
-    format='%(detalle)s'
+    auth.signature,
+    format='%(detalle)s',
 )
+db.producto.tipo.requires = IS_IN_SET(tipo_producto)
+db.producto._after_insert.append(
+    lambda f, i: log('insert ' + str(f) + ' ' + str(i)))
+db.producto._after_update.append(
+    lambda s, f: log('update ' + str(s) + ' ' + str(f)))
+db.producto._after_delete.append(
+    lambda s: log('delete ' + str(s)))
+
 
 db.define_table(
     'cliente',
@@ -58,7 +73,8 @@ db.define_table(
     Field('provincia', length=255),
     Field('telefono'),
     Field('activo', 'boolean', default=True),
-    format='%(nombre)s'
+    auth.signature,
+    format='%(nombre)s',
 )
 db.cliente.iva.requires = IS_IN_SET(tipo_iva)
 db.cliente.comprobante.requires = IS_IN_SET(tipo_comprobante, multiple=True)
@@ -69,16 +85,22 @@ db.define_table(
     'pedidos',
     Field('fecha', 'datetime'),
     Field('fentrega', 'datetime'),
-    Field('pedidonum', 'integer'),
+    Field('pedidonum', 'integer', label='N°'),
     Field('vendedor', 'reference auth_user'),
     Field('cliente', 'reference cliente'),
     Field('nota'),
     Field('cantidad', 'integer'),
+    Field('descuento', 'integer'),
     Field('producto', 'reference producto', default=1),
     Field('preciou', 'double'),
     Field('total', 'double'),
-    format='%(pedidonum)s'
+    auth.signature,
+    format='%(pedidonum)s',
 )
+db.pedidos._after_insert.append(
+    lambda f, i: log('insert ' + str(f) + ' ' + str(i)))
+db.pedidos._after_delete.append(
+    lambda s: log('delete ' + str(s)))
 
 db.define_table(
     'pedidos_hist',
@@ -92,7 +114,8 @@ db.define_table(
     Field('producto', 'reference producto', default=1),
     Field('preciou', 'double'),
     Field('total', 'double'),
-    format='%(pedidonum)s'
+    auth.signature,
+    format='%(pedidonum)s',
 )
 
 # ventas
@@ -117,7 +140,8 @@ db.define_table(
     Field('nro_comprobante', 'integer'),
     Field('entrega'),
     Field('pago'),
-    format='%(pedidonum)s'
+    auth.signature,
+    format='%(pedidonum)s',
 )
 db.ventas.comprobante.requires = IS_IN_SET(tipo_comprobante, multiple=True)
 db.ventas.entrega.requires = IS_IN_SET(tipo_entrega)
@@ -129,16 +153,19 @@ db.define_table(
     'ingresos',
     Field('fecha', 'datetime'),
     Field('fecha_prod', 'datetime'),
+    Field('ingresonum', 'integer', label='N°'),
     Field('vto', 'datetime'),
     Field('lote', 'integer'),
     Field('usuario', default=auth.user_id),
     Field('cantidad', 'integer'),
-    Field('producto', 'reference producto')
+    Field('producto', 'reference producto'),
+    auth.signature
 )
 db.define_table(
     'es_caja',
     Field('nombre'),
-    Field('tipo')
+    Field('tipo'),
+    auth.signature
 )
 # db.define_table(
 #    'movimientos',
@@ -152,12 +179,14 @@ db.define_table(
 db.define_table(
     'comprobante',
     Field('nombre'),
-    Field('lastid', 'integer')
+    Field('lastid', 'integer'),
+    auth.signature,
 )
 db.define_table(
     'dinero',
     Field('nombre'),
-    Field('valor', 'double')
+    Field('valor', 'double'),
+    auth.signature,
 )
 # db.define_table(
 #    'pendientes',
@@ -172,30 +201,41 @@ db.define_table(
     'proveedor',
     Field('nombre'),
     Field('descripcion'),
-    format='%(nombre)s')
-
+    auth.signature,
+    format='%(nombre)s',
+)
 
 db.define_table(
     'tipos_mat_primas',
     Field('nombre'),
     Field('descripcion'),
-    format='%(nombre)s')
+    auth.signature,
+    format='%(nombre)s',
+)
 
 
 db.define_table(
     'marcas',
     Field('nombre'),
     Field('descripcion'),
-    format='%(nombre)s')
+    auth.signature,
+    format='%(nombre)s',
+)
 
 
 db.define_table(
     'mat_primas',
+    Field('f_ingreso', 'datetime'),
+    Field('cantidad', 'integer'),
     Field('nombre', 'reference tipos_mat_primas'),
     Field('marca', 'reference marcas'),
+    Field('proveedor', 'reference proveedor'),
     Field('lote'),
-    Field('f_ingreso', 'datetime'),
-    Field('proveedor', 'reference proveedor'))
+    Field('f_vencimiento', 'datetime'),
+    Field('lote_interno'),
+    auth.signature)
+
+
 
 
 def fecha_vto(lote):
@@ -369,7 +409,6 @@ def populate_table(db_name, table_name):
     # leo de files csv
     filepath = files_dir + 'csv-base/db_' + str(table_name) + '.csv'
     filename = str(db_name) + '_' + str(table_name) + '.csv'
-    # filepath = files_dir + 'csv-base/' + filename
     try:
         # borro todo el contenido de la tabla
         eval(db_name + '.' + table_name + '.truncate()')
@@ -399,7 +438,7 @@ tablas = ['auth_user', 'auth_group', 'auth_membership',
 base = 'db'
 
 
-def genera_csv_tablas():
+def export_all_csv():
     for tabla in tablas:
         export_table(base, tabla)
 

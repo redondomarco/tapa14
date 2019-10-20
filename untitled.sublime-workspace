@@ -4,20 +4,128 @@
 		"selected_items":
 		[
 			[
+				"admin",
+				"admin_tabla"
+			],
+			[
+				"sel",
+				"select"
+			],
+			[
+				"icon",
+				"icon_title"
+			],
+			[
+				"consu",
+				"consulta_ingreso_stock"
+			],
+			[
+				"span",
+				"spanlist\tstatement"
+			],
+			[
+				"app",
+				"append\tfunction"
+			],
+			[
+				"sele",
+				"selec_cliente_pedido"
+			],
+			[
+				"myo",
+				"myonupdate\tfunction"
+			],
+			[
+				"fiels",
+				"fields\tstatement"
+			],
+			[
+				"tipo",
+				"tipocuenta"
+			],
+			[
+				"nom",
+				"nombre"
+			],
+			[
+				"cli",
+				"cliente"
+			],
+			[
+				"acc",
+				"acceso"
+			],
+			[
+				"ace",
+				"Aceptar"
+			],
+			[
+				"cla",
+				"clave_show\tstatement"
+			],
+			[
+				"can",
+				"cantidad\tstatement"
+			],
+			[
+				"sto",
+				"stock_alias"
+			],
+			[
+				"pe",
+				"pedidonum"
+			],
+			[
+				"nombre",
+				"nombre_corto"
+			],
+			[
+				"pa",
+				"padding-left\tproperty"
+			],
+			[
+				"s_c",
+				"s_cod\tstatement"
+			],
+			[
+				"s_",
+				"s_cod\tstatement"
+			],
+			[
+				"prod",
+				"productos"
+			],
+			[
+				"Tu",
+				"True\tinstance"
+			],
+			[
+				"re",
+				"requires"
+			],
+			[
+				"def",
+				"default"
+			],
+			[
+				"exe",
+				"except"
+			],
+			[
+				"as",
+				"as_dict"
+			],
+			[
+				"pro",
+				"productos_cliente\tstatement"
+			],
+			[
 				"mat",
 				"mat_primas"
 			],
 			[
-				"pro",
-				"productos"
-			],
-			[
 				"auth",
 				"auth_group"
-			],
-			[
-				"prod",
-				"producto"
 			],
 			[
 				"s_pro",
@@ -96,10 +204,6 @@
 				"reg_inserts\tstatement"
 			],
 			[
-				"nom",
-				"nombre_cbte"
-			],
-			[
 				"pr",
 				"t_procesos"
 			],
@@ -170,10 +274,6 @@
 			[
 				"punt",
 				"punto_vta"
-			],
-			[
-				"re",
-				"return\tkeyword"
 			]
 		]
 	},
@@ -183,28 +283,87 @@
 			"file": "controllers/default.py",
 			"settings":
 			{
-				"buffer_size": 56071,
+				"buffer_size": 47097,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"contents": "# funciones sobre el modelo\n\n# for ide\nif False:\n    from gluon import *\n    request = current.request\n    response = current.response\n    session = current.session\n    cache = current.cache\n    T = current.T\n\n# no usado aun\n# def delete_tables():\n#     \"\"\"borro todo el contenido de las tablas menos los usuarios y permisos\"\"\"\n#     tables_all = db.tables()\n#     try:\n#         tables_all.remove('auth_user')\n#         tables_all.remove('auth_group')\n#         tables_all.remove('auth_permission')\n#         tables_all.remove('auth_membership')\n#         tables_all.remove('auth_event')\n#         tables_all.remove('auth_cas')\n#     except Exception:\n#         pass\n#     for table_name in tables_all:\n#         log('borra ' + table_name)\n#         try:\n#             db[table_name].drop()\n#         except Exception as e:\n#             log('tabla ' + str(table_name) + ' e: ' + str(e))\n#             pass\n#     db.commit()\n\n\ndef blank_data():\n    tables_all = db.tables()\n    # no blanqueo \n    try:\n        tables_all.remove('auth_user')\n        tables_all.remove('auth_group')\n        tables_all.remove('auth_permission')\n        tables_all.remove('auth_membership')\n        tables_all.remove('auth_event')\n        tables_all.remove('auth_cas')\n    except Exception:\n        pass\n    for table_name in tables_all:\n        try:\n            eval('db.' + table_name + '.truncate()')\n            log('blanqueo ' + table_name)\n        except Exception as e:\n            log('error balnqueo ' + str(table_name) + ' e: ' + str(e))\n            pass\n    db.commit()\n\n\n\ndef restore_backup(filepath):\n    try:\n        db.import_from_csv_file(open(filepath, 'r',\n                                encoding='utf-8',\n                                newline='',),\n                                restore=True)\n        db.commit()\n        mensaje = 'cargado sin errores'\n        log(mensaje)\n        return ['ok', mensaje]\n    except Exception as e:\n        return ['error', str(e)]\n\n\ndef arbol_pedidos():\n    pedidos = db(db.pedidos).select(db.pedidos.ALL).as_list()\n    fichas = tree()\n    for i in pedidos:\n        pedidonum = i['pedidonum']\n        cantidad = i['cantidad']\n        idcliente = i['cliente']\n        try:\n            fentrega = i['fentrega'].strftime('%d/%m')\n        except Exception:\n            fentrega = ''\n        cliente = db(db.cliente.id == idcliente).select().first()['nombre']\n        idproducto = i['producto']\n        producto = db(db.producto.id == idproducto).select().first()['nombre_corto']\n        nota = i['nota']\n        total = i['total']\n        fichas[cliente][pedidonum][producto] = [cantidad,\n                                                nota,\n                                                fentrega,\n                                                total]\n    return fichas\n\n# devuelve lista de pedidos pendientes\n\n\ndef lista_pedidos():\n    pedidos = db(db.pedidos).select(db.pedidos.ALL).as_list()\n    lista = []\n    for i in pedidos:\n        lista.append(int(i['pedidonum']))\n    return list(set(lista))\n\n\ndef obtengo_pedido(pedidonum):\n    selector = (db.pedidos.pedidonum == pedidonum)\n    pedido = db(selector).select(db.pedidos.ALL).as_list()\n    cliente_id = pedido[0]['cliente']\n    fentrega = pedido[0]['fentrega']\n    nota = pedido[0]['nota']\n    items = []\n    for i in pedido:\n        selectorp = (db.producto.id == i['producto'])\n        producto = db(selectorp).select().first()['codigo']\n        item = [(int(i['cantidad']), producto, i['preciou'])]\n        items.append(item)\n    return [cliente_id, fentrega, nota, items]\n\n\ndef elimino_pedido(pedidonum):\n    # muevo el pedido a tabla pedidos eliminados\n    selector = (db.pedidos.pedidonum == pedidonum)\n    pedido = db(selector).select(db.pedidos.ALL).as_list()\n    for i in pedido:\n        db.pedidos_hist.insert(\n            fecha=i['fecha'],\n            fentrega=i['fentrega'],\n            pedidonum=i['pedidonum'],\n            vendedor=i['vendedor'],\n            cliente=i['cliente'],\n            nota=i['nota'],\n            cantidad=i['cantidad'],\n            producto=i['producto'],\n            preciou=i['preciou'],\n            total=i['total']\n        )\n    db(db.pedidos.pedidonum == pedidonum).delete()\n    db.commit()\n    log('eliminado pedido:' + str(pedidonum))\n\n\ndef obtengo_cliente(clienteid):\n    selector = (db.cliente.id == clienteid)\n    return db(selector).select(db.cliente.ALL).as_dict()[clienteid]\n\n\ndef listasp():\n    '''devuelvo listas de precios'''\n    return db(db.listas).select(db.listas.ALL).as_dict()\n\n\ndef ultimo_comprobante(tipo):\n    s_cbte = (db.comprobante.nombre == str(tipo))\n    return db(s_cbte).select().first()['lastid']\n\n\ndef productos_hab()\n\n# from sets import Set\n# def quito_ce(palabra):\n#    caracteres_permitidos='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'\n#    allowed_chars = Set(caracteres_permitidos)\n#    if palabra==None:\n#       return 'error'\n#    resultado=''\n#    for i in palabra:\n#        if i in allowed_chars:\n#            resultado=resultado+i\n#    return resultado\n\n# if Set(string).issubset(allowed_chars):\n#    return string\n# else:\n#   mensaje='caracter invalido '+str(string)\n#    log(mensaje)\n#    return ['error',mensaje]\n",
+			"file": "views/default/ingreso_produccion.html",
+			"settings":
+			{
+				"buffer_size": 323,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "static/css/tapa14.css",
+			"settings":
+			{
+				"buffer_size": 7168,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "views/layout.html",
+			"settings":
+			{
+				"buffer_size": 7379,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "models/modelo.py",
+			"settings":
+			{
+				"buffer_size": 12966,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "views/default/pedido_pendiente.html",
+			"settings":
+			{
+				"buffer_size": 83,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "views/default/tightgrid.html",
+			"settings":
+			{
+				"buffer_size": 135,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "models/menu.py",
+			"settings":
+			{
+				"buffer_size": 8664,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "models/util.py",
+			"settings":
+			{
+				"buffer_size": 5598,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
 			"file": "models/funciones.py",
-			"file_size": 5215,
-			"file_write_time": 132151650388751927,
 			"settings":
 			{
-				"buffer_size": 5217,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "views/default/ingreso.html",
-			"settings":
-			{
-				"buffer_size": 373,
+				"buffer_size": 6615,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -219,15 +378,6 @@
 			}
 		},
 		{
-			"file": "static/css/tapa14.css",
-			"settings":
-			{
-				"buffer_size": 5142,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
 			"file": "views/default/lista_despacho.html",
 			"settings":
 			{
@@ -237,190 +387,22 @@
 			}
 		},
 		{
-			"file": "views/default/index.html",
+			"file": "views/default/pedido.html",
 			"settings":
 			{
-				"buffer_size": 85,
+				"buffer_size": 3161,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "models/modelo.py",
+			"contents": "{{#extend 'plugin_adminlte/layout_starter.html'}}\n{{extend 'layout.html'}}\n\n\n\n{{=contenido}}\n<center>\n<div class=\"container\">\n    <div class=\"row\">\n    \t\n        \n\t\t\t<div class=\"well well-lg\" > {{=contenido}} </div>\n\t\t\t{{)}}\n\t\t\t\n\n\t</div>\n</div>\n</center>",
+			"file": "views/default/mensajes.html",
+			"file_size": 92,
+			"file_write_time": 132158303868509654,
 			"settings":
 			{
-				"buffer_size": 11814,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "views/plugin_adminlte/layout_starter.html",
-			"settings":
-			{
-				"buffer_size": 19033,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "models/menu.py",
-			"settings":
-			{
-				"buffer_size": 8502,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "views/default/consulta_venta_stock.html",
-			"settings":
-			{
-				"buffer_size": 84,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "views/default/venta.html",
-			"settings":
-			{
-				"buffer_size": 4365,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "views/default/user.html",
-			"settings":
-			{
-				"buffer_size": 1289,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "views/default/tightgrid.html",
-			"settings":
-			{
-				"buffer_size": 135,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "views/default/test_nv.html",
-			"settings":
-			{
-				"buffer_size": 87,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "views/default/test_canvas.html",
-			"settings":
-			{
-				"buffer_size": 802,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "views/default/subir_datos_afip_paso1.html",
-			"settings":
-			{
-				"buffer_size": 84,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "views/default/selec_cliente_pedido.html",
-			"settings":
-			{
-				"buffer_size": 85,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "views/default/selec_cliente.html",
-			"settings":
-			{
-				"buffer_size": 85,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "views/default/productos.html",
-			"settings":
-			{
-				"buffer_size": 96,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "views/default/pedido_pendiente.html",
-			"settings":
-			{
-				"buffer_size": 148,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"contents": "#  Configure the Python logging facility.\n#  To use this file, copy it to logging.conf and edit logging.conf as required.\n#  See http://docs.python.org/library/logging.html for details of the logging facility.\n#  Note that this is not the newer logging.config facility.\n#\n#  The default configuration is console-based (stdout) for backward compatibility;\n#  edit the [handlers] section to choose a different logging destination.\n#\n#  Note that file-based handlers are thread-safe but not mp-safe;\n#  for mp-safe logging, configure the appropriate syslog handler.\n#\n#  To create a configurable logger for application 'myapp', add myapp to\n#  the [loggers] keys list and add a [logger_myapp] section, using\n#  [logger_welcome] as a starting point.\n#\n#  In your application, create your logger in your model or in a controller:\n#\n#  import logging\n#  logger = logging.getLogger(\"web2py.app.myapp\")\n#  logger.setLevel(logging.DEBUG)\n#\n#  To log a message:\n#\n#  logger.debug(\"You ought to know that %s\" % details)\n#\n#  Note that a logging call will be governed by the most restrictive level\n#  set by the setLevel call, the [logger_myapp] section, and the [handler_...]\n#  section. For example, you will not see DEBUG messages unless all three are\n#  set to DEBUG.\n#\n#  Available levels: DEBUG INFO WARNING ERROR CRITICAL\n\n[loggers]\nkeys=root,rocket,markdown,web2py,rewrite,cron,app,welcome,w2p,tapa14\n\n[handlers]\nkeys=consoleHandler,messageBoxHandler,rotatingFileHandler,linuxSysLogHandler\n#keys=consoleHandler,rotatingFileHandler\n#keys=osxSysLogHandler\n#keys=notifySendHandler\n\n[formatters]\nkeys=simpleFormatter\n\n[logger_root]\nlevel=WARNING\nhandlers=consoleHandler,rotatingFileHandler\n\n[logger_web2py]\nlevel=WARNING\nhandlers=consoleHandler,rotatingFileHandler,linuxSysLogHandler\nqualname=w2p\npropagate=0\n\n[logger_tapa14]\nlevel=WARNING\nhandlers=consoleHandler,rotatingFileHandler,linuxSysLogHandler\nqualname=w2p\npropagate=0\n\n#  URL rewrite logging (routes.py)\n#  See also the logging parameter in routes.py\n#\n[logger_rewrite]\nlevel=WARNING\nqualname=web2py.rewrite\nhandlers=consoleHandler,rotatingFileHandler\npropagate=0\n\n[logger_cron]\nlevel=WARNING\nqualname=web2py.cron\nhandlers=consoleHandler,rotatingFileHandler\npropagate=0\n\n# generic app handler\n[logger_app]\nlevel=WARNING\nqualname=web2py.app\nhandlers=consoleHandler,rotatingFileHandler\npropagate=0\n\n# welcome app handler\n[logger_welcome]\nlevel=WARNING\nqualname=web2py.app.welcome\nhandlers=consoleHandler,rotatingFileHandler\npropagate=0\n\n\n# loggers for legacy getLogger calls: Rocket and markdown\n[logger_rocket]\nlevel=WARNING\nhandlers=consoleHandler,messageBoxHandler,rotatingFileHandler\nqualname=Rocket\npropagate=0\n\n[logger_markdown]\nlevel=WARNING\nhandlers=consoleHandler,rotatingFileHandler\nqualname=markdown\npropagate=0\n\n[handler_consoleHandler]\nclass=StreamHandler\nlevel=WARNING\nformatter=simpleFormatter\nargs=(sys.stdout,)\n\n[handler_messageBoxHandler]\nclass=gluon.messageboxhandler.MessageBoxHandler\nlevel=ERROR\nformatter=simpleFormatter\nargs=()\n\n[handler_notifySendHandler]\nclass=gluon.messageboxhandler.NotifySendHandler\nlevel=ERROR\nformatter=simpleFormatter\nargs=()\n\n# Rotating file handler\n#   mkdir logs in the web2py base directory if not already present\n#   args: (filename[, mode[, maxBytes[, backupCount[, encoding[, delay]]]]])\n#\n[handler_rotatingFileHandler]\nclass=handlers.RotatingFileHandler\nlevel=DEBUG\nformatter=simpleFormatter\nargs=(\"logs/web2py.log\", \"a\", 1000000, 5)\n\n[handler_osxSysLogHandler]\nclass=handlers.SysLogHandler\nlevel=WARNING\nformatter=simpleFormatter\nargs=(\"/var/run/syslog\", handlers.SysLogHandler.LOG_DAEMON)\n\n[handler_linuxSysLogHandler]\nclass=handlers.SysLogHandler\nlevel=INFO\nformatter=simpleFormatter\nargs=(\"/dev/log\", handlers.SysLogHandler.LOG_LOCAL3)\n\n[handler_remoteSysLogHandler]\nclass=handlers.SysLogHandler\nlevel=WARNING\nformatter=simpleFormatter\nargs=(('sysloghost.domain.com', handlers.SYSLOG_UDP_PORT), handlers.SysLogHandler.LOG_DAEMON)\n\n[formatter_simpleFormatter]\n# format=%(asctime)s - %(name)s - %(levelname)s - %(message)s\nformat=%(levelname)s %(message)s\ndatefmt=\n",
-			"file": "examples/logging.conf",
-			"file_size": 4073,
-			"file_write_time": 132150798318313597,
-			"settings":
-			{
-				"buffer_size": 4073,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "models/util.py",
-			"settings":
-			{
-				"buffer_size": 5607,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "models/pdf.py",
-			"settings":
-			{
-				"buffer_size": 15925,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "models/ivalibros.py",
-			"settings":
-			{
-				"buffer_size": 10678,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "models/util_afip.py",
-			"settings":
-			{
-				"buffer_size": 3142,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "models/info_afip.py",
-			"settings":
-			{
-				"buffer_size": 9649,
-				"encoding": "UTF-8",
+				"buffer_size": 254,
 				"line_ending": "Unix"
 			}
 		}
@@ -476,15 +458,41 @@
 		"/home/marco/web2py/applications/tapa14",
 		"/home/marco/web2py/applications/tapa14/examples",
 		"/home/marco/web2py/applications/tapa14/models",
-		"/home/marco/web2py/applications/tapa14/views",
-		"/home/marco/web2py/applications/tapa14/views/default",
-		"/home/marco/web2py/applications/tapa14/views/plugin_adminlte"
+		"/home/marco/web2py/applications/tapa14/static",
+		"/home/marco/web2py/applications/tapa14/static/fonts",
+		"/home/marco/web2py/applications/tapa14/static/fonts/font-awesome-4.7.0",
+		"/home/marco/web2py/applications/tapa14/static/fonts/font-awesome-4.7.0/css",
+		"/home/marco/web2py/applications/tapa14/static/js"
 	],
 	"file_history":
 	[
+		"/home/marco/web2py/applications/tapa14/models/deprecated.py",
+		"/home/marco/web2py/applications/tapa14/views/layout.html",
+		"/home/marco/web2py/applications/tapa14/views/default/admin_tabla.html",
+		"/home/marco/web2py/applications/tapa14/views/default/pedido_pendiente.html",
+		"/home/marco/web2py/applications/tapa14/views/default/tightgrid.html",
+		"/home/marco/web2py/applications/tapa14/views/default/ingreso.html",
+		"/home/marco/web2py/applications/tapa14/views/plugin_adminlte/layout_starter.html",
+		"/home/marco/web2py/applications/tapa14/README.md",
+		"/home/marco/web2py/applications/tapa14/views/default/index.html",
+		"/home/marco/web2py/applications/tapa14/models/menu.py",
+		"/home/marco/web2py/applications/tapa14/models/util.py",
+		"/home/marco/web2py/applications/tapa14/models/pdf.py",
+		"/home/marco/web2py/applications/tapa14/models/ivalibros.py",
+		"/home/marco/web2py/applications/tapa14/models/info_afip.py",
+		"/home/marco/web2py/applications/tapa14/models/util_afip.py",
+		"/home/marco/web2py/applications/tapa14/views/default/consulta_venta_stock.html",
+		"/home/marco/web2py/applications/tapa14/examples/logging.conf",
+		"/home/marco/web2py/applications/tapa14/views/default/productos.html",
+		"/home/marco/web2py/applications/tapa14/views/default/selec_cliente.html",
+		"/home/marco/web2py/applications/tapa14/views/default/selec_cliente_pedido.html",
+		"/home/marco/web2py/applications/tapa14/views/default/subir_datos_afip_paso1.html",
+		"/home/marco/web2py/applications/tapa14/views/default/test_canvas.html",
+		"/home/marco/web2py/applications/tapa14/views/default/test_nv.html",
+		"/home/marco/web2py/applications/tapa14/views/default/user.html",
+		"/home/marco/web2py/applications/tapa14/views/default/venta.html",
 		"/home/marco/web2py/applications/tapa14/views/default/clientes.html",
 		"/home/marco/web2py/applications/tapa14/views/default/index_original.html",
-		"/home/marco/web2py/applications/tapa14/views/default/ingreso.html",
 		"/home/marco/web2py/applications/tapa14/views/default/pedido.html",
 		"/home/marco/web2py/applications/tapa14/views/default/mensajes.html",
 		"/home/marco/web2py/applications/tapa14/views/default/load_backup.html",
@@ -492,30 +500,22 @@
 		"/home/marco/web2py/applications/tapa14/views/default/finaliza_pedido.html",
 		"/home/marco/web2py/applications/tapa14/views/default/consulta_ingreso_stock.html",
 		"/home/marco/web2py/applications/tapa14/views/default/consulta_stock.html",
-		"/home/marco/web2py/applications/tapa14/views/layout.html",
 		"/home/marco/web2py/applications/tapa14/views/default/archivo.html",
 		"/home/marco/web2py/applications/tapa14/views/default/admin.html",
-		"/home/marco/web2py/applications/tapa14/views/plugin_adminlte/layout_starter.html",
-		"/home/marco/web2py/applications/tapa14/views/default/selec_cliente_pedido.html",
-		"/home/marco/web2py/applications/tapa14/examples/logging.conf",
-		"/home/marco/web2py/applications/tapa14/views/default/user.html",
-		"/home/marco/web2py/applications/tapa14/views/default/index.html",
 		"/home/marco/web2py/applications/tapa14/models/db.py",
 		"/home/marco/web2py/applications/tapa14/files/analisis.txt",
-		"/home/marco/web2py/applications/tapa14/README.md",
 		"/home/marco/web2py/applications/tapa14/requirements.txt",
 		"/home/marco/web2py/applications/tapa14/models/modelo.py",
 		"/home/marco/web2py/applications/tapa14/untitled.sublime-project",
 		"/home/marco/web2py/applications/tapa14/models/despacho.py",
 		"/home/marco/web2py/applications/tapa14/views/plugin_adminlte/README.md",
-		"/home/marco/web2py/applications/tapa14/models/ivalibros.py",
 		"/home/marco/web2py/applications/tapa14/modules/__init__.py",
 		"/home/marco/web2py/applications/tapa14/models/viewadminlte.py",
 		"/home/marco/.config/sublime-text-3/Packages/Anaconda/Anaconda.sublime-settings"
 	],
 	"find":
 	{
-		"height": 26.0
+		"height": 39.0
 	},
 	"find_in_files":
 	{
@@ -529,6 +529,27 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"font",
+			"admin",
+			"prod_real",
+			"grid_tem",
+			"under",
+			"def ingreso",
+			"def con",
+			"indexb",
+			"s_ped",
+			"'ingreso'",
+			"def admin",
+			"nume",
+			"anula_pe",
+			"dict_to_table",
+			"tabl",
+			"table",
+			"label",
+			"pedidonum",
+			"def pedid",
+			"sort",
+			"precios",
 			"pedido",
 			"def admi",
 			"bloques",
@@ -587,7 +608,7 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 0,
 			"sheets":
 			[
 				{
@@ -596,15 +617,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 56071,
+						"buffer_size": 47097,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								23728,
-								23728
+								19044,
+								19044
 							]
 						],
 						"settings":
@@ -631,27 +652,117 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 8923.0,
+						"translation.y": 7464.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
 					"buffer": 1,
-					"file": "models/funciones.py",
+					"file": "views/default/ingreso_produccion.html",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5217,
+						"buffer_size": 323,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								4687,
-								4687
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"git_gutter_is_enabled": true,
+							"open_with_edit": true,
+							"syntax": "Packages/HTML/HTML.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "static/css/tapa14.css",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7168,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3773,
+								3773
+							]
+						],
+						"settings":
+						{
+							"git_gutter_is_enabled": true,
+							"syntax": "Packages/CSS/CSS.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 3505.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "views/layout.html",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7379,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1673,
+								1673
+							]
+						],
+						"settings":
+						{
+							"git_gutter_is_enabled": true,
+							"syntax": "Packages/HTML/HTML.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "models/modelo.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 12966,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2723,
+								2723
 							]
 						],
 						"settings":
@@ -663,19 +774,48 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2077.0,
+						"translation.y": 1377.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
-					"buffer": 2,
-					"file": "views/default/ingreso.html",
+					"buffer": 5,
+					"file": "views/default/pedido_pendiente.html",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 373,
+						"buffer_size": 83,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								39,
+								39
+							]
+						],
+						"settings":
+						{
+							"git_gutter_is_enabled": true,
+							"syntax": "Packages/HTML/HTML.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "views/default/tightgrid.html",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 135,
 						"regions":
 						{
 						},
@@ -695,11 +835,105 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "models/menu.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 8664,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2292,
+								2292
+							]
+						],
+						"settings":
+						{
+							"git_gutter_is_enabled": true,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 510.0,
+						"zoom_level": 1.0
+					},
 					"stack_index": 5,
 					"type": "text"
 				},
 				{
-					"buffer": 3,
+					"buffer": 8,
+					"file": "models/util.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5598,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1908,
+								1908
+							]
+						],
+						"settings":
+						{
+							"git_gutter_is_enabled": true,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 666.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 10,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "models/funciones.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6615,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5844,
+								5844
+							]
+						],
+						"settings":
+						{
+							"git_gutter_is_enabled": true,
+							"show_definitions": false,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2703.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 12,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
 					"file": "models/db.py",
 					"semi_transient": false,
 					"settings":
@@ -723,43 +957,14 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 3105.0,
+						"translation.y": 2844.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 20,
+					"stack_index": 6,
 					"type": "text"
 				},
 				{
-					"buffer": 4,
-					"file": "static/css/tapa14.css",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 5142,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2240,
-								2240
-							]
-						],
-						"settings":
-						{
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/CSS/CSS.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 2098.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
+					"buffer": 11,
 					"file": "views/default/lista_despacho.html",
 					"semi_transient": false,
 					"settings":
@@ -784,412 +989,55 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "views/default/index.html",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 85,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								85,
-								85
-							]
-						],
-						"settings":
-						{
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/HTML/HTML.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 7,
-					"file": "models/modelo.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 11814,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								655,
-								655
-							]
-						],
-						"settings":
-						{
-							"git_gutter_is_enabled": true,
-							"show_definitions": false,
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 8,
-					"file": "views/plugin_adminlte/layout_starter.html",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 19033,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								10193,
-								10193
-							]
-						],
-						"settings":
-						{
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/HTML/HTML.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 3441.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 19,
-					"type": "text"
-				},
-				{
-					"buffer": 9,
-					"file": "models/menu.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 8502,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1669,
-								1669
-							]
-						],
-						"settings":
-						{
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 816.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 18,
-					"type": "text"
-				},
-				{
-					"buffer": 10,
-					"file": "views/default/consulta_venta_stock.html",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 84,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								52,
-								52
-							]
-						],
-						"settings":
-						{
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/HTML/HTML.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 17,
-					"type": "text"
-				},
-				{
-					"buffer": 11,
-					"file": "views/default/venta.html",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4365,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3,
-								3
-							]
-						],
-						"settings":
-						{
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/HTML/HTML.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 16,
-					"type": "text"
-				},
-				{
-					"buffer": 12,
-					"file": "views/default/user.html",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1289,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3,
-								3
-							]
-						],
-						"settings":
-						{
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/HTML/HTML.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 15,
-					"type": "text"
-				},
-				{
-					"buffer": 13,
-					"file": "views/default/tightgrid.html",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 135,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/HTML/HTML.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 14,
-					"type": "text"
-				},
-				{
-					"buffer": 14,
-					"file": "views/default/test_nv.html",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 87,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3,
-								3
-							]
-						],
-						"settings":
-						{
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/HTML/HTML.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
 					"stack_index": 13,
 					"type": "text"
 				},
 				{
-					"buffer": 15,
-					"file": "views/default/test_canvas.html",
+					"buffer": 12,
+					"file": "views/default/pedido.html",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 802,
+						"buffer_size": 3161,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								74,
-								74
+								1033,
+								1033
 							]
 						],
 						"settings":
 						{
 							"git_gutter_is_enabled": true,
-							"syntax": "Packages/HTML/HTML.sublime-syntax"
+							"syntax": "Packages/HTML/HTML.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 12,
-					"type": "text"
-				},
-				{
-					"buffer": 16,
-					"file": "views/default/subir_datos_afip_paso1.html",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 84,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3,
-								3
-							]
-						],
-						"settings":
-						{
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/HTML/HTML.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 629.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 11,
 					"type": "text"
 				},
 				{
-					"buffer": 17,
-					"file": "views/default/selec_cliente_pedido.html",
+					"buffer": 13,
+					"file": "views/default/mensajes.html",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 85,
+						"buffer_size": 254,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/HTML/HTML.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 10,
-					"type": "text"
-				},
-				{
-					"buffer": 18,
-					"file": "views/default/selec_cliente.html",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 85,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3,
-								3
-							]
-						],
-						"settings":
-						{
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/HTML/HTML.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 9,
-					"type": "text"
-				},
-				{
-					"buffer": 19,
-					"file": "views/default/productos.html",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 96,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3,
-								3
+								221,
+								221
 							]
 						],
 						"settings":
@@ -1203,256 +1051,6 @@
 					},
 					"stack_index": 8,
 					"type": "text"
-				},
-				{
-					"buffer": 20,
-					"file": "views/default/pedido_pendiente.html",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 148,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3,
-								3
-							]
-						],
-						"settings":
-						{
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/HTML/HTML.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 7,
-					"type": "text"
-				},
-				{
-					"buffer": 21,
-					"file": "examples/logging.conf",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4073,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1907,
-								1907
-							]
-						],
-						"settings":
-						{
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 279.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 22,
-					"type": "text"
-				},
-				{
-					"buffer": 22,
-					"file": "models/util.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 5607,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								838,
-								838
-							]
-						],
-						"settings":
-						{
-							"auto_complete_triggers":
-							[
-								{
-									"characters": ".",
-									"selector": "source.python - string - comment - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								}
-							],
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 129.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 21,
-					"type": "text"
-				},
-				{
-					"buffer": 23,
-					"file": "models/pdf.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 15925,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								68,
-								68
-							]
-						],
-						"settings":
-						{
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 26,
-					"type": "text"
-				},
-				{
-					"buffer": 24,
-					"file": "models/ivalibros.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 10678,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								10555,
-								10555
-							]
-						],
-						"settings":
-						{
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 4060.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 25,
-					"type": "text"
-				},
-				{
-					"buffer": 25,
-					"file": "models/util_afip.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3142,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1068,
-								1068
-							]
-						],
-						"settings":
-						{
-							"auto_complete_triggers":
-							[
-								{
-									"characters": ".",
-									"selector": "source.python - string - comment - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								}
-							],
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 582.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 23,
-					"type": "text"
-				},
-				{
-					"buffer": 26,
-					"file": "models/info_afip.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 9649,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								472,
-								472
-							]
-						],
-						"settings":
-						{
-							"auto_complete_triggers":
-							[
-								{
-									"characters": ".",
-									"selector": "source.python - string - comment - constant.numeric"
-								},
-								{
-									"characters": ".",
-									"selector": "source.python - string - constant.numeric"
-								}
-							],
-							"git_gutter_is_enabled": true,
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 24,
-					"type": "text"
 				}
 			]
 		}
@@ -1463,7 +1061,7 @@
 	},
 	"input":
 	{
-		"height": 35.0
+		"height": 38.0
 	},
 	"layout":
 	{
@@ -1534,11 +1132,11 @@
 	"settings":
 	{
 	},
-	"show_minimap": true,
+	"show_minimap": false,
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 277.0,
+	"side_bar_width": 248.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

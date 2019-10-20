@@ -175,6 +175,29 @@ def datos_productos():
         datos[i]['lista_valor'] = db(s_lista).select().first()['valor']
     return datos
 
+
+def add_stock(codigo, cantidad):
+    log('modifica_stock cod: ' + str(codigo) + ' cant: ' + str(cantidad))
+    s_cod = (db.producto.codigo == codigo)
+    stock = db(s_cod).select().first().as_dict()['stock']
+    nuevo = int(stock) + int(cantidad)
+    db(s_cod).update(stock=nuevo)
+    db.commit()
+
+
+def add_reserva(codigo, cantidad):
+    log('modifica_reserva cod: ' + str(codigo) + ' cant: ' + str(cantidad))
+    s_cod = (db.producto.codigo == codigo)
+    stock = db(s_cod).select().first().as_dict()['reserva']
+    nuevo = int(stock) + int(cantidad)
+    db(s_cod).update(reserva=nuevo)
+    db.commit()
+
+
+def get_producto(codigo):
+    selector = (db.producto.codigo == codigo)
+    return db(selector).select(db.producto.ALL).first().as_dict()
+
 # from sets import Set
 # def quito_ce(palabra):
 #    caracteres_permitidos='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'

@@ -97,3 +97,13 @@ formatter=simpleFormatter
 args=("/dev/log", handlers.SysLogHandler.LOG_LOCAL3, 'utf-8')
 
 ```
+
+#### frontail
+Opcional: para tener los logs en el browser
+descargar
+https://github.com/mthenw/frontail/releases
+```
+sudo cp frontail-linux /usr/local/bin/frontail-linux
+sudo chmod +x /usr/local/bin/frontail-linux
+frontail.sh
+```
