@@ -47,7 +47,8 @@ def index():
     log('acceso')
     # menu favoritos
     form = CENTER(FORM(
-        DIV(I(' Pedidos', _class='fa fa-ticket fa-2x'),
+        DIV(I(' Ventas', _class='fa fa-ticket fa-2x',
+            _id='tit_minigrid'),
             DIV(grand_button('nuevo pedido',
                              'selec_cliente_pedido',
                              'fa-cart-plus'),
@@ -57,9 +58,13 @@ def index():
                 grand_button('hoja de ruta',
                              'hoja_de_ruta',
                              'fa-truck'),
-                _id='mini_grid')
-            ),
-        DIV(I('  Produccion', _class='fa fa-industry fa-2x'),
+                grand_button('Ingreso Pago',
+                             'pago',
+                             'fa-paypal'),
+                _id='mini_grid'),
+            _id='indexdiv'),
+        DIV(I(' Produccion', _class='fa fa-industry fa-2x',
+              _id='tit_minigrid'),
             DIV(grand_button('ingreso productos terminados',
                              'ingreso_produccion',
                              'fa-database'),
@@ -70,8 +75,36 @@ def index():
                              'admin_tabla',
                              'fa-qrcode',
                              vars={'tabla': 'mat_primas'}),
-                _id='mini_grid')
-            ),
+                _id='mini_grid'),
+            _id='indexdiv'),
+        DIV(I(' Compras', _class='fa fa-shopping-bag fa-2x',
+              _id='tit_minigrid'),
+            DIV(grand_button('ingreso productos terminados',
+                             'ingreso_produccion',
+                             'fa-database'),
+                grand_button('consulta productosNN',
+                             'consulta_ingreso_stock',
+                             'fa-list'),
+                grand_button('Ingreso materias primasNN',
+                             'admin_tabla',
+                             'fa-qrcode',
+                             vars={'tabla': 'mat_primas'}),
+                _id='mini_grid'),
+            _id='indexdiv'),
+        DIV(I(' Contabilidad', _class='fa fa-calculator fa-2x',
+              _id='tit_minigrid'),
+            DIV(grand_button('IngresosNN',
+                             'ingresos',
+                             'fa-download'),
+                grand_button('EgresosNN',
+                             'consulta_ingreso_stock',
+                             'fa-upload'),
+                grand_button('ConsultaNN',
+                             'admin_tabla',
+                             'fa-university',
+                             vars={'tabla': 'mat_primas'}),
+                _id='mini_grid'),
+            _id='indexdiv'),
         _id='panel_grid'))
     return dict(form=form)
 
@@ -119,7 +152,7 @@ def admin():
         DIV(I(' Anula', _class='fa fa-cogs fa-2x'),
             DIV(grand_button('pedido',
                              'admin_tabla',
-                             'fa-trademark',
+                             'fa-window-close-o',
                              vars={'tabla': 'marcas'}),
                 _id='mini_grid')
             ),
@@ -383,7 +416,7 @@ def ventaold():
 
 
 def selec_cliente_pedido():
-    clientes = db(db.cliente).select(db.cliente.ALL)
+    clientes = db(db.cliente.is_active == True).select(db.cliente.ALL)
     form = FORM(CENTER(
         H4('Pedido'),
         BR(),
@@ -418,29 +451,29 @@ def pedido():
         redirect(URL('mensajes'))
 
     # genero tabla cabecera
-    tabla_cabecera = DIV(H4('Pedido'),
-        DIV(DIV(TAG('<label for="clienteinput">Cliente</label>'),
-                INPUT(_value=str(session.cliente), _name='cliente',
-                      _type='text', _disabled="disabled",
-                      _class="form-control string")),
-            DIV(TAG('<label class="control-label">Pedido nº </label>'),
-                INPUT(_value=str(int(ultimo_comprobante('pedido'))).zfill(10),
-                      _disabled="disabled", _class="form-control string")),
-            _id='bloques'),
+    tabla_cabecera = DIV(H4('Pedido'), DIV(
+        DIV(TAG('<label for="clienteinput">Cliente</label>'),
+            INPUT(_value=str(session.cliente), _name='cliente',
+                  _type='text', _disabled="disabled",
+                  _class="form-control string"),),
+        DIV(TAG('<label class="control-label">Pedido nº </label>'),
+            INPUT(_value=str(int(ultimo_comprobante('pedido'))).zfill(10),
+                  _disabled="disabled", _class="form-control string")),
+        _id='bloques'),
         DIV(DIV(TAG('<label for="notainput">Nota</label>'),
                 INPUT(_name='nota', _type='text', _id="notainput",
-                      _class="form-control string"), _id="ancho190"),
+                      _class="form-control string")),
             DIV(TAG('<label for="fechaent">Fecha entrega</label>'),
                 INPUT(_name='entrega', _type='date', _id="fechaent",
                       _class="form-control string")),
             _id='bloques'))
     # genero tabla para productos habilitados
-    t_productos = [THEAD(TR(TH('cant'),
-                            TH('pr'),
-                            TH('c'),
-                            TH('unit'),
-                            TH('dto'),
-                            TH('sub')))]
+    t_productos = [THEAD(TR(TH('cant', _id='thpedido'),
+                            TH('prod', _id='thpedido'),
+                            TH('cod', _id='thpedido'),
+                            TH('p.Unit', _id='thpedido'),
+                            TH('dto', _id='thpedido'),
+                            TH('sub', _id='thpedido')))]
 
     session.productos = []
     for item in d_cliente['productos']:
@@ -449,7 +482,8 @@ def pedido():
         nombre_corto = d_productos[item]['nombre_corto']
         v_producto = round(d_productos[item]['valor'] *
                            d_productos[item]['lista_valor'] *
-                           d_cliente['lista_valor'], 2)
+                           d_cliente['lista_valor'] *
+                           (1 + int(d_cliente['iva_percent']) / 100), 3)
         session.productos.append([codigo, detalle, v_producto])
         idcant = 'c' + codigo
         idvalor = 'v' + codigo
@@ -463,25 +497,30 @@ def pedido():
             TD(INPUT(_value=v_producto, _type="number", _class='precio',
                      _disabled="disabled")),
             TD(INPUT(_id=iddto, _name=iddto, _type='number', _min='0',
-                     _max='100', _step='1', _class='cantidad')),
-            TD(INPUT(_id=idsubt, _type="number", _class='precio',
-                     _disabled="disabled"))))
+                     _max='100', _step='any', _class='cantidad')),
+            TD(INPUT(_id=idsubt, _name=idsubt, _type="number", _class='precio',
+                     _step='any'))))
         idsform.append([idcant, idvalor, iddto, idsubt])
         precios.append(v_producto)
     t_productos.append(TFOOT(TR(
-        TH(''), TH(''), TH(''), TH(''),
-        TH('TOT', _id='totaltitle'),
+        TH(''), TH(''), TH(''),
+        TH(''),
+        TH('TOTAL', _id='totaltitle'),
         TH(INPUT(_id='totalt', _type="number", _class='precio',
                  _disabled="disabled")))))
     form = FORM(
-        tabla_cabecera,
+        CENTER(tabla_cabecera),
         CENTER(
-            TABLE(t_productos, _class='t2', _id="suma"),
+            DIV(TABLE(
+                t_productos, _class='t2', _id="suma"),
+                _class='web2py_htmltable',
+                _style='width:100%;overflow-x:auto;-ms-overflow-x:scroll'),
             INPUT(_type="submit", _class="btn btn-primary btn-medium",
                   _value='Generar Pedido', _id='button14')),
         _id='formventa')
     if form.accepts(request, session):
         log('pedido aceptado')
+        # log(request.vars)
         # pedido
         s_pedido = (db.comprobante.nombre == 'pedido')
         pedidonumactual = db(s_pedido).select()[0].lastid
@@ -511,17 +550,21 @@ def pedido():
             producto = db(db.producto.id == item).select().first()
             cant = 'c' + str(item.codigo)
             dto = 'd' + str(item.codigo)
-            # cantidad=int(str(request.vars[cant]))
-            # saco cantidad del request
+            tot = 's' + str(item.codigo)
             if request.vars[cant] == '':
                 cantidad = int(0)
             else:
                 cantidad = int(str(request.vars[cant]))
             # saco descuento del request
             if request.vars[dto] == '':
-                descuento = int(0)
+                descuento = float(0)
             else:
-                descuento = int(str(request.vars[cant]))
+                descuento = float(str(request.vars[dto]))
+            # deberia siempre traer al menos un cero, valido igual
+            if request.vars[tot] == '':
+                total = int(0)
+            else:
+                total = float(str(request.vars[tot]))
             if cantidad != 0:
                 # logica descuento stock
                 if producto['stock_alias'] is None:
@@ -531,7 +574,7 @@ def pedido():
                     # es un alias, obtengo el producto real
                     codigo = get_producto(producto['stock_alias'])['id']
                 # finalmente resto el stock
-                add_stock(codigo, -cantidad)
+                add_stock(item, -cantidad)
                 # lo sumo a reserva
                 add_reserva(codigo, cantidad)
                 valor = float(producto['valor'])
@@ -543,7 +586,8 @@ def pedido():
                 clienteid = db(s_name).select().first()['id']
                 listaid = db(s_name).select().first()['lista']
                 preciou = round(valor * v_lista, 2)
-                total = preciou * int(cantidad)
+                #total = round(preciou * int(cantidad) *
+                #             ((100 - descuento) / 100), 2)
                 log(' #' + str(pedidonumactual) +
                     ' cant ' + str(cantidad) +
                     ' dto ' + str(descuento) +
@@ -580,7 +624,7 @@ def pedido():
     # log(str(idsform))
     return dict(form=form, ids_json=json.dumps(idsform),
                 listas_json=json.dumps(listasp()),
-                v_lista=d_cliente['lista_valor'],
+                iva_percent=int(d_cliente['iva_percent']),
                 precios_json=json.dumps(precios))
 
 
@@ -592,6 +636,7 @@ def pedido_pendiente():
     conjunto_fichas = []
     for cliente in pedidos.keys():
         total = 0
+        d_cliente = datos_cliente(cliente)
         productosficha = []
         # setpedidos=[]
         for pedido in pedidos[cliente].keys():
@@ -602,25 +647,38 @@ def pedido_pendiente():
                                      _id='itemficha'))
             productosficha.append(DIV(nota))
             for producto in pedidos[cliente][pedido].keys():
-                cantidad = pedidos[cliente][pedido][producto][0]
+                cantidad = pedidos[cliente][pedido][producto]['cantidad']
                 # nota=pedidos[cliente][pedido][producto][1]
-                fentrega = pedidos[cliente][pedido][producto][2]
-                total = int(total) + int(pedidos[cliente][pedido][producto][3])
+                fentrega = pedidos[cliente][pedido][producto]['fentrega']
+                total = (int(total) +
+                         int(pedidos[cliente][pedido][producto]['total']))
                 # total='nada'
                 item = (str(cantidad) + ' ' + str(producto) + ' ' +
                         str(fentrega))
                 productosficha.append(TR(
                     TD(item, _id='itemficha')))
             productosficha.append(
-                TR(TD(DIV(A('NV',
+                TR(TD(DIV(A('Nota de Venta',
                             _href=URL('nota_de_venta',
                                       vars=dict(pedido=pedido)),
-                            _class='btn-grid')))))
+                            _class='btn-grid'))))),
             productosficha.append(
                 TR(TD(DIV(A('Pago',
                             _href=URL('ingreso_pago',
                                       vars=dict(pedido=pedido)),
                             _class='btn-grid')))))
+            productosficha.append(
+                TR(TD(DIV(A('Modificar',
+                            _href=URL('modifica_pedido',
+                                      vars=dict(pedido=pedido)),
+                            _class='btn-grid'))),
+                   ))
+            if 'cta cte' in d_cliente['tipocuenta']:
+                productosficha.append(
+                    TR(TD(DIV(A('Entregado',
+                                _href=URL('finaliza_pedido',
+                                          vars=dict(pedido=pedido)),
+                                _class='btn-grid')))))
             productosficha.append(TR(BR()))
             unaficha = DIV(CENTER(
                 H5(cliente, _class='gridfont'),
@@ -649,10 +707,8 @@ def pedido_pendiente():
         paginate=20,
         csv=False,
         maxtextlength=30,)
-    ultimos_pedidos = DIV(CENTER(TAG('Ultimos Pedidos')),
-                          grid)
     form = FORM(CENTER(TABLE(
-        TR(TAG('<label class="control-label">Finalizar pedido nº </label>'),
+        TR(TAG('<label class="control-label">Hoja de ruta N° </label>'),
            INPUT(_name="pedidonum", _class="form-control string",
                  _id='nrocomp')),
         _id='tablacliente')),
@@ -661,8 +717,21 @@ def pedido_pendiente():
         _id='formventa')
     if form.accepts(request, session):
         session.pedido = request.vars.pedidonum
-        redirect(URL('finaliza_pedido'))
-    return dict(grid=ultimos_pedidos, form=form, grilla=grilla)
+        log(str(request.vars.pedido19))
+        #redirect(URL('finaliza_pedido'))
+    ultimos_pedidos = DIV(
+        BR(),
+        form,
+        CENTER(TAG('Ultimos Pedidos')),
+        grid)
+    
+    return dict(grilla=grilla, grid=ultimos_pedidos)
+
+
+def modifica_pedido():
+    numero_pedido = request.vars['pedido']
+    sel_pedido = (db.pedidos.pedidonum == numero_pedido)
+    pedido_dict = db(sel_pedido).select().as_dict()
 
 
 def anula_pedido():
@@ -673,8 +742,54 @@ def anula_pedido():
     # ingreso pedido
 
 
+@auth.requires_membership('vendedor')
 def nota_de_venta():
-    session.pedidoa = request.vars['pedido']
+    pedidonum = request.vars['pedido']
+    log('solicitud NV: ' + str(pedidonum))
+    # busco si ya esta generada
+    busqueda = busca_nv('nv_' + str(pedidonum) + '.pdf')
+    if busqueda[0] == 'ok':
+        log('encontrado: archivo' + str(busqueda[1][25:]))
+        session.nvurl = URL('archivo' + str(busqueda[1][25:]))
+        redirect(URL('muestra_nv'))
+    pedido = obtengo_pedido(pedidonum)
+    hoy = datetime.datetime.now()
+    fecha = str(hoy.day) + '/' + str(hoy.month) + '/' + str(hoy.year)
+    clienteid = pedido['cliente_id']
+    if pedido['fentrega'] is None:
+        nota = pedido['nota']
+    else:
+        fechanota = str(pedido['fentrega'].day) + '/' + str(pedido[1].month)
+        nota = pedido['nota'] + ' ' + fechanota
+    items = pedido['productos']
+    # directorio='applications/dev/pdf/2018/6/19/nv/'
+    directorio = (files_dir + 'pdf/' + str(hoy.year) + '/' + str(hoy.month) +
+                  '/' + str(hoy.day) + '/nv/')
+    urlfile = ('archivo/pdf/' + str(hoy.year) + '/' + str(hoy.month) + '/' +
+               str(hoy.day) + '/nv/nv_' + str(pedidonum) + '.pdf')
+    log(urlfile)
+    session.nvurl = URL(urlfile)
+    log('debug ' + str(session.nvurl))
+    try:
+        os.makedirs(directorio)
+    except Exception:
+        pass
+    pathnv = genera_nv(fecha, pedidonum, clienteid, items, directorio, nota)
+    log(pathnv)
+    redirect(URL('muestra_nv'))
+
+
+def muestra_nv():
+    # pdfexample=test_genera_nv()
+    # mostrar=Expose('/home/marco/web2py/'+pdfexample)
+    files = CENTER(
+        H6('Nota de venta: ' + str(session.nvurl)),
+        # DIV(A('test_nv',_class="btn btn-primary", _href=URL('test_nv'))),
+        # DIV(IFRAME(_src=session.nvurl, _width="630px", _height='891'))
+        DIV(IFRAME(_src=session.nvurl, _id='verpdf'))
+    )
+    return dict(files=files)
+
 
 
 @auth.requires_membership('vendedor')
@@ -905,13 +1020,9 @@ def consulta_stock():
     return locals()
 
 def test_nv():
-    pdfexample=test_genera_nv()
-    #mostrar=Expose('/home/marco/web2py/'+pdfexample)
-    files=CENTER(
-        DIV(A('test_nv',_class="btn btn-primary", _href=URL('test_nv'))),
-        DIV(IFRAME(_src='http://127.0.0.1:8000/dev/default/archivo/test/nv/nv_30.pdf',_width="630px",_height='891'))
-    )
-    return dict(files=files)
+    pdfexample = test_genera_nv()
+    session.nvurl = URL('archivo/pdf/test/nv/nv_19.pdf')
+    redirect(URL('muestra_nv'))
 
 
 @auth.requires_login()

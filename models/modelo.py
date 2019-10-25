@@ -13,13 +13,17 @@ if False:
     from util import *
 
 
-tipo_producto = ['propio', 'terceros']
+tipo_producto = ['propio', 'terceros', 'tercerosLM']
 tipo_iva = ['RI', 'monotributo', 'consumidor final', 'nc']
 tipo_comprobante = ['factura A', 'factura B', 'nota de venta', 'recibo']
 tipo_cta = ['contado', 'cta cte']
-estado_pedido = ['borrado', 'vendido']
-dir_pdf = ('applications/' + str(configuration.get('datos.app_name')) +
-           '/files/pdf')
+iva_percent = [21]
+estado_pedido = ['pendiente', 'anulado', 'finalizado']
+tipo_entrega = ['pendiente', 'entregado']
+tipo_pago = ['pendiente', 'parcial', 'pagado', 'cta cte']
+tipos_caja = ['B', 'N']
+# dir_pdf = ('applications/' + str(configuration.get('datos.app_name')) +
+#           '/files/pdf')
 
 db.define_table(
     'listas',
@@ -28,6 +32,30 @@ db.define_table(
     format='%(lista)s'
 )
 
+provincias = {0: 'CIUDAD AUTONOMA BUENOS AIRES',
+              1: 'BUENOS AIRES',
+              2: 'CATAMARCA',
+              3: 'CORDOBA',
+              4: 'CORRIENTES',
+              5: 'ENTRE RIOS',
+              6: 'JUJUY',
+              7: 'MENDOZA',
+              8: 'LA RIOJA',
+              9: 'SALTA',
+              10: 'SAN JUAN',
+              11: 'SAN LUIS',
+              12: 'SANTA FE',
+              13: 'SANTIAGO DEL ESTERO',
+              14: 'TUCUMAN',
+              16: 'CHACO',
+              17: 'CHUBUT',
+              18: 'FORMOSA',
+              19: 'MISIONES',
+              20: 'NEUQUEN',
+              21: 'LA PAMPA',
+              22: 'RIO NEGRO',
+              23: 'SANTA CRUZ',
+              24: 'TIERRA DEL FUEGO'}
 
 
 db.define_table(
@@ -61,8 +89,9 @@ db.define_table(
     Field('lista', 'reference listas', notnull=True),
     Field('productos', 'list:reference producto', notnull=True),
     Field('saldo', 'double', default=0),
-    Field('tipocuenta', default=tipo_cta[0]),
+    Field('tipocuenta', default=tipo_cta[0], notnull=True),
     Field('iva'),
+    Field('iva_percent', default=iva_percent[0], notnull=True),
     Field('comprobante', notnull=True),
     Field('correo'),
     Field('aviso', 'boolean'),
@@ -72,15 +101,16 @@ db.define_table(
     Field('localidad', length=255),
     Field('provincia', length=255),
     Field('telefono'),
-    Field('activo', 'boolean', default=True),
     auth.signature,
     format='%(nombre)s',
 )
 db.cliente.iva.requires = IS_IN_SET(tipo_iva)
+db.cliente.iva_percent.requires = IS_IN_SET(iva_percent)
 db.cliente.comprobante.requires = IS_IN_SET(tipo_comprobante, multiple=True)
 db.cliente.tipocuenta.requires = IS_IN_SET(tipo_cta, multiple=True)
+db.cliente.provincia.requires = IS_IN_SET(list(provincias.values()))
 
-# tabla de pedidos
+# tabla de pedidos vigentes
 db.define_table(
     'pedidos',
     Field('fecha', 'datetime'),
@@ -102,28 +132,37 @@ db.pedidos._after_insert.append(
 db.pedidos._after_delete.append(
     lambda s: log('delete ' + str(s)))
 
-db.define_table(
-    'pedidos_hist',
-    Field('fecha', 'datetime'),
-    Field('fentrega', 'datetime'),
-    Field('pedidonum', 'integer'),
-    Field('vendedor', 'reference auth_user'),
-    Field('cliente', 'reference cliente'),
-    Field('nota'),
-    Field('cantidad', 'integer'),
-    Field('producto', 'reference producto', default=1),
-    Field('preciou', 'double'),
-    Field('total', 'double'),
-    auth.signature,
-    format='%(pedidonum)s',
-)
+# guardo historico de los pedidos
+db.define_table('pedidos_hist',
+                db.pedidos,
+                Field('estado'))
+db.pedidos_hist.estado.requires = IS_IN_SET(estado_pedido)
 
-# ventas
-#  estados
-tipo_entrega = ['pendiente', 'entregado']
-tipo_pago = ['pendiente', 'parcial', 'pagado']
-estado_pedido = ['pendiente', 'anulado', 'finalizado']
-#  tabla de ventas
+
+db.define_table('caja',
+                Field('fecha'),
+                Field('operacion'),
+                Field('tipo'),
+                Field('arqueo', 'boolean'),
+                auth.signature)
+db.caja.tipo.requires = IS_IN_SET(tipos_caja)
+
+
+db.define_table('bancos',
+                Field('nombre'),
+                auth.signature)
+
+
+db.define_table('banco',
+                Field('fecha'),
+                Field('operacion'),
+                Field('tipo'),
+                Field('banco', 'reference bancos'),
+                Field('arqueo', 'boolean'),
+                auth.signature)
+
+
+# guardo operaciones
 db.define_table(
     'ventas',
     Field('fecha', 'datetime'),
@@ -132,9 +171,7 @@ db.define_table(
     Field('vendedor', 'reference auth_user'),
     Field('cliente', 'reference cliente'),
     Field('nota'),
-    Field('cantidad', 'integer'),
-    Field('producto', 'reference producto', default=1),
-    Field('preciou', 'double'),
+    Field('pedido_asoc', 'reference pedidos_hist'),
     Field('total', 'double'),
     Field('comprobante'),
     Field('nro_comprobante', 'integer'),

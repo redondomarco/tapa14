@@ -76,19 +76,26 @@ def arbol_pedidos():
         pedidonum = i['pedidonum']
         cantidad = i['cantidad']
         idcliente = i['cliente']
+        descuento = i['descuento']
         try:
             fentrega = i['fentrega'].strftime('%d/%m')
         except Exception:
             fentrega = ''
         cliente = db(db.cliente.id == idcliente).select().first()['nombre']
         idproducto = i['producto']
-        producto = db(db.producto.id == idproducto).select().first()['nombre_corto']
+        sel_prod = (db.producto.id == idproducto)
+        producto = db(sel_prod).select().first()['nombre_corto']
         nota = i['nota']
         total = i['total']
-        fichas[cliente][pedidonum][producto] = [cantidad,
-                                                nota,
-                                                fentrega,
-                                                total]
+#        fichas[cliente][pedidonum][producto] = [cantidad,
+#                                                nota,
+#                                                fentrega,
+#                                                total]
+        fichas[cliente][pedidonum][producto] = {'cantidad': cantidad,
+                                                'nota': nota,
+                                                'fentrega': fentrega,
+                                                'descuento': descuento,
+                                                'total': total}
     return fichas
 
 # devuelve lista de pedidos pendientes
@@ -105,16 +112,26 @@ def lista_pedidos():
 def obtengo_pedido(pedidonum):
     selector = (db.pedidos.pedidonum == pedidonum)
     pedido = db(selector).select(db.pedidos.ALL).as_list()
-    cliente_id = pedido[0]['cliente']
-    fentrega = pedido[0]['fentrega']
-    nota = pedido[0]['nota']
+    if pedido == []:
+        return 'error'
     items = []
     for i in pedido:
         selectorp = (db.producto.id == i['producto'])
-        producto = db(selectorp).select().first()['codigo']
-        item = [(int(i['cantidad']), producto, i['preciou'])]
+        producto = db(selectorp).select().first().as_dict()
+        detalle = producto['detalle']
+        codigo = producto['codigo']
+        item = {'cantidad': int(i['cantidad']),
+                'producto': detalle,
+                'codigo': codigo,
+                'descuento': i['descuento'],
+                'preciou': i['preciou'],
+                'subtotal': i['total']}
         items.append(item)
-    return [cliente_id, fentrega, nota, items]
+    resultado = {'cliente_id': pedido[0]['cliente'],
+                 'fentrega': pedido[0]['fentrega'],
+                 'nota': pedido[0]['nota'],
+                 'productos': items}
+    return resultado
 
 
 def elimino_pedido(pedidonum):
@@ -176,18 +193,18 @@ def datos_productos():
     return datos
 
 
-def add_stock(codigo, cantidad):
-    log('modifica_stock cod: ' + str(codigo) + ' cant: ' + str(cantidad))
-    s_cod = (db.producto.codigo == codigo)
+def add_stock(cod_id, cantidad):
+    log('modifica_stock id: ' + str(cod_id) + ' cant: ' + str(cantidad))
+    s_cod = (db.producto.id == cod_id)
     stock = db(s_cod).select().first().as_dict()['stock']
     nuevo = int(stock) + int(cantidad)
     db(s_cod).update(stock=nuevo)
     db.commit()
 
 
-def add_reserva(codigo, cantidad):
-    log('modifica_reserva cod: ' + str(codigo) + ' cant: ' + str(cantidad))
-    s_cod = (db.producto.codigo == codigo)
+def add_reserva(cod_id, cantidad):
+    log('modifica_reserva cod: ' + str(cod_id) + ' cant: ' + str(cantidad))
+    s_cod = (db.producto.id == cod_id)
     stock = db(s_cod).select().first().as_dict()['reserva']
     nuevo = int(stock) + int(cantidad)
     db(s_cod).update(reserva=nuevo)

@@ -81,7 +81,7 @@
 }
 
 .cantidad {
-	width: 30px;
+	width: 40px;
 	-webkit-appearance: none;
 	-moz-appearance:textfield;
     appearance: none;
@@ -103,7 +103,7 @@
 }
 
 .precio {
-	width: 70px;
+	width: 80px;
 	-moz-appearance:textfield;
 }
 
@@ -136,12 +136,17 @@
   margin-right: 4px;
 }
 
+#thpedido {
+	text-transform: capitalize;
+}
+
 #totalt {
 	font-size: 16px;
 	font: monospace;
 	color: #000;
 }
 #totaltitle {
+	text-transform: uppercase;
 	font-size: 16px;
 	font: monospace;
 	color: #000;
@@ -189,6 +194,10 @@
   font-size: 15px;
 }
 
+#boton_ficha {
+	vertical-align: center;
+}
+
 #nrocomp {
   /*width: 176px;*/
   width: auto;
@@ -200,6 +209,10 @@
 #ancho200 {
   width: 200px;
 }
+
+#ancho290 {
+  width: 290px;
+}	
 
 #ancho190 {
   width: 190px;
@@ -217,30 +230,12 @@
 
 #bloques {
     display: grid;
-    grid-gap: 5px;
-    grid-template-columns: repeat(auto-fit, 190px);
-    grid-template-rows: repeat(1, 70px);
+    grid-gap: 10px;
+    grid-template-columns: repeat(auto-fill, 190px);
+    grid-template-rows: repeat(1, 75px);
     min-width: 300px;
-    max-width: 400px;
+    max-width: 390px;
 }
-/*
-#indexb {
-    display: grid;
-    grid-gap: 20px;
-    grid-template-columns: repeat(auto-fit, 260px);
-    grid-template-rows: repeat(2, 290px);
-    min-width: 300px;
-    max-width: 600px;
-}
-
-#admin {
-    display: grid;
-    grid-gap: 20px;
-    grid-template-columns: repeat(auto-fit, 260px);
-    grid-template-rows: repeat(2, 160px);
-    min-width: 300px;
-    max-width: 600px;
-}*/
 
 #panel_grid {
     display: grid;
@@ -249,13 +244,33 @@
 }
 
 #mini_grid {
+	margin-top: 10px;
+	margin-bottom: 10px;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(105px, 2fr));
     grid-gap: 5px;
 }
-/*#ingresolote {
-  width: 35px;
-}*/
+
+#tit_minigrid {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+#indexdiv {
+	border: outset;
+}
+
+#verpdf {
+	width: 630px;
+	height: 460px;
+}
+
+@media (max-width: 650px) {
+	#verpdf {
+		width: 300px;
+		height: 500px;
+	}
+}
 
 /*ajustes generales*/
 

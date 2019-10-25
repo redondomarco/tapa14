@@ -21,9 +21,8 @@ response.menu = [
 response.menu = []
 
 # menucalculadora = (T('test'), False, URL('default', 'index2'), [])
-menutest = (T('lista de funciones'), False, None,
-            [(T('calculadora'), False,
-             URL(request.application, 'default', 'index2')),
+menutest = (T('test funciones'), False, None,
+            [(T('test NV'), False, URL('default', 'test_nv')),
             (T('venta'), False,
              URL(request.application, 'default', 'venta')),
             (T('ingreso'), False,
@@ -40,7 +39,7 @@ menuingreso = (T('Ingreso'), False, URL('default', 'ingreso'), [])
 menupedido = ('Pedidos', False, '#',
               [(T('Nuevo'), False,
                URL('default', 'selec_cliente_pedido')),
-              (T('Listado'), False,
+               (T('Listado'), False,
                URL('default', 'pedido_pendiente'))
                ]
               )
@@ -79,7 +78,7 @@ if auth.user:
     for group in groups:
         if group.role == 'vendedor':
             pass
-            #response.menu.append(menupedido)
+            # response.menu.append(menupedido)
 # response.menu.append(menureserva)
 # if group.role == 'productor':
 #  response.menu.append(menuingreso)
@@ -90,10 +89,15 @@ if auth.user:
             response.menu.append(menufacturas)
             response.menu.append(menuconf)
         if auth.user.email == 'redondomarco@gmail.com':
-            #response.menu.append(menuappadmin)
+            # response.menu.append(menuappadmin)
+            # response.menu.append(menutest)
             pass
 # response.menu.append(menucalculadora)
-# response.menu.append(menutest)
+try:
+    if auth.user.email == 'redondomarco@gmail.com':
+        response.menu.append(menutest)
+except Exception:
+    pass
 
 
 # ----------------------------------------------------------------------------

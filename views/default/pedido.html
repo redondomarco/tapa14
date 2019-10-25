@@ -44,6 +44,8 @@
             //  }
             //};
 
+            var iva = {{=iva_percent}};
+            //console.log(iva);
             var idsform = {{=XML(ids_json)}};
             var precios = {{=XML(precios_json)}};
             //console.log(precios);
@@ -54,9 +56,11 @@
               var descuento=validarNumero("#"+idsform[i][2]);
               //var valor=$("#"+idsform[i][1]).html();
               var valor=precios[i]
-              $("#"+idsform[i][3]).val(roundToTwo(cantidad*(valor*(100-descuento)/100)));
+              //console.log(cantidad*(valor*(100-descuento)/100))
+              var value = roundToTwo((1+iva/100)*(roundToTwo(cantidad*(valor/(1+iva/100))*(1-(descuento/100)))))
+              $("#"+idsform[i][3]).val(value);
               //var totalc=totalc+(roundToTwo(cantidad*valor*dto));
-              var totalc=totalc+(roundToTwo(cantidad*(valor*(100-descuento)/100)))
+              var totalc=totalc+value
               $("#totalt").val(roundToTwo(totalc));
             };
         }
@@ -69,7 +73,7 @@
             }else if($(id).val()==""){ $(id).css('border-color','#808080'); return 0;
             }else{ $(id).css('border-color','#f00'); return 0;}
         }
-        function roundToTwo(num) {    
+        function roundToTwo(num) {
             return +(Math.round(num + "e+2")  + "e-2");
         }
 
