@@ -86,7 +86,8 @@ def genera_nv(fecha, pedidonum, clienteid, items, directorio, nota):
         # Titulo Documento
         pdf.set_font('arial', '', 16.0)
         pdf.set_xy(115.0, 20.0)
-        pdf.cell(ln=0, h=26.0, align='C', w=75.0, txt='Nota de Venta', border=0)
+        pdf.cell(ln=0, h=26.0, align='C', w=75.0, txt='Nota de Venta',
+                 border=0)
 
         # bloque datos emisor
         # descomentar para poner imagen
@@ -146,10 +147,11 @@ def genera_nv(fecha, pedidonum, clienteid, items, directorio, nota):
                  txt='Condicion de venta:', border=0)
         pdf.set_xy(55.0, 69.0)
         pdf.cell(ln=0, h=6.0, align='L', w=80.0,
-                 txt=quito_ce(datos_cliente['tipocuenta']).capitalize(), border=0)
-        pdf.set_xy(110.0, 69.0)
+                 txt=quito_ce(datos_cliente['tipocuenta']).capitalize(),
+                 border=0)
+        pdf.set_xy(80.0, 69.0)
         pdf.cell(ln=0, h=6.0, align='L', w=18.0, txt='Localidad:', border=0)
-        pdf.set_xy(130.0, 69.0)
+        pdf.set_xy(100.0, 69.0)
         localidad = datos_cliente['localidad']
         provincia = datos_cliente['provincia']
         pdf.cell(ln=0, h=6.0, align='L', w=42.0,
@@ -239,9 +241,11 @@ def genera_nv(fecha, pedidonum, clienteid, items, directorio, nota):
 
         pdf.set_font('arial', 'B', 12.0)
         pdf.set_xy(105.0, 251.0)
-        pdf.cell(ln=0, h=9.0, align='R', w=73.0, txt=str(total), border=0)
+        pdf.cell(ln=0, h=9.0, align='R', w=73.0,
+                 txt=str(round(total, 2)),
+                 border=0)
         pdf.set_font('arial', '', 12.0)
-        pdf.set_xy(125.0, 251.0)
+        pdf.set_xy(115.0, 251.0)
         pdf.cell(ln=0, h=9.0, align='R', w=25.0, txt='Total:', border=0)
         pdf.set_line_width(0.0)
         pdf.rect(155.0, 252.0, 25.0, 7.0)

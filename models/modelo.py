@@ -96,10 +96,10 @@ db.define_table(
     Field('correo'),
     Field('aviso', 'boolean'),
     Field('cuit'),
-    Field('razon_social'),
-    Field('domicilio', length=255),
-    Field('localidad', length=255),
-    Field('provincia', length=255),
+    Field('razon_social', notnull=True),
+    Field('domicilio', notnull=True, length=255),
+    Field('localidad', notnull=True, length=255),
+    Field('provincia', notnull=True, length=255),
     Field('telefono'),
     auth.signature,
     format='%(nombre)s',
@@ -139,6 +139,13 @@ db.define_table('pedidos_hist',
 db.pedidos_hist.estado.requires = IS_IN_SET(estado_pedido)
 
 
+db.define_table('hoja_de_ruta',
+                Field('fecha', 'datetime'),
+                Field('numero', 'integer', label='N°'),
+                Field('lista_pedidos', 'list:reference pedidos', notnull=True),
+                auth.signature)
+
+
 db.define_table('caja',
                 Field('fecha'),
                 Field('operacion'),
@@ -160,6 +167,17 @@ db.define_table('banco',
                 Field('banco', 'reference bancos'),
                 Field('arqueo', 'boolean'),
                 auth.signature)
+
+
+db.define_table(
+    'ctacte',
+    Field('fecha'),
+    Field('cliente', 'reference cliente'),
+    Field('monto'),
+    Field('operacion'),
+    Field('comprobante_asoc'),
+    auth.signature)
+
 
 
 # guardo operaciones

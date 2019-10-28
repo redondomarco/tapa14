@@ -162,7 +162,8 @@ def admin():
 
 def opt_tabla(tabla):
     if tabla == 'cliente':
-        fields = ('db.cliente.id, db.cliente.nombre, db.cliente.lista,' +
+        fields = ('db.cliente.id, db.cliente.nombre,' +
+                  'db.cliente.razon_social,' + 'db.cliente.lista,' +
                   'db.cliente.saldo, db.cliente.tipocuenta, db.cliente.cuit')
     else:
         fields = 'None'
@@ -537,6 +538,7 @@ def pedido():
                 request.vars.entrega.replace('/', '-') + ' 12:00:00',
                 '%Y-%m-%d %H:%M:%S')
         else:
+            # poner fentrega today+1
             fentrega = request.vars.entrega
         log('f_entrega: ' + fentrega + ' - nota: ' + str(nota))
         # log(request.vars)
@@ -586,7 +588,8 @@ def pedido():
                 clienteid = db(s_name).select().first()['id']
                 listaid = db(s_name).select().first()['lista']
                 preciou = round(valor * v_lista, 2)
-                #total = round(preciou * int(cantidad) *
+                # el total ahora lo traigo del form
+                # total = round(preciou * int(cantidad) *
                 #             ((100 - descuento) / 100), 2)
                 log(' #' + str(pedidonumactual) +
                     ' cant ' + str(cantidad) +
@@ -613,11 +616,10 @@ def pedido():
                 clave_show = '~item' + str(item)
                 resultado[clave_show] = prod_show
                 resultado['total'] += total
-        # aumento cuenta nro pedido
-        s_ped = (db.comprobante.nombre == 'pedido')
-        db(s_ped).update(lastid=db(s_ped).select()[0].lastid + 1)
-        db.commit()
+        # aumento cuenta nro pedido3
+        incremento_comprobante('pedido')
         session.mensaje = resultado
+        log(resultado)
         redirect(URL('mensajes'))
     else:
         log('acceso')
@@ -634,10 +636,12 @@ def pedido_pendiente():
     pedidos = arbol_pedidos()
     # genero elementos grilla
     conjunto_fichas = []
+    pedidos_key = []
     for cliente in pedidos.keys():
         total = 0
         d_cliente = datos_cliente(cliente)
         productosficha = []
+        pedidos_key.append(list(pedidos[cliente].keys())[0])
         # setpedidos=[]
         for pedido in pedidos[cliente].keys():
             # setpedidos.append(pedido)
@@ -657,6 +661,7 @@ def pedido_pendiente():
                         str(fentrega))
                 productosficha.append(TR(
                     TD(item, _id='itemficha')))
+            idpedido = 'p' + str(pedido)
             productosficha.append(
                 TR(TD(DIV(A('Nota de Venta',
                             _href=URL('nota_de_venta',
@@ -679,6 +684,9 @@ def pedido_pendiente():
                                 _href=URL('finaliza_pedido',
                                           vars=dict(pedido=pedido)),
                                 _class='btn-grid')))))
+            productosficha.append(
+                TR(TD(DIV(INPUT(_id=idpedido, _name=idpedido, _type='number',
+                                _min='0', _step='1', _class='cantidad')))))
             productosficha.append(TR(BR()))
             unaficha = DIV(CENTER(
                 H5(cliente, _class='gridfont'),
@@ -691,7 +699,7 @@ def pedido_pendiente():
     grilla = CENTER(DIV(conjunto_fichas, _class="grid"))
     # auxnum.append(pedidonum)
     # pedidonum=set(auxnum)
-    grid = SQLFORM.grid(
+    ult_pedidos = SQLFORM.grid(
         db.pedidos,
         fields=[db.pedidos.fecha, db.pedidos.pedidonum, db.pedidos.vendedor,
                 db.pedidos.cliente, db.pedidos.cantidad, db.pedidos.producto,
@@ -707,31 +715,68 @@ def pedido_pendiente():
         paginate=20,
         csv=False,
         maxtextlength=30,)
-    form = FORM(CENTER(TABLE(
-        TR(TAG('<label class="control-label">Hoja de ruta N° </label>'),
-           INPUT(_name="pedidonum", _class="form-control string",
-                 _id='nrocomp')),
-        _id='tablacliente')),
-        CENTER(INPUT(_type="submit", _class="btn btn-primary btn-medium",
-                     _value='Vender', _id='button14')),
-        _id='formventa')
-    if form.accepts(request, session):
-        session.pedido = request.vars.pedidonum
-        log(str(request.vars.pedido19))
-        #redirect(URL('finaliza_pedido'))
-    ultimos_pedidos = DIV(
+    nrocomp = str(int(ultimo_comprobante('hoja_de_ruta'))).zfill(10)
+    form = FORM(CENTER(
+        grilla,
         BR(),
-        form,
-        CENTER(TAG('Ultimos Pedidos')),
-        grid)
-    
-    return dict(grilla=grilla, grid=ultimos_pedidos)
+        TABLE(TR(
+            TD(TAG('<label class="control-label">Hoja de ruta nº </label>')),
+            TD(INPUT(_value=nrocomp, _disabled="disabled",
+                     _class="form-control string")),
+            TD(INPUT(_type="submit", _class="btn btn-primary btn-medium",
+                     _value='Generar', _id='button14'))),
+              _id='formventa'),
+        BR(), BR(),
+        TAG('Ultimos Pedidos'),
+        ult_pedidos))
+    if form.accepts(request, session):
+        log('form aceptado')
+        # log('request: ' + str(request.vars))
+        hdrnum = ultimo_comprobante('hoja_de_ruta')
+        resultado = {'Hoja de Ruta N°': hdrnum}
+        lista_pedidos = []
+        # log('pedidos_key' + str(pedidos_key))
+        for i in pedidos_key:
+            idpedido = 'p' + str(i)
+            if idpedido in request.vars:
+                if request.vars[idpedido] != '':
+                    agrego_pedido_hdr(i, hdrnum)
+                    lista_pedidos.append(i)
+        resultado['pedidos'] = str(lista_pedidos)
+        incremento_comprobante('hoja_de_ruta')
+        log(resultado)
+        session.mensaje = resultado
+        redirect(URL('mensajes'))
+    return dict(form=form)
 
 
-def modifica_pedido():
-    numero_pedido = request.vars['pedido']
-    sel_pedido = (db.pedidos.pedidonum == numero_pedido)
-    pedido_dict = db(sel_pedido).select().as_dict()
+def hoja_de_ruta():
+    log('acceso')
+    grid = SQLFORM.smartgrid(
+        db.hoja_de_ruta,
+        orderby=[~db.hoja_de_ruta.numero],
+        searchable=False,
+        details=False,
+        create=False,
+        csv=False)
+    form = FORM(CENTER(
+        H3('Hoja de ruta'),
+        grid,
+        A('Limpiar Hojas de Ruta', _href=URL('limpiar_hojas_de_ruta'),
+          _class='btn-grid')))
+    return dict(form=form)
+
+
+def limpiar_hojas_de_ruta():
+    db.hoja_de_ruta.truncate()
+    db.commit()
+    redirect(URL('hoja_de_ruta'))
+
+
+#def modifica_pedido():
+#    numero_pedido = request.vars['pedido']
+#    sel_pedido = (db.pedidos.pedidonum == numero_pedido)
+#    pedido_dict = db(sel_pedido).select().as_dict()
 
 
 def anula_pedido():
@@ -933,29 +978,6 @@ def finaliza_pedido():
                 precios_json=json(precios))
 
 
-# @auth.requires_membership('vendedor')
-def index2():
-    # formulario
-    clientes = db(db.cliente).select(db.cliente.ALL)
-    listas = db(db.listas).select(db.listas.ALL)
-    form_venta = FORM(
-        CENTER(
-            LABEL('Cliente', _id='labelcliente'),
-            SELECT([(p.nombre) for p in clientes], _name='cliente',
-                   _type='text', _id="clienteinput"),
-            TAG('<span class="label label-success">Calculadora</span>')
-        ),
-        # SELECT([(p.nombre) for p in result], _id='selector',
-        #        _name="sistema"),
-        TABLE(tabla1, _class='t2', _id="suma"), _id='formventa')
-    if form_venta.accepts(request, session):
-        log('bien')
-    else:
-        log('no tanto')
-    return dict(form_venta=form_venta, ids_json=json(session.idsform),
-                clientes_json=json(clientes), listas_json=json(listas))
-
-
 @auth.requires_membership('admin')
 def clientes():
     log('acceso admin')
@@ -966,14 +988,6 @@ def clientes():
                 db.cliente.tipocuenta)
     )
     return locals()
-
-
-@auth.requires_membership('admin')
-def listas():
-    log('acceso admin')
-    grid = SQLFORM.grid(db.listas, maxtextlength=25)
-    return locals()
-
 
 @auth.requires_membership('productor')
 def consulta_ingreso_stock():
@@ -1048,6 +1062,8 @@ def mensajes():
         log('muestro: ' + str(session.mensaje))
         contenido = session.mensaje
         return dict(contenido=contenido)
+    else:
+        contenido='error en mensaje'
 
 
 def capture_update():

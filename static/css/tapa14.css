@@ -359,8 +359,8 @@ td, th {
 .grid__item {
   display: inline-block; /* Important */
   vertical-align: top;   /* Important */
-  width: 170px;
-  margin: 15px;
+  width: 160px;
+  margin: 7px;
   font: bold 100% monospace;
   background: #e2e2e2;
   font-size: 15px;

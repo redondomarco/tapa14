@@ -256,6 +256,7 @@
 'help': 'ayuda',
 'Helping web2py': 'Ayudando a web2py',
 'Hit Ratio: **%(ratio)s%%** (**%(hits)s** %%{hit(hits)} and **%(misses)s** %%{miss(misses)})': 'Hit Ratio: **%(ratio)s%%** (**%(hits)s** %%{hit(hits)} and **%(misses)s** %%{miss(misses)})',
+'Hoja de rutas': 'Hoja de rutas',
 'Home': 'Inicio',
 'How did you get here?': '¿Cómo llegaste aquí?',
 'HTML': 'HTML',

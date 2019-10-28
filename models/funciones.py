@@ -174,6 +174,12 @@ def ultimo_comprobante(tipo):
     return comprobante
 
 
+def incremento_comprobante(tipo):
+    s_ped = (db.comprobante.nombre == tipo)
+    db(s_ped).update(lastid=db(s_ped).select()[0].lastid + 1)
+    db.commit()
+
+
 def datos_cliente(cliente):
     s_cliente = (db.cliente.nombre == cliente)
     datos = db(s_cliente).select().first().as_dict()
@@ -214,6 +220,38 @@ def add_reserva(cod_id, cantidad):
 def get_producto(codigo):
     selector = (db.producto.codigo == codigo)
     return db(selector).select(db.producto.ALL).first().as_dict()
+
+
+# hoja de ruta
+def agrego_pedido_hdr(pedidonum, hdrnum):
+    s_pedido = (db.pedidos.pedidonum == pedidonum)
+    idpedido = db(s_pedido).select().first().as_dict()['id']
+    log('agrego pedido n ' + str(pedidonum) + ' id: ' + str(idpedido) +
+        ' a hoja de ruta n ' + str(hdrnum))
+    s_hdr = (db.hoja_de_ruta.numero == hdrnum)
+    lista_pedidos = db(s_hdr).select().first()
+    if lista_pedidos is None:
+        # agrego nueva hoja de ruta
+        db.hoja_de_ruta.insert(
+            fecha=datetime.datetime.now(),
+            numero=hdrnum,
+            lista_pedidos=[idpedido])
+        db.commit()
+    else:
+        # hoja de ruta existente
+        lista = lista_pedidos.as_dict()['lista_pedidos']
+        log(lista)
+        if idpedido in lista:
+            log('aa')
+            pass
+        else:
+            lista.append(idpedido)
+        log(lista)
+        db(s_hdr).update(
+            lista_pedidos=lista)
+        db.commit()
+
+
 
 # from sets import Set
 # def quito_ce(palabra):
