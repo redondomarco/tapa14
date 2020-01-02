@@ -1,22 +1,18 @@
 # -*- coding: utf-8 -*-
+"""
+AppConfig configuration made easy. Look inside private/appconfig.ini
+Auth is for authenticaiton and access control
 
+"""
 import logging
 
-# -------------------------------------------------------------------------
-# AppConfig configuration made easy. Look inside private/appconfig.ini
-# Auth is for authenticaiton and access control
-# -------------------------------------------------------------------------
 from gluon.contrib.appconfig import AppConfig
 from gluon.tools import Auth
 
 # for ide
 if False:
-    from gluon import *
-    request = current.request
-    response = current.response
-    session = current.session
-    cache = current.cache
-    T = current.T
+    from gluon import request, response, session, HTTP, T
+    from gluon import DAL, URL, A, IMG
 
 # -------------------------------------------------------------------------
 # This scaffolding model makes your app work on Google App Engine too
@@ -183,40 +179,31 @@ log_remove = [
 def log(palabra):
     """funcion auditoria que incorpora el usuario si es que existe"""
     if hasattr(auth.user, 'email'):
-        ip = str(request.client)
-        mensaje = (str(auth.user.email) + ' ' + ip + ' '
-        + str(request.function) + ' ' + str(palabra))
-        
+        ipclient = str(request.client)
+        usuario = str(auth.user.email)
+        function = str(request.function)
+        palabra = str(palabra)
+        mensaje = f"{usuario} {ipclient} {function} {palabra}"
         for i in log_remove:
             mensaje = mensaje.replace(str(i), '')
-        logger.info(mensaje)
     else:
-        logger.info('usuario: admin ' + str(palabra))
-
-
-def debug(palabra):
-    if hasattr(auth.user, 'email'):
-        mensaje = 'DEBUG-' + str(palabra) + '-FIN'
-        for i in log_remove:
-            mensaje = mensaje.replace(str(i), '')
-        logger.info(mensaje)
-    else:
-        logger.info('usuario: admin ' + str(palabra))
+        mensaje = 'usuario: admin {palabra}'
+    logger.info(mensaje)
 
 
 response.logo = A(IMG(_src=URL('static', 'images/tapa14.png'),
                       _href=URL('default', 'index'),
                       _class="navbar-brand"))
 
-#response.title = request.application.replace('_',' ').title()
+# response.title = request.application.replace('_',' ').title()
 response.title = 'Tapa14'
 response.subtitle = ''
 
-## read more at http://dev.w3.org/html5/markup/meta.name.html
+# read more at http://dev.w3.org/html5/markup/meta.name.html
 response.meta.author = 'Marco Redondo <redondomarco@gmail.com>'
 response.meta.description = 'Sistema Tapa14'
 response.meta.keywords = 'tapa14'
 response.meta.generator = 'tapa14'
 
-## your http://google.com/analytics id
+# your http://google.com/analytics id
 response.google_analytics_id = None

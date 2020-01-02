@@ -1,3 +1,4 @@
+#!/bin/sh
 git status
 echo
 read -p "Agregar Cambios?(y/n)?" CONT

@@ -500,4 +500,5 @@ def export_all_csv():
 
 def populate_accesos_base():
     for tabla in tablas:
-        populate_table(base, tabla)
+        ejecuta = populate_table(base, tabla)
+        log(ejecuta)

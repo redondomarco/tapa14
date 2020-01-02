@@ -1,13 +1,11 @@
-# funciones sobre el modelo
+"""
+ funciones sobre el modelo
+
+"""
 
 # for ide
 if False:
-    from gluon import *
-    request = current.request
-    response = current.response
-    session = current.session
-    cache = current.cache
-    T = current.T
+    pass
 
 # no usado aun
 # def delete_tables():
@@ -34,7 +32,7 @@ if False:
 
 def blank_data():
     tables_all = db.tables()
-    # no blanqueo 
+    # no blanqueo
     try:
         tables_all.remove('auth_user')
         tables_all.remove('auth_group')

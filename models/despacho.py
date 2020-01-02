@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
+"""
+Funciones referidas al despacho
 
+"""
+import datetime
 from pyexcel_ods3 import get_data
+
 
 # for ide
 if False:
-    from gluon import *
-    request = current.request
-    response = current.response
-    session = current.session
-    cache = current.cache
-    T = current.T
+    # from gluon import 
+    from db import log
 
 
 def mapeo_prod(producto):
+    """ identifico productos de listados externos para el sistema"""
     minus = str(producto).lower()
     if 'LM_DISCOS_FREIR_123_x_12'.lower() in minus:
         return [producto, 'LM123DC']
@@ -163,7 +165,7 @@ def busca_lote(fechaf, producto):
     # fechafa = datetime.strptime(fechaf, '%d/%m/%Y')
     fechafa = fechaf
     # un_csv = '/csv/elaboracion/elab_1-04-208_al_7-11-2018.csv'
-    un_csv = '/csv/elaboracion/elab_4-12-2018_al_11-06-2019.csv'
+    un_csv = '/csv/elaboracion/elab_1-6-2019_al_30-11-2019.csv'
     csvleido = open(base_dir + un_csv, 'r').read().split()
     lista = []
     # formateo csv
@@ -247,8 +249,8 @@ def leo_para_despacho():
 def proceso_detalle_despacho():
     # busco registros detalle de facturacion
     # entre fechas
-    fecha_inicio = datetime.datetime(2018, 11, 1, 0, 0)
-    fecha_fin = datetime.datetime(2019, 6, 27, 0, 0)
+    fecha_inicio = datetime.datetime(2019, 6, 1, 0, 0)
+    fecha_fin = datetime.datetime(2019, 11, 30, 0, 0)
     cons = db((db.cbte_DETALLE.fecha_cbte >= fecha_inicio) and
               (db.cbte_DETALLE.fecha_cbte <= fecha_fin)).select()
     registros = cons.as_dict()
