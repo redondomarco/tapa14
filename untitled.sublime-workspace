@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"file",
+				"files_dir"
+			],
+			[
 				"lim",
 				"limpiar_hojas_de_ruta"
 			],
@@ -264,10 +268,6 @@
 				"table_name"
 			],
 			[
-				"file",
-				"filename"
-			],
-			[
 				"populate",
 				"populate_pertenencia"
 			],
@@ -418,10 +418,19 @@
 			}
 		},
 		{
+			"file": "models/db.py",
+			"settings":
+			{
+				"buffer_size": 9056,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
 			"file": "models/despacho.py",
 			"settings":
 			{
-				"buffer_size": 9891,
+				"buffer_size": 9905,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -430,7 +439,7 @@
 			"file": "models/modelo.py",
 			"settings":
 			{
-				"buffer_size": 14679,
+				"buffer_size": 14797,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -439,7 +448,7 @@
 			"file": "models/funciones.py",
 			"settings":
 			{
-				"buffer_size": 8472,
+				"buffer_size": 8328,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -542,6 +551,7 @@
 	],
 	"file_history":
 	[
+		"/home/marco/web2py/applications/tapa14/models/deprecated.py",
 		"/home/marco/web2py/applications/tapa14/models/db.py",
 		"/home/marco/.config/sublime-text-3/Packages/Anaconda/Anaconda.sublime-settings",
 		"/home/marco/.config/sublime-text-3/Packages/User/Anaconda.sublime-settings",
@@ -559,7 +569,6 @@
 		"/home/marco/web2py/applications/tapa14/views/default/index.html",
 		"/home/marco/web2py/applications/tapa14/views/plugin_jqmobile/layout.html",
 		"/home/marco/web2py/applications/tapa14/views/plugin_jqmobile/index.html",
-		"/home/marco/web2py/applications/tapa14/models/deprecated.py",
 		"/home/marco/web2py/applications/tapa14/views/default/admin_tabla.html",
 		"/home/marco/web2py/applications/tapa14/views/default/ingreso.html",
 		"/home/marco/web2py/applications/tapa14/views/plugin_adminlte/layout_starter.html",
@@ -712,7 +721,7 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 4,
 			"sheets":
 			[
 				{
@@ -759,7 +768,7 @@
 						"translation.y": 102.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
@@ -791,24 +800,55 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
 					"buffer": 2,
-					"file": "models/despacho.py",
+					"file": "models/db.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 9891,
+						"buffer_size": 9056,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								5170,
-								5170
+								3456,
+								3456
+							]
+						],
+						"settings":
+						{
+							"git_gutter_is_enabled": true,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 829.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "models/despacho.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9905,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
 							]
 						],
 						"settings":
@@ -822,24 +862,24 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 5,
 					"type": "text"
 				},
 				{
-					"buffer": 3,
+					"buffer": 4,
 					"file": "models/modelo.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 14679,
+						"buffer_size": 14797,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								14631,
-								14631
+								337,
+								337
 							]
 						],
 						"settings":
@@ -851,27 +891,27 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 7170.0,
+						"translation.y": 102.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
-					"buffer": 4,
+					"buffer": 5,
 					"file": "models/funciones.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 8472,
+						"buffer_size": 8328,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								3752,
-								3752
+								0,
+								0
 							]
 						],
 						"settings":
@@ -886,11 +926,11 @@
 						"translation.y": 1326.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
+					"stack_index": 8,
 					"type": "text"
 				},
 				{
-					"buffer": 5,
+					"buffer": 6,
 					"file": "static/css/tapa14.css",
 					"semi_transient": false,
 					"settings":
@@ -915,11 +955,11 @@
 						"translation.y": 5657.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 8,
+					"stack_index": 9,
 					"type": "text"
 				},
 				{
-					"buffer": 6,
+					"buffer": 7,
 					"file": "models/ivalibros.py",
 					"semi_transient": false,
 					"settings":
@@ -946,11 +986,11 @@
 						"translation.y": 3446.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 6,
 					"type": "text"
 				},
 				{
-					"buffer": 7,
+					"buffer": 8,
 					"file": "models/notadeventa.py",
 					"semi_transient": false,
 					"settings":
@@ -977,11 +1017,11 @@
 						"translation.y": 134.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 7,
 					"type": "text"
 				},
 				{
-					"buffer": 8,
+					"buffer": 9,
 					"file": "models/util.py",
 					"semi_transient": false,
 					"settings":
@@ -993,8 +1033,8 @@
 						"selection":
 						[
 							[
-								1908,
-								1908
+								351,
+								360
 							]
 						],
 						"settings":
@@ -1005,10 +1045,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 666.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 7,
+					"stack_index": 1,
 					"type": "text"
 				}
 			]

@@ -4,3 +4,4 @@ sets
 pdftotext
 gitpython
 pyexcel_ods3
+psycopg2

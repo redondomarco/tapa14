@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
-# db.define_table(
-#   'imagen',
-#   Field('titulo', unique=True, length=255),
-#   Field('archivo', 'upload'),
-#   format = '%(titulo)s')
+"""
+Funciones principales de modelo
 
-# combos cliente
+"""
+import datetime
 
 # for ide
 if False:
-    from db import *
-    from util import *
+    from gluon import Field, T, request
+    from gluon.validators import IS_IN_SET
+    from db import auth, db, log
+    from util import files_dir
+    # from util import *
 
 
 tipo_producto = ['propio', 'terceros', 'tercerosLM']
@@ -462,8 +463,8 @@ def export_table(db_name, table_name):
 
 def populate_table(db_name, table_name):
     # leo de files csv
-    filepath = files_dir + 'csv-base/db_' + str(table_name) + '.csv'
-    filename = str(db_name) + '_' + str(table_name) + '.csv'
+    # filepath = files_dir + 'csv-base/db_' + str(table_name) + '.csv'
+    # filename = str(db_name) + '_' + str(table_name) + '.csv'
     try:
         # borro todo el contenido de la tabla
         eval(db_name + '.' + table_name + '.truncate()')
