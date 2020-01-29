@@ -454,9 +454,19 @@ def populate_cliente():
         return ['error', str(e)]
 
 
-def export_table(db_name, table_name):
+def export_table(db_name, table_name, **kwargs):
     filename = str(db_name) + '_' + str(table_name) + '.csv'
-    filepath = files_dir + 'csv-base/' + filename
+    hoy = datetime.datetime.today()
+    if 'backup' in kwargs:
+        try:
+            dirfecha = str(hoy.year) + str(hoy.month) + str(hoy.day)
+            directorio = files_dir + 'backup/' + dirfecha
+            os.makedirs(directorio)
+        except Exception:
+            pass        
+        filepath = files_dir + 'backup/' + dirfecha + '/' + filename
+    else:
+        filepath = files_dir + 'csv-base/' + filename
     rows = eval(db_name + '(' + db_name + '.' + table_name + '.id).select()')
     rows.export_to_csv_file(open(filepath, 'w', encoding='utf-8', newline=''))
 
@@ -497,9 +507,19 @@ tablas = ['auth_user', 'auth_group', 'auth_membership',
 base = 'db'
 
 
-def export_all_csv():
-    for tabla in tablas:
-        export_table(base, tabla)
+def export_all_csv(**kwargs):
+    """ Exporta todas las tablas al directorio csv-base
+    export_all_csv()
+    
+    Opcional:
+    export_all_csv(backup=True)
+    para guardar el backup actual directorio backup/$fecha """    
+    if 'backup' in kwargs:
+        for tabla in tablas:
+            export_table(base, tabla, backup=True)
+    else:
+        for tabla in tablas:
+            export_table(base, tabla)
 
 
 def populate_accesos_base():
