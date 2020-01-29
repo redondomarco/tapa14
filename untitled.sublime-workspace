@@ -439,7 +439,7 @@
 			"file": "models/modelo.py",
 			"settings":
 			{
-				"buffer_size": 14797,
+				"buffer_size": 14712,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -607,7 +607,7 @@
 	],
 	"find":
 	{
-		"height": 39.0
+		"height": 26.0
 	},
 	"find_in_files":
 	{
@@ -871,15 +871,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 14797,
+						"buffer_size": 14712,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								337,
-								337
+								0,
+								0
 							]
 						],
 						"settings":

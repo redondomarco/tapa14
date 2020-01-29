@@ -97,10 +97,10 @@ db.define_table(
     Field('correo'),
     Field('aviso', 'boolean'),
     Field('cuit'),
-    Field('razon_social', notnull=True),
-    Field('domicilio', notnull=True, length=255),
-    Field('localidad', notnull=True, length=255),
-    Field('provincia', notnull=True, length=255),
+    Field('razon_social'),
+    Field('domicilio', length=255),
+    Field('localidad', length=255),
+    Field('provincia', length=255),
     Field('telefono'),
     auth.signature,
     format='%(nombre)s',
@@ -392,7 +392,7 @@ def populate_producto():
     filepath = files_dir + 'csv-base/db_producto.csv'
     try:
         # borro todo el contenido de la tabla
-        db.producto.truncate()
+        db.producto.truncate('RESTART IDENTITY CASCADE')
         # importo nuevo contenido
         db.producto.import_from_csv_file(open(filepath, 'r',
                                           encoding='utf-8',
@@ -441,7 +441,7 @@ def populate_cliente():
     filepath = files_dir + 'csv-base/db_cliente.csv'
     try:
         # borro todo el contenido de la tabla
-        db.cliente.truncate()
+        db.cliente.truncate('RESTART IDENTITY CASCADE')
         # importo nuevo contenido
         db.cliente.import_from_csv_file(open(filepath, 'r',
                                         encoding='utf-8',
@@ -463,11 +463,11 @@ def export_table(db_name, table_name):
 
 def populate_table(db_name, table_name):
     # leo de files csv
-    # filepath = files_dir + 'csv-base/db_' + str(table_name) + '.csv'
+    filepath = files_dir + 'csv-base/db_' + str(table_name) + '.csv'
     # filename = str(db_name) + '_' + str(table_name) + '.csv'
     try:
         # borro todo el contenido de la tabla
-        eval(db_name + '.' + table_name + '.truncate()')
+        #eval(db_name + '.' + table_name + """.truncate('RESTART IDENTITY CASCADE')""")
         # importo nuevo contenido
         eval(db_name + '.' + table_name +
              """.import_from_csv_file(open(filepath, 'r', encoding='utf-8', newline=''))""")
@@ -479,6 +479,9 @@ def populate_table(db_name, table_name):
         return ['error', str(e)]
 
 
+def truncate_all_db(db_name, table_name):
+    eval(db_name + '.' + table_name + """.truncate('RESTART IDENTITY CASCADE')""")
+    
 # para regenerar tablas se puede borrar todo el contenido de la carpeta
 # databases:
 # rm databases/*
@@ -500,6 +503,10 @@ def export_all_csv():
 
 
 def populate_accesos_base():
+    # blanqueo toda la base
+    for tabla in tablas:
+        truncate_all_db(base, tabla)
+    # completo con los datos del export
     for tabla in tablas:
         ejecuta = populate_table(base, tabla)
         log(ejecuta)

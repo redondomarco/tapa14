@@ -5,7 +5,8 @@
 
 # for ide
 if False:
-    pass
+    from db import db, log
+    
 
 # no usado aun
 # def delete_tables():
