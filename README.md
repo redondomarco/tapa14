@@ -20,7 +20,7 @@ pip3 install -r requirements.txt
 ```
 
 ### base de datos
-``
+```
 sudo apt install postgresql postgresql-server-dev-11
 ```
 base y usuarios
