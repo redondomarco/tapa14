@@ -10,7 +10,8 @@ from pyexcel_ods3 import get_data
 # for ide
 if False:
     # from gluon import 
-    from db import log
+    from db import log, db
+    
 
 
 def mapeo_prod(producto):

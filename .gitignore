@@ -5,7 +5,7 @@ uploads/*
 databases/*
 sessions/*
 errors/*
-files/*
+files*
 logs/*
 .pythonhistory
 .hg/
