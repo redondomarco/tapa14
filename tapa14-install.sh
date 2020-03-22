@@ -1,6 +1,6 @@
 #!/bin/bash
 echo instalo paquetes sistema operativo - base de datos incluida !
-sudo apt-get install -y build-essential libpoppler-cpp-dev pkg-config python3-dev python3-pip swig libssl-dev git unzip ipython3 python3-tk postgresql libpq-dev
+sudo apt-get install -y build-essential libpoppler-cpp-dev pkg-config python3-dev python3-pip swig libssl-dev git unzip ipython3 python3-tk postgresql libpq-dev 2to3
 
 echo instalo paquetes python
 sudo pip3 install -r requirements.txt

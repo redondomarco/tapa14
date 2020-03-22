@@ -5,7 +5,6 @@ Auth is for authenticaiton and access control
 
 """
 import logging
-
 from gluon.contrib.appconfig import AppConfig
 from gluon.tools import Auth
 

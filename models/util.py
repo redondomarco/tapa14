@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import logging
 from collections import defaultdict
 import hashlib
 import string
@@ -11,11 +10,6 @@ import os
 # for ide
 if False:
     from gluon import *
-    request = current.request
-    response = current.response
-    session = current.session
-    cache = current.cache
-    T = current.T
 
 # directorios
 files_dir = 'applications/' + str(configuration.get('app.name')) + '/files/'

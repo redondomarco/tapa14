@@ -9,9 +9,11 @@ from pyexcel_ods3 import get_data
 
 # for ide
 if False:
-    # from gluon import 
+    # from gluon import
     from db import log, db
-    
+    from util import files_dir
+    from pdf import base_dir, analizo_fa
+    from os import walk
 
 
 def mapeo_prod(producto):

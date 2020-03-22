@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
  funciones sobre el modelo
 
@@ -6,7 +7,9 @@
 # for ide
 if False:
     from db import db, log
-    
+    from util import tree
+    import datetime
+
 
 # no usado aun
 # def delete_tables():
@@ -51,7 +54,6 @@ def blank_data():
             log('error balnqueo ' + str(table_name) + ' e: ' + str(e))
             pass
     db.commit()
-
 
 
 def restore_backup(filepath):
@@ -249,7 +251,6 @@ def agrego_pedido_hdr(pedidonum, hdrnum):
         db(s_hdr).update(
             lista_pedidos=lista)
         db.commit()
-
 
 
 # from sets import Set
