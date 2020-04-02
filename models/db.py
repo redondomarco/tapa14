@@ -4,7 +4,6 @@ AppConfig configuration made easy. Look inside private/appconfig.ini
 Auth is for authenticaiton and access control
 
 """
-import logging
 from gluon.contrib.appconfig import AppConfig
 from gluon.tools import Auth
 
@@ -166,29 +165,6 @@ if configuration.get('scheduler.enabled'):
 # auth.enable_record_versioning(db)
 # fuerzo idioma
 T.force('es-ar')
-
-# logs
-logger = logging.getLogger("web2py")
-logger.setLevel(logging.DEBUG)
-log_remove = [
-    'Set-Cookie: ',
-    'session_id_tapa14=']
-
-
-def log(palabra):
-    """funcion auditoria que incorpora el usuario si es que existe"""
-    if hasattr(auth.user, 'email'):
-        ipclient = str(request.client)
-        usuario = str(auth.user.email)
-        function = str(request.function)
-        palabra = str(palabra)
-        mensaje = f"{usuario} {ipclient} {function} {palabra}"
-        for i in log_remove:
-            mensaje = mensaje.replace(str(i), '')
-    else:
-        mensaje = 'usuario: admin {palabra}'
-    logger.info(mensaje)
-
 
 response.logo = A(IMG(_src=URL('static', 'images/tapa14.png'),
                       _href=URL('default', 'index'),

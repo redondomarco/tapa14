@@ -4,7 +4,7 @@ def icon_title(icon, title):
     return I(f' {str(title)}', _class=f'fa {str(icon)} fa-1x')
 
 
-# iconos en https://fontawesome.com/v4.7.0/icon/list
+# iconos en https://fontawesome.com/v4.7.0/icons/
 def grand_button(nombre, link, icono, **kwargs):
     """ nombre: 1 a 3 palabras"""
     lista = nombre.split()

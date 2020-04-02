@@ -9,20 +9,20 @@ import datetime
 if False:
     from gluon import Field, T, request
     from gluon.validators import IS_IN_SET
-    from db import auth, db, log
+    from db import auth, db
+    from log import log
     from util import files_dir
+    from util import os
     # from util import *
 
 
 tipo_producto = ['propio', 'terceros', 'tercerosLM']
 tipo_iva = ['RI', 'monotributo', 'consumidor final', 'nc']
-tipo_comprobante = ['factura A', 'factura B', 'nota de venta', 'recibo']
 tipo_cta = ['contado', 'cta cte']
 iva_percent = [21]
 estado_pedido = ['pendiente', 'anulado', 'finalizado']
 tipo_entrega = ['pendiente', 'entregado']
 tipo_pago = ['pendiente', 'parcial', 'pagado', 'cta cte']
-tipos_caja = ['B', 'N']
 # dir_pdf = ('applications/' + str(configuration.get('datos.app_name')) +
 #           '/files/pdf')
 
@@ -30,8 +30,15 @@ db.define_table(
     'listas',
     Field('lista', unique=True, length=255),
     Field('valor', 'double'),
+    auth.signature,
     format='%(lista)s'
 )
+db.listas._after_insert.append(
+    lambda f, i: log('insert ' + str(f) + ' ' + str(i)))
+db.listas._after_update.append(
+    lambda s, f: log('update ' + str(s) + ' ' + str(f)))
+db.listas._after_delete.append(
+    lambda s: log('delete ' + str(s)))
 
 provincias = {0: 'CIUDAD AUTONOMA BUENOS AIRES',
               1: 'BUENOS AIRES',
@@ -57,6 +64,74 @@ provincias = {0: 'CIUDAD AUTONOMA BUENOS AIRES',
               22: 'RIO NEGRO',
               23: 'SANTA CRUZ',
               24: 'TIERRA DEL FUEGO'}
+
+
+db.define_table(
+    'tipos_caja',
+    Field('codigo', unique=True, length=255),
+    Field('nombre', unique=True, length=30),
+    auth.signature,
+    format='%(nombre)s',
+)
+db.tipos_caja._after_insert.append(
+    lambda f, i: log('insert ' + str(f) + ' ' + str(i)))
+db.tipos_caja._after_update.append(
+    lambda s, f: log('update ' + str(s) + ' ' + str(f)))
+db.tipos_caja._after_delete.append(
+    lambda s: log('delete ' + str(s)))
+
+db.define_table(
+    'tipos_comprobante',
+    Field('codigo', unique=True, length=255),
+    Field('nombre', unique=True, length=30),
+    auth.signature,
+    format='%(nombre)s',
+)
+db.tipos_comprobante._after_insert.append(
+    lambda f, i: log('insert ' + str(f) + ' ' + str(i)))
+db.tipos_comprobante._after_update.append(
+    lambda s, f: log('update ' + str(s) + ' ' + str(f)))
+db.tipos_comprobante._after_delete.append(
+    lambda s: log('delete ' + str(s)))
+
+db.define_table(
+    'tipos_cuenta',
+    Field('codigo', unique=True, length=255),
+    Field('nombre', unique=True, length=30),
+    Field('tipo'),
+    auth.signature,
+    format='%(nombre)s',
+)
+db.tipos_cuenta.tipo.requires = IS_IN_SET(['ingreso', 'egreso'])
+db.tipos_cuenta._after_insert.append(
+    lambda f, i: log('insert ' + str(f) + ' ' + str(i)))
+db.tipos_cuenta._after_update.append(
+    lambda s, f: log('update ' + str(s) + ' ' + str(f)))
+db.tipos_cuenta._after_delete.append(
+    lambda s: log('delete ' + str(s)))
+
+
+db.define_table(
+    'personas',
+    Field('nombre', unique=True, length=255),
+    Field('correo'),
+    Field('cuit'),
+    Field('comprobante', 'reference tipos_comprobante', notnull=True),
+    Field('razon_social'),
+    Field('domicilio', length=255),
+    Field('localidad', length=255),
+    Field('provincia', length=255),
+    Field('telefono'),
+    auth.signature,
+    format='%(nombre)s'
+)
+db.personas.provincia.requires = IS_IN_SET(list(provincias.values()))
+db.personas._after_insert.append(
+    lambda f, i: log('insert ' + str(f) + ' ' + str(i)))
+db.personas._after_update.append(
+    lambda s, f: log('update ' + str(s) + ' ' + str(f)))
+db.personas._after_delete.append(
+    lambda s: log('delete ' + str(s)))
 
 
 db.define_table(
@@ -93,23 +168,22 @@ db.define_table(
     Field('tipocuenta', default=tipo_cta[0], notnull=True),
     Field('iva'),
     Field('iva_percent', default=iva_percent[0], notnull=True),
-    Field('comprobante', notnull=True),
-    Field('correo'),
     Field('aviso', 'boolean'),
-    Field('cuit'),
-    Field('razon_social'),
-    Field('domicilio', length=255),
-    Field('localidad', length=255),
-    Field('provincia', length=255),
-    Field('telefono'),
+    Field('persona', 'reference personas'),
+    # Field('correo'),
+    # Field('cuit'),
+    # Field('comprobante', notnull=True),
+    # Field('razon_social'),
+    # Field('domicilio', length=255),
+    # Field('localidad', length=255),
+    # Field('provincia', length=255),
+    # Field('telefono'),
     auth.signature,
     format='%(nombre)s',
 )
 db.cliente.iva.requires = IS_IN_SET(tipo_iva)
 db.cliente.iva_percent.requires = IS_IN_SET(iva_percent)
-db.cliente.comprobante.requires = IS_IN_SET(tipo_comprobante, multiple=True)
 db.cliente.tipocuenta.requires = IS_IN_SET(tipo_cta, multiple=True)
-db.cliente.provincia.requires = IS_IN_SET(list(provincias.values()))
 
 # tabla de pedidos vigentes
 db.define_table(
@@ -148,12 +222,19 @@ db.define_table('hoja_de_ruta',
 
 
 db.define_table('caja',
-                Field('fecha'),
-                Field('operacion'),
-                Field('tipo'),
-                Field('arqueo', 'boolean'),
+                Field('fecha', 'date'),
+                Field('operacion', 'reference tipos_cuenta'),
+                Field('tipo', 'reference tipos_caja'),
+                Field('comprobante', 'reference tipos_comprobante'),
+                Field('nro_cbte'),
+                Field('monto', 'double'),
                 auth.signature)
-db.caja.tipo.requires = IS_IN_SET(tipos_caja)
+db.caja._after_insert.append(
+    lambda f, i: log('insert ' + str(f) + ' ' + str(i)))
+db.caja._after_update.append(
+    lambda s, f: log('update ' + str(s) + ' ' + str(f)))
+db.caja._after_delete.append(
+    lambda s: log('delete ' + str(s)))
 
 
 db.define_table('bancos',
@@ -180,7 +261,6 @@ db.define_table(
     auth.signature)
 
 
-
 # guardo operaciones
 db.define_table(
     'ventas',
@@ -192,14 +272,13 @@ db.define_table(
     Field('nota'),
     Field('pedido_asoc', 'reference pedidos_hist'),
     Field('total', 'double'),
-    Field('comprobante'),
+    Field('comprobante', 'reference tipos_comprobante'),
     Field('nro_comprobante', 'integer'),
     Field('entrega'),
     Field('pago'),
     auth.signature,
     format='%(pedidonum)s',
 )
-db.ventas.comprobante.requires = IS_IN_SET(tipo_comprobante, multiple=True)
 db.ventas.entrega.requires = IS_IN_SET(tipo_entrega)
 db.ventas.pago.requires = IS_IN_SET(tipo_pago)
 
@@ -292,8 +371,6 @@ db.define_table(
     auth.signature)
 
 
-
-
 def fecha_vto(lote):
     diasvto = 30
     a = datetime.datetime.strptime(
@@ -347,14 +424,15 @@ def populate_grupos():
         db.auth_group.truncate()
         # importo nuevo contenido
         db.auth_group.import_from_csv_file(open(filepath, 'r',
-                                          encoding='utf-8',
-                                          newline='',))
+                                                encoding='utf-8',
+                                                newline='',))
         db.commit()
         mensaje = 'cargado sin errores'
         log(mensaje)
         return ['ok', mensaje]
     except Exception as e:
         return ['error', str(e)]
+
 
 # pertenencia
 def export_grupos():
@@ -371,8 +449,8 @@ def populate_pertenencia():
         db.auth_membership.truncate()
         # importo nuevo contenido
         db.auth_membership.import_from_csv_file(open(filepath, 'r',
-                                          encoding='utf-8',
-                                          newline='',))
+                                                     encoding='utf-8',
+                                                     newline='',))
         db.commit()
         mensaje = 'cargado sin errores'
         log(mensaje)
@@ -381,11 +459,12 @@ def populate_pertenencia():
         return ['error', str(e)]
 
 
-#productos
+# productos
 def export_grupos():
     filepath = files_dir + 'csv-base/db_productos.csv'
     rows = db(db.productos.id).select()
     rows.export_to_csv_file(open(filepath, 'w', encoding='utf-8', newline=''))
+
 
 def populate_producto():
     # leo de files csv
@@ -395,8 +474,8 @@ def populate_producto():
         db.producto.truncate('RESTART IDENTITY CASCADE')
         # importo nuevo contenido
         db.producto.import_from_csv_file(open(filepath, 'r',
-                                          encoding='utf-8',
-                                          newline='',))
+                                              encoding='utf-8',
+                                              newline='',))
         db.commit()
         mensaje = 'cargado sin errores'
         log(mensaje)
@@ -463,7 +542,7 @@ def export_table(db_name, table_name, **kwargs):
             directorio = files_dir + 'backup/' + dirfecha
             os.makedirs(directorio)
         except Exception:
-            pass        
+            pass
         filepath = files_dir + 'backup/' + dirfecha + '/' + filename
     else:
         filepath = files_dir + 'csv-base/' + filename
@@ -474,10 +553,11 @@ def export_table(db_name, table_name, **kwargs):
 def populate_table(db_name, table_name):
     # leo de files csv
     filepath = files_dir + 'csv-base/db_' + str(table_name) + '.csv'
+    log(f'cargo {filepath}')
     # filename = str(db_name) + '_' + str(table_name) + '.csv'
     try:
         # borro todo el contenido de la tabla
-        #eval(db_name + '.' + table_name + """.truncate('RESTART IDENTITY CASCADE')""")
+        # eval(db_name + '.' + table_name + """.truncate('RESTART IDENTITY CASCADE')""")
         # importo nuevo contenido
         eval(db_name + '.' + table_name +
              """.import_from_csv_file(open(filepath, 'r', encoding='utf-8', newline=''))""")
@@ -490,8 +570,10 @@ def populate_table(db_name, table_name):
 
 
 def truncate_all_db(db_name, table_name):
-    eval(db_name + '.' + table_name + """.truncate('RESTART IDENTITY CASCADE')""")
-    
+    """borro todo el contenido de la tabla"""
+    eval(db_name + '.' + table_name +
+         """.truncate('RESTART IDENTITY CASCADE')""")
+
 # para regenerar tablas se puede borrar todo el contenido de la carpeta
 # databases:
 # rm databases/*
@@ -499,7 +581,8 @@ def truncate_all_db(db_name, table_name):
 
 # es importante el orden
 tablas = ['auth_user', 'auth_group', 'auth_membership',
-          'listas', 'cliente',
+          'tipos_comprobante', 'tipos_caja', 'tipos_cuenta',
+          'listas', 'personas',
           'producto', 'comprobante',
           'proveedor', 'marcas', 'tipos_mat_primas',
           'mat_primas']
@@ -510,16 +593,17 @@ base = 'db'
 def export_all_csv(**kwargs):
     """ Exporta todas las tablas al directorio csv-base
     export_all_csv()
-    
+
     Opcional:
     export_all_csv(backup=True)
-    para guardar el backup actual directorio backup/$fecha """    
+    para guardar el backup actual directorio backup/$fecha """
     if 'backup' in kwargs:
         for tabla in tablas:
             export_table(base, tabla, backup=True)
     else:
         for tabla in tablas:
             export_table(base, tabla)
+    return 'recordar pushear data en files de github'
 
 
 def populate_accesos_base():
