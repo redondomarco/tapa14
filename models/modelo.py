@@ -116,7 +116,7 @@ db.define_table(
     Field('nombre', unique=True, length=255),
     Field('correo'),
     Field('cuit'),
-    Field('comprobante', 'reference tipos_comprobante', notnull=True),
+    Field('comprobante', 'list:reference tipos_comprobante'),
     Field('razon_social'),
     Field('domicilio', length=255),
     Field('localidad', length=255),
@@ -228,6 +228,7 @@ db.define_table('caja',
                 Field('persona', 'reference personas'),
                 Field('comprobante', 'reference tipos_comprobante'),
                 Field('nro_cbte'),
+                Field('observacion'),
                 Field('monto', 'double'),
                 auth.signature)
 db.caja._after_insert.append(
@@ -337,6 +338,7 @@ db.define_table(
     'proveedor',
     Field('nombre'),
     Field('descripcion'),
+    Field('persona', 'reference personas'),
     auth.signature,
     format='%(nombre)s',
 )
