@@ -1318,9 +1318,10 @@ def consulta_caja():
         sortable=True,
         details=True,
         maxtextlength=25)
-    return locals()
+    return dict(grid=grid)
 
 
+# _autocomplete="off"
 # ---- Action for login/register/etc (required for auth) -----
 def user():
     """

@@ -8,7 +8,7 @@ if False:
     from gluon import auth
 
 # logs
-logger = logging.getLogger("web2py")
+logger = logging.getLogger("w2p.tapa14")
 logger.setLevel(logging.DEBUG)
 log_remove = [
     'Set-Cookie: ',
