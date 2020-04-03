@@ -1311,10 +1311,12 @@ def consulta_caja():
         db.caja,
         fields=(db.caja.fecha,
                 db.caja.operacion,
+                db.caja.persona,
                 db.caja.tipo,
                 db.caja.comprobante,
                 db.caja.nro_cbte,
-                db.caja.monto
+                db.caja.monto,
+                db.caja.observacion
                 ),
         searchable=True,
         editable=False,
