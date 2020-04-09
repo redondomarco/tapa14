@@ -57,6 +57,8 @@ menufacturas = (T('Comprobantes'), False, None,
                 )
 menuappadmin = (T('appadmin'), False, URL('appadmin', 'index'), [])
 
+menuhome = (I(' Inicio', _class='fa fa-home'), False, URL('default', 'index'))
+
 menuconf = (I(' Config', _class='fa fa-gear'), False, URL('default', 'admin'))
 
 menuadmin = (T('General'), False, '#',
@@ -85,9 +87,10 @@ if auth.user:
 # if group.role == 'cliente':
 #   response.menu.append(menucliente)
         if group.role == 'admin':
+            response.menu.append(menuhome)
+            response.menu.append(menuconf)
             response.menu.append(menuadmin)
             response.menu.append(menufacturas)
-            response.menu.append(menuconf)
         if auth.user.email == 'redondomarco@gmail.com':
             # response.menu.append(menuappadmin)
             # response.menu.append(menutest)

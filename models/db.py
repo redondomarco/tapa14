@@ -166,9 +166,12 @@ if configuration.get('scheduler.enabled'):
 # fuerzo idioma
 T.force('es-ar')
 
+urlhome = URL('tapa14', 'default', 'index')
+
 response.logo = A(IMG(_src=URL('static', 'images/tapa14.png'),
-                      _href=URL('default', 'index'),
+                      _href=urlhome,
                       _class="navbar-brand"))
+
 
 # response.title = request.application.replace('_',' ').title()
 response.title = 'Tapa14'

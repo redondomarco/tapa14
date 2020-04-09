@@ -6,7 +6,8 @@
 
 # for ide
 if False:
-    from db import db, log
+    from db import db
+    from log import log
     from util import tree
     import datetime
 

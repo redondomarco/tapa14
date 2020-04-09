@@ -10,6 +10,11 @@ from gluon.tools import Expose
 # for ide
 if False:
     from gluon import *
+    from html_helper import grand_button, opt_tabla
+    from funciones import ultimo_comprobante, datos_cliente, datos_productos
+    from funciones import get_producto, incremento_comprobante, add_stock
+    from funciones import add_reserva
+    from modelo import fecha_vto
     from log import log
 
 
@@ -32,16 +37,16 @@ def index_data_entry():
         DIV(I(' Contabilidad', _class='fa fa-calculator fa-2x',
               _id='tit_minigrid'),
             DIV(grand_button('Caja',
-                             'consulta_caja',
+                             URL('tapa14', 'contable', 'consulta_caja'),
                              'fa-dollar'),
                 grand_button('Cuentas',
-                             'entry_tabla',
-                             'fa-list',
-                             vars={'tabla': 'tipos_cuenta'}),
+                             URL('tapa14', 'contable', 'entry_tabla',
+                                 vars={'tabla': 'tipos_cuenta'}),
+                             'fa-list'),
                 grand_button('Personas',
-                             'entry_tabla',
-                             'fa-users',
-                             vars={'tabla': 'personas'}),
+                             URL('tapa14', 'contable', 'entry_tabla',
+                                 vars={'tabla': 'personas'}),
+                             'fa-users'),
                 _id='mini_grid'),
             _id='indexdiv'),
         _id='panel_grid'))
@@ -56,60 +61,65 @@ def index_todo():
         DIV(I(' Ventas', _class='fa fa-ticket fa-2x',
             _id='tit_minigrid'),
             DIV(grand_button('nuevo pedido',
-                             'selec_cliente_pedido',
+                             URL('tapa14', 'default', 'selec_cliente_pedido'),
                              'fa-cart-plus'),
                 grand_button('pedidos pendientes',
-                             'pedido_pendiente',
+                             URL('tapa14', 'default', 'pedido_pendiente'),
                              'fa-th-large'),
                 grand_button('hoja de ruta',
-                             'hoja_de_ruta',
+                             URL('tapa14', 'default', 'hoja_de_ruta'),
                              'fa-truck'),
                 grand_button('Ingreso Pago',
-                             'pago',
+                             URL('tapa14', 'default', 'pago'),
                              'fa-paypal'),
                 _id='mini_grid'),
             _id='indexdiv'),
         DIV(I(' Produccion', _class='fa fa-industry fa-2x',
               _id='tit_minigrid'),
             DIV(grand_button('ingreso productos terminados',
-                             'ingreso_produccion',
+                             URL('tapa14', 'default', 'ingreso_produccion'),
                              'fa-database'),
                 grand_button('consulta productos',
-                             'consulta_ingreso_stock',
+                             URL('tapa14', 'default',
+                                 'consulta_ingreso_stock'),
                              'fa-list'),
                 grand_button('Ingreso materias primas',
-                             'admin_tabla',
-                             'fa-qrcode',
-                             vars={'tabla': 'mat_primas'}),
+                             URL('tapa14', 'default', 'admin_tabla',
+                                 vars={'tabla': 'mat_primas'}),
+                             'fa-qrcode'),
                 _id='mini_grid'),
             _id='indexdiv'),
         DIV(I(' Compras', _class='fa fa-shopping-bag fa-2x',
               _id='tit_minigrid'),
             DIV(grand_button('ingreso productos terminados',
-                             'ingreso_produccion',
+                             URL('tapa14', 'default', 'ingreso_produccion'),
                              'fa-database'),
                 grand_button('consulta productosNN',
                              'consulta_ingreso_stock',
                              'fa-list'),
                 grand_button('Ingreso materias primasNN',
-                             'admin_tabla',
-                             'fa-qrcode',
-                             vars={'tabla': 'mat_primas'}),
+                             URL('tapa14', 'default', 'admin_tabla',
+                                 vars={'tabla': 'mat_primas'}),
+                             'fa-qrcode'),
                 _id='mini_grid'),
             _id='indexdiv'),
         DIV(I(' Contabilidad', _class='fa fa-calculator fa-2x',
               _id='tit_minigrid'),
             DIV(grand_button('Caja',
-                             'admin_tabla',
-                             'fa-dollar',
-                             vars={'tabla': 'caja'}),
+                             URL('tapa14', 'default', 'admin_tabla',
+                                 vars={'tabla': 'caja'}),
+                             'fa-dollar'),
                 grand_button('EgresosNN',
-                             'consulta_ingreso_stock',
+                             URL('tapa14', 'default',
+                                 'consulta_ingreso_stock'),
                              'fa-upload'),
                 grand_button('ConsultaNN',
-                             'admin_tabla',
-                             'fa-university',
-                             vars={'tabla': 'mat_primas'}),
+                             URL('tapa14', 'default', 'admin_tabla',
+                                 vars={'tabla': 'mat_primas'}),
+                             'fa-university'),
+                grand_button('mov Caja',
+                             URL('tapa14', 'contable', 'mov_caja_sel_fecha'),
+                             'fa-upload'),
                 _id='mini_grid'),
             _id='indexdiv'),
         _id='panel_grid'))
@@ -121,21 +131,21 @@ def admin():
     form = CENTER(FORM(
         DIV(I(' Tapa14', _class='fa fa-cogs fa-2x'),
             DIV(grand_button('modificar productos',
-                             'admin_tabla',
-                             'fa-product-hunt',
-                             vars={'tabla': 'producto'}),
+                             URL('tapa14', 'default', 'admin_tabla',
+                                 vars={'tabla': 'producto'}),
+                             'fa-product-hunt'),
                 grand_button('materias primas',
-                             'admin_tabla',
-                             'fa-leaf',
-                             vars={'tabla': 'mat_primas'}),
+                             URL('tapa14', 'default', 'admin_tabla',
+                                 vars={'tabla': 'mat_primas'}),
+                             'fa-leaf'),
                 grand_button('Personas',
-                             'entry_tabla',
-                             'fa-users',
-                             vars={'tabla': 'personas'}),
+                             URL('tapa14', 'contable', 'entry_tabla',
+                                 vars={'tabla': 'personas'}),
+                             'fa-users'),
                 grand_button('Cuentas',
-                             'entry_tabla',
-                             'fa-list',
-                             vars={'tabla': 'tipos_cuenta'}),
+                             URL('tapa14', 'contable', 'entry_tabla',
+                                 vars={'tabla': 'tipos_cuenta'}),
+                             'fa-list'),
                 _id='mini_grid'),
             ),
         DIV(I(' Clientes', _class='fa fa-cogs fa-2x'),
@@ -175,50 +185,20 @@ def admin():
     return dict(form=form)
 
 
-def opt_tabla(tabla):
-    if tabla == 'cliente':
-        fields = ('db.cliente.id, db.cliente.nombre,' +
-                  'db.cliente.lista,' +
-                  'db.cliente.saldo, db.cliente.tipocuenta')
-    if tabla == 'personas':
-        fields = ('db.personas.id, db.personas.nombre,' +
-                  'db.personas.razon_social, db.personas.cuit')
-    else:
-        fields = 'None'
-    return {'fields': fields}
-
-
 @auth.requires_login()
 @auth.requires_membership('admin')
 def admin_tabla():
     if 'tabla' in request.vars:
         tabla = request.vars['tabla']
         titulo = DIV(
-            A(icon_title('fa-arrow-left', 'Volver'), _id='boton_r',
-              _class="btn-grid", _href=URL('admin')),
+            # A(icon_title('fa-arrow-left', 'Volver'), _id='boton_r',
+            #   _class="btn-grid", _href=URL('admin')),
             CENTER(H4('Admin ' + (str(tabla).title()))))
         log('acceso grid ' + str(tabla))
         grid = SQLFORM.smartgrid(eval('db.' + str(tabla)),
                                  maxtextlength=20,
                                  linked_tables=['child'],
                                  fields=eval(opt_tabla(tabla)['fields']))
-        return dict(grid=grid, titulo=titulo)
-    else:
-        redirect(URL('index'))
-
-
-@auth.requires_login()
-def entry_tabla():
-    if 'tabla' in request.vars:
-        tabla = request.vars['tabla']
-        titulo = DIV(
-            A(icon_title('fa-arrow-left', 'Volver'), _id='boton_r',
-              _class="btn-grid", _href=URL('index')),
-            CENTER(H4('Admin ' + (str(tabla).title()))))
-        log('acceso grid ' + str(tabla))
-        grid = SQLFORM.grid(eval('db.' + str(tabla)),
-                            maxtextlength=20,
-                            fields=eval(opt_tabla(tabla)['fields']))
         return dict(grid=grid, titulo=titulo)
     else:
         redirect(URL('index'))
@@ -1114,13 +1094,14 @@ def mensajes():
                     _href=URL('index'))
         titulo = H4('Resultado')
         contenido = CENTER(titulo, tabla, aceptar)
-        return dict(contenido=contenido)
-    if isinstance(session.mensaje, str):
+    elif isinstance(session.mensaje, str):
         log('muestro: ' + str(session.mensaje))
         contenido = session.mensaje
-        return dict(contenido=contenido)
+    elif isinstance(session.mensaje, DIV):
+        contenido = session.mensaje
     else:
         contenido = 'error en mensaje'
+    return dict(contenido=contenido)
 
 
 def capture_update():
@@ -1308,28 +1289,7 @@ def descarga_csv():
 
 # funciones data entry
 
-@auth.requires_membership('oficina_data_entry')
-def consulta_caja():
-    log('acceso ' + str(request.function))
-    grid = SQLFORM.grid(
-        db.caja,
-        fields=(db.caja.fecha,
-                db.caja.operacion,
-                db.caja.persona,
-                db.caja.tipo,
-                db.caja.comprobante,
-                db.caja.nro_cbte,
-                db.caja.monto,
-                db.caja.observacion
-                ),
-        searchable=True,
-        editable=False,
-        deletable=False,
-        create=True,
-        sortable=True,
-        details=True,
-        maxtextlength=25)
-    return dict(grid=grid)
+
 
 
 # _autocomplete="off"

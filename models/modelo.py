@@ -11,7 +11,7 @@ if False:
     from gluon.validators import IS_IN_SET
     from db import auth, db
     from log import log
-    from util import files_dir
+    from util import files_dir, csv_to_list_of_dict
     from util import os
     # from util import *
 
@@ -95,9 +95,16 @@ db.tipos_comprobante._after_delete.append(
     lambda s: log('delete ' + str(s)))
 
 db.define_table(
+    'tipos_cod_cuenta',
+    Field('codigo', unique=True, length=30),
+    auth.signature,
+    format='%(codigo)s',
+)
+
+db.define_table(
     'tipos_cuenta',
-    Field('codigo', unique=True, length=255),
     Field('nombre', unique=True, length=30),
+    Field('codigo', 'reference tipos_cod_cuenta'),
     Field('tipo'),
     auth.signature,
     format='%(nombre)s',
@@ -119,7 +126,10 @@ db.define_table(
     Field('comprobante', 'list:reference tipos_comprobante'),
     Field('razon_social'),
     Field('domicilio', length=255),
-    Field('localidad', length=255),
+    Field('dia_horario', length=600),
+    Field('nota', length=1000),
+    Field('geomap', length=600),
+    Field('link', length=400),
     Field('provincia', length=255),
     Field('telefono'),
     auth.signature,
@@ -553,23 +563,23 @@ def export_table(db_name, table_name, **kwargs):
     rows.export_to_csv_file(open(filepath, 'w', encoding='utf-8', newline=''))
 
 
-def populate_table(db_name, table_name):
-    # leo de files csv
-    filepath = files_dir + 'csv-base/db_' + str(table_name) + '.csv'
-    log(f'cargo {filepath}')
-    # filename = str(db_name) + '_' + str(table_name) + '.csv'
-    try:
-        # borro todo el contenido de la tabla
-        # eval(db_name + '.' + table_name + """.truncate('RESTART IDENTITY CASCADE')""")
-        # importo nuevo contenido
-        eval(db_name + '.' + table_name +
-             """.import_from_csv_file(open(filepath, 'r', encoding='utf-8', newline=''))""")
-        eval(db_name + '.commit()')
-        mensaje = str(table_name) + ' cargado sin errores en ' + str(db_name)
-        log(mensaje)
-        return ['ok', mensaje]
-    except Exception as e:
-        return ['error', str(e)]
+# deprecated
+# def populate_table(db_name, table_name):
+    # # leo de files csv
+    # filepath = files_dir + 'csv-base/db_' + str(table_name) + '.csv'
+    # log(f'cargo {filepath}')
+    # # filename = str(db_name) + '_' + str(table_name) + '.csv'
+    # try:
+        # # importo nuevo contenido
+        # eval(db_name + '.' + table_name +
+             # """.import_from_csv_file(open(filepath, 'r',
+             # encoding='utf-8', newline=''), id_offset={}, id_map=None)""")
+        # eval(db_name + '.commit()')
+        # mensaje = str(table_name) + ' cargado sin errores en ' + str(db_name)
+        # log(mensaje)
+        # return ['ok', mensaje]
+    # except Exception as e:
+        # return ['error', str(e)]
 
 
 def truncate_all_db(db_name, table_name):
@@ -616,5 +626,30 @@ def populate_accesos_base():
         truncate_all_db(base, tabla)
     # completo con los datos del export
     for tabla in tablas:
-        ejecuta = populate_table(base, tabla)
-        log(ejecuta)
+        # ejecuta = populate_table(base, tabla)
+        restore(tabla)
+        # log(ejecuta)
+
+
+def restore(tabla):
+    # no es valido para todas las tablas
+    truncate_all_db(base, tabla)
+    filepath = files_dir + 'csv-base/db_' + str(tabla) + '.csv'
+    log(f'restore {filepath}')
+    filas = csv_to_list_of_dict(filepath)[1]
+    for fila in filas:
+        filaproc = {}
+        for i in fila:
+            clave = i.split('.')[1]
+            valor = fila[i]
+            if valor == '<NULL>':
+                valor = ''
+            # migracion mediante borrar
+            elif tabla == 'tipos_cuenta' and clave == 'codigo':
+                valor = ''
+            elif tabla == 'personas' and clave == 'comprobante':
+                valor = ''
+            filaproc[clave] = valor
+        log(f'{base}.{tabla}.insert(**{filaproc})')
+        eval(f'{base}.{tabla}.insert(**{filaproc})')
+    db.commit()
