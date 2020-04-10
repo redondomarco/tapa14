@@ -705,7 +705,7 @@ def restore(tabla):
 
 def export_all():
     filepath = f'{files_dir}csv-base/todo_{idtemp_generator(4)}.csv'
-    db.export_to_csv_file(filepath, 'w', encoding='utf-8', newline='')
+    db.export_to_csv_file(open(filepath, 'w', encoding='utf-8', newline=''))
     log(f'generado {filepath}')
     return filepath
 
