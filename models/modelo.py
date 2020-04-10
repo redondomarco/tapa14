@@ -4,6 +4,7 @@ Funciones principales de modelo
 
 """
 import datetime
+from collections import OrderedDict
 
 # for ide
 if False:
@@ -12,7 +13,7 @@ if False:
     from db import auth, db
     from log import log
     from util import files_dir, csv_to_list_of_dict
-    from util import os
+    from util import os, csv
     # from util import *
 
 
@@ -563,23 +564,23 @@ def export_table(db_name, table_name, **kwargs):
     rows.export_to_csv_file(open(filepath, 'w', encoding='utf-8', newline=''))
 
 
-# deprecated
-# def populate_table(db_name, table_name):
-    # # leo de files csv
-    # filepath = files_dir + 'csv-base/db_' + str(table_name) + '.csv'
-    # log(f'cargo {filepath}')
-    # # filename = str(db_name) + '_' + str(table_name) + '.csv'
-    # try:
-        # # importo nuevo contenido
-        # eval(db_name + '.' + table_name +
-             # """.import_from_csv_file(open(filepath, 'r',
-             # encoding='utf-8', newline=''), id_offset={}, id_map=None)""")
-        # eval(db_name + '.commit()')
-        # mensaje = str(table_name) + ' cargado sin errores en ' + str(db_name)
-        # log(mensaje)
-        # return ['ok', mensaje]
-    # except Exception as e:
-        # return ['error', str(e)]
+def populate_table(db_name, table_name):
+    # leo de files csv
+    filepath = files_dir + 'csv-base/db_' + str(table_name) + '.csv'
+    log(f'cargo {filepath}')
+    filepath = prepare_csv(filepath)
+    # filename = str(db_name) + '_' + str(table_name) + '.csv'
+    try:
+        # importo nuevo contenido
+        eval(db_name + '.' + table_name +
+             """.import_from_csv_file(open(filepath, 'r',
+             encoding='utf-8', newline=''),)""")
+        eval(db_name + '.commit()')
+        mensaje = str(table_name) + ' cargado sin errores en ' + str(db_name)
+        log(mensaje)
+        return ['ok', mensaje]
+    except Exception as e:
+        return ['error', str(e)]
 
 
 def truncate_all_db(db_name, table_name):
@@ -594,7 +595,8 @@ def truncate_all_db(db_name, table_name):
 
 # es importante el orden
 tablas = ['auth_user', 'auth_group', 'auth_membership',
-          'tipos_comprobante', 'tipos_caja', 'tipos_cuenta',
+          'tipos_cuenta',
+          'tipos_comprobante', 'tipos_caja',
           'listas', 'personas',
           'producto', 'comprobante',
           'caja',
@@ -620,6 +622,12 @@ def export_all_csv(**kwargs):
     return 'recordar pushear data en files de github'
 
 
+def truncate_all():
+    # blanqueo toda la base
+    for tabla in tablas:
+        truncate_all_db(base, tabla)
+
+
 def populate_accesos_base():
     # blanqueo toda la base
     for tabla in tablas:
@@ -627,13 +635,53 @@ def populate_accesos_base():
     # completo con los datos del export
     for tabla in tablas:
         # ejecuta = populate_table(base, tabla)
-        restore(tabla)
         # log(ejecuta)
+        restore(tabla)
+    # reparo id autoincrement
+    filepath = export_all()
+    import_all(filepath)
+
+
+def prepare_csv(filepath):
+    filepath_out = filepath + 'r'
+    resultado = {}
+    with open(filepath, newline='') as f:
+        reader = csv.DictReader(f)
+        claves = reader.fieldnames
+        for row in reader:
+            resultado[int(row[claves[0]])] = row
+    # return resultado
+    # return claves
+    maxid = max(resultado.keys())
+    tocsv = {}
+    for i in range(1, maxid):
+        try:
+            tocsv[i] = resultado[i]
+        except Exception:
+            reg_vacio = []
+            for j in claves:
+                if '.id' in j:
+                    reg_vacio.append((j, i))
+                else:
+                    reg_vacio.append((j, ''))
+            tocsv[i] = OrderedDict(reg_vacio)
+    # return tocsv
+    with open(filepath_out, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=claves)
+        writer.writeheader()
+        for i in tocsv:
+            writer.writerow(tocsv[i])
+    log(f'procesado {filepath_out}')
+    return filepath_out
+
+
+def test_prepare_csv():
+    filepath = files_dir + 'csv-base/db_tipos_cuenta.csv'
+    return prepare_csv(filepath)
 
 
 def restore(tabla):
-    # no es valido para todas las tablas
-    truncate_all_db(base, tabla)
+    # truncate_all_db(base, tabla)
     filepath = files_dir + 'csv-base/db_' + str(tabla) + '.csv'
     log(f'restore {filepath}')
     filas = csv_to_list_of_dict(filepath)[1]
@@ -652,4 +700,17 @@ def restore(tabla):
             filaproc[clave] = valor
         log(f'{base}.{tabla}.insert(**{filaproc})')
         eval(f'{base}.{tabla}.insert(**{filaproc})')
+    db.commit()
+
+
+def export_all():
+    filepath = f'{files_dir}csv-base/todo_{idtemp_generator(4)}.csv'
+    db.export_to_csv_file(filepath, 'w', encoding='utf-8', newline='')
+    log(f'generado {filepath}')
+    return filepath
+
+
+def import_all(filepath):
+    truncate_all()
+    db.import_from_csv_file(open(filepath, 'r', encoding='utf-8', newline=''))
     db.commit()
