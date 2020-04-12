@@ -92,15 +92,16 @@ def list_of_dict_to_csv(nombre, lista, **kwargs):
         nombre_archivo = str(nombre) + '.csv'
     else:
         nombre_archivo = str(nombre) + '_' + str(idtemp_generator(10)) + '.csv'
-    log(directorio + nombre_archivo)
+    filepath = directorio + nombre_archivo
     try:
         keys = lista[0].keys()
-        with open(directorio + nombre_archivo, 'w',
+        with open(filepath, 'w',
                   encoding='utf8', newline='') as output_file:
             dict_writer = csv.DictWriter(output_file, keys)
             dict_writer.writeheader()
             dict_writer.writerows(lista)
-            return ['ok', nombre_archivo]
+            log(f'generado {filepath}')
+            return ['ok', filepath]
     except Exception as e:
         log(e.args)
         return ['error', e.args]
@@ -123,6 +124,46 @@ def test_list_of_dict_to_csv():
 
 
 def list_dict_to_table_sortable(lista, nombre_archivo, claves):
+    '''recibe una lista de diccionarios(clave-valor iguales) y
+     devuelve una tabla html'''
+    if type(lista) == list:
+        if type(lista[0]) == dict:
+            # cabecera tabla
+            tabla = """
+            <table
+            data-toggle="table"
+            data-search="true"
+            data-show-columns="true"
+            data-show-fullscreen="true"
+            data-locale="es-AR"
+            data-classes = "table table-bordered table-hover table-sm"
+            > <thead> <tr>"""
+
+            for i in claves:
+                tabla = tabla + '<th data-field="%s" data-sortable="true">%s</th>' % (i, i)
+            tabla = tabla + '</tr> </thead> <tbody>'
+            # contenido tabla
+            for i in lista:
+                tabla = tabla + '<tr>'
+                for j in claves:
+                    tabla = tabla + '<td>%s</td>' % (i[j])
+                tabla = tabla + '</tr>'
+            tabla = tabla + '</tbody> </table>'
+            cantidad = len(lista)
+            leyenda_cantidad = MARKMIN("Cantidad de registros: " + str(cantidad))
+            if nombre_archivo == 'mov_caja':
+                directorio = f'{files_dir}mov_caja/'
+            session.nombre_archivo = list_of_dict_to_csv(
+                nombre_archivo, lista, dir=directorio)[1]
+            # open_archivo = open('applications/' + str(configuration.get('app.name')) + '/files/csv/'+session.nombre_archivo, "r")
+            boton_csv = A('Descarga tabla como CSV...',
+                          _href=URL('tapa14', 'default', 'descarga_csv'),
+                          _class='btn btn-default')
+            # return CENTER(TABLE(boton_csv,XML(tabla)))
+            return DIV(XML(tabla), leyenda_cantidad, boton_csv)
+
+
+def list_dict_to_table_sortable1(lista, nombre_archivo, claves):
     '''recibe una lista de diccionarios(clave-valor iguales) y
      devuelve una tabla html'''
     if type(lista) == list:

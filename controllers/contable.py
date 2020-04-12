@@ -84,7 +84,7 @@ def mov_caja_sel_fecha():
         tabla = proceso[0]
         ingresos = proceso[1]
         egresos = proceso[2]
-        n_archivo = 'mov_caja_'
+        n_archivo = 'mov_caja'
         orden = ['fecha', 'persona', 'cuenta', 'caja', 'cbte', 'nro_cbte',
                  'egreso', 'ingreso', 'operador', 'obs']
         divmensaje = list_dict_to_table_sortable(tabla, n_archivo, orden)
