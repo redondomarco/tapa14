@@ -1281,7 +1281,7 @@ def descarga_csv():
         # content = session.lista_consulta
         #
         content = open(str(session.nombre_archivo), "r", encoding='utf8').read()
-        log(content)
+        # log(content)
         raise HTTP(200, str(content),
                    **{'Content-Type': 'text/csv',
                    'Content-Disposition': attachment + ';'})
