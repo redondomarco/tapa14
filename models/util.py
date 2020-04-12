@@ -9,6 +9,7 @@ import os
 
 # for ide
 if False:
+    import subprocess
     from gluon import TABLE, TR, TD, MARKMIN, A, URL, DIV, XML
     from gluon import session
     from db import configuration
@@ -92,6 +93,7 @@ def list_of_dict_to_csv(nombre, lista, **kwargs):
         nombre_archivo = str(nombre) + '.csv'
     else:
         nombre_archivo = str(nombre) + '_' + str(idtemp_generator(10)) + '.csv'
+    subprocess.run(["mkdir", "-p", directorio])
     filepath = directorio + nombre_archivo
     try:
         keys = lista[0].keys()
