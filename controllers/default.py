@@ -13,9 +13,10 @@ if False:
     from html_helper import grand_button, opt_tabla
     from funciones import ultimo_comprobante, datos_cliente, datos_productos
     from funciones import get_producto, incremento_comprobante, add_stock
-    from funciones import add_reserva
+    from funciones import add_reserva, arbol_pedidos
     from modelo import fecha_vto
     from log import log
+    from util import files_dir
 
 
 @auth.requires_login()
@@ -150,35 +151,35 @@ def admin():
             ),
         DIV(I(' Clientes', _class='fa fa-cogs fa-2x'),
             DIV(grand_button('modificar clientes',
-                             'admin_tabla',
-                             'fa-users',
-                             vars={'tabla': 'cliente'}),
+                             URL('tapa14', 'default', 'admin_tabla',
+                                 vars={'tabla': 'cliente'}),
+                             'fa-users'),
                 grand_button('listas de precios',
-                             'admin_tabla',
-                             'fa-percent',
-                             vars={'tabla': 'listas'}),
+                             URL('tapa14', 'default', 'admin_tabla',
+                                 vars={'tabla': 'listas'}),
+                             'fa-percent'),
                 _id='mini_grid')
             ),
         DIV(I(' Proveedores', _class='fa fa-cogs fa-2x'),
             DIV(grand_button('Proveedores',
-                             'admin_tabla',
-                             'fa-suitcase',
-                             vars={'tabla': 'proveedor'}),
+                             URL('tapa14', 'default', 'admin_tabla',
+                                 vars={'tabla': 'proveedor'}),
+                             'fa-suitcase'),
                 grand_button('tipo materias primas',
-                             'admin_tabla',
-                             'fa-puzzle-piece',
-                             vars={'tabla': 'tipos_mat_primas'}),
+                             URL('tapa14', 'default', 'admin_tabla',
+                                 vars={'tabla': 'tipos_mat_primas'}),
+                             'fa-puzzle-piece'),
                 grand_button('marcas',
-                             'admin_tabla',
-                             'fa-trademark',
-                             vars={'tabla': 'marcas'}),
+                             URL('tapa14', 'default', 'admin_tabla',
+                                 vars={'tabla': 'marcas'}),
+                             'fa-trademark'),
                 _id='mini_grid')
             ),
         DIV(I(' Anula', _class='fa fa-cogs fa-2x'),
             DIV(grand_button('pedido',
                              'admin_tabla',
                              'fa-window-close-o',
-                             vars={'tabla': 'marcas'}),
+                             vars={'tabla': ''}),
                 _id='mini_grid')
             ),
         _id='panel_grid'))
@@ -197,6 +198,7 @@ def admin_tabla():
         log('acceso grid ' + str(tabla))
         grid = SQLFORM.smartgrid(eval('db.' + str(tabla)),
                                  maxtextlength=20,
+                                 deletable=False,
                                  linked_tables=['child'],
                                  fields=eval(opt_tabla(tabla)['fields']))
         return dict(grid=grid, titulo=titulo)
@@ -1287,12 +1289,6 @@ def descarga_csv():
                    'Content-Disposition': attachment + ';'})
 
 
-# funciones data entry
-
-
-
-
-# _autocomplete="off"
 # ---- Action for login/register/etc (required for auth) -----
 def user():
     """
