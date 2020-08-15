@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict
+from babel.dates import format_date, format_datetime, format_time
 import hashlib
 import string
 import datetime
@@ -21,10 +22,12 @@ files_dir = 'applications/' + str(configuration.get('app.name')) + '/files/'
 # websocket
 # from gluon.contrib.websocket_messaging import websocket_send
 
+valid_chars1 = (string.ascii_uppercase + string.digits +
+                string.ascii_lowercase)
+
 
 def tree():
     return defaultdict(tree)
-
 
 # BUF_SIZE is totally arbitrary, change for your app!
 BUF_SIZE = 65536  # lets read stuff in 64kb chunks!
@@ -40,10 +43,17 @@ def md5sum(filepath):
             md5.update(data)
 
 
-def idtemp_generator(
-    size=50,
-    chars=(string.ascii_uppercase + string.digits +
-           string.ascii_lowercase)):
+# def idtemp_generator(
+    # size=50,
+    # chars=(string.ascii_uppercase + string.digits +
+           # string.ascii_lowercase)):
+    # dia = (str(datetime.datetime.now().year) + '-' +
+           # str(datetime.datetime.now().month) + '-' +
+           # str(datetime.datetime.now().day) + '_')
+    # return dia + ''.join(random.choice(chars) for _ in range(size))
+
+def idtemp_generator(size=50, chars=valid_chars1):
+    """genero id random con marca de tiempo"""
     dia = (str(datetime.datetime.now().year) + '-' +
            str(datetime.datetime.now().month) + '-' +
            str(datetime.datetime.now().day) + '_')
@@ -126,44 +136,90 @@ def test_list_of_dict_to_csv():
     return list_of_dict_to_csv('test', lista)
 
 
-def list_dict_to_table_sortable(lista, nombre_archivo, claves):
-    '''recibe una lista de diccionarios(clave-valor iguales) y
-     devuelve una tabla html formato https://bootstrap-table.com/.
-     claves determina el orden.
-     https://bootstrap-table.com/ '''
+# def list_dict_to_table_sortable(lista, nombre_archivo, claves):
+    # '''recibe una lista de diccionarios(clave-valor iguales) y
+     # devuelve una tabla html formato https://bootstrap-table.com/.
+     # claves determina el orden.
+     # https://bootstrap-table.com/ '''
+    # if type(lista) == list:
+        # if type(lista[0]) == dict:
+            # # cabecera tabla
+            # cabecera = ''
+            # for i in claves:
+                # cabecera += f'\
+# <th data-field="{i}" data-sortable="true">{i}</th>'
+            # # contenido tabla
+            # contenido = ''
+            # for i in lista:
+                # columna = ''
+                # for j in claves:
+                    # columna += f'<td>{i[j]}</td>'
+                # contenido += f'<tr> {columna} </tr>'
+            # tabla = f'\
+# <table data-toggle="table" data-search="true" data-show-columns="true"\
+# data-show-fullscreen="true" data-locale="es-AR"\
+# data-classes = "table table-bordered table-hover table-sm"\
+# > <thead> <tr> {cabecera} </tr> </thead> <tbody> {contenido} </tbody> </table>'
+            # # cantidad registros
+            # cantidad = len(lista)
+            # leyenda_cantidad = MARKMIN(
+                # f'Cantidad de registros: {str(cantidad)}')
+            # if nombre_archivo == 'mov_caja':
+                # directorio = f'{files_dir}mov_caja/'
+            # else:
+                # directorio = files_dir
+            # session.nombre_archivo = list_of_dict_to_csv(
+                # nombre_archivo, lista, dir=directorio)[1]
+            # boton_csv = A('Descarga tabla como CSV...',
+                          # _href=URL('tapa14', 'default', 'descarga_csv'),
+                          # _class='btn btn-default')
+            # return DIV(XML(tabla), leyenda_cantidad, boton_csv)
+
+
+def list_dict_to_table_sortable(lista, nombre_archivo, **kwargs):
+    '''recibe una lista de diccionarios(clave-valor iguales)
+    y devuelve una tabla html'''
     if type(lista) == list:
         if type(lista[0]) == dict:
-            # cabecera tabla
-            cabecera = ''
-            for i in claves:
-                cabecera += f'\
-<th data-field="{i}" data-sortable="true">{i}</th>'
-            # contenido tabla
-            contenido = ''
-            for i in lista:
-                columna = ''
-                for j in claves:
-                    columna += f'<td>{i[j]}</td>'
-                contenido += f'<tr> {columna} </tr>'
-            tabla = f'\
-<table data-toggle="table" data-search="true" data-show-columns="true"\
-data-show-fullscreen="true" data-locale="es-AR"\
-data-classes = "table table-bordered table-hover table-sm"\
-> <thead> <tr> {cabecera} </tr> </thead> <tbody> {contenido} </tbody> </table>'
-            # cantidad registros
-            cantidad = len(lista)
-            leyenda_cantidad = MARKMIN(
-                f'Cantidad de registros: {str(cantidad)}')
-            if nombre_archivo == 'mov_caja':
-                directorio = f'{files_dir}mov_caja/'
+            claves = lista[0].keys()
+            if 'orden' in kwargs:
+                orden = kwargs['orden']
             else:
-                directorio = files_dir
+                # valores por defecto
+                orden = ['dni', 'usuario', 'apellido y nombre', 'apellido',
+                         'nombre', 'nombre map', 'baja map', 'reparticion',
+                         'Unif', 'Unif_creado', 'Unif_modificado']
+            for i in reversed(orden):
+                try:
+                    claves.insert(0, claves.pop(claves.index(i)))
+                except Exception:
+                    pass
+                    # log(e)
+            # cabecera tabla
+            tabla = '<table data-toggle="table"> <thead> <tr>'
+            for i in claves:
+                fila = """<th data-field="%s" data-sortable="true">
+                       %s</th>""" % (i, i)
+                tabla = tabla + fila
+            tabla = tabla + '</tr> </thead> <tbody>'
+            # contenido tabla
+            for i in lista:
+                tabla = tabla + '<tr>'
+                for j in claves:
+                    tabla = tabla + '<td>%s</td>' % (i[j])
+                tabla = tabla + '</tr>'
+            tabla = tabla + '</tbody> </table>'
+            cantidad = len(lista)
+            leyenda_cantidad = (MARKMIN("Cantidad de dias registrados: " +
+                                str(cantidad)))
             session.nombre_archivo = list_of_dict_to_csv(
-                nombre_archivo, lista, dir=directorio)[1]
+                nombre_archivo, lista)[1]
+            # open_archivo = open(dir_files + session.nombre_archivo, "r")
             boton_csv = A('Descarga tabla como CSV...',
-                          _href=URL('tapa14', 'default', 'descarga_csv'),
+                          _href=URL('descarga_csv'),
                           _class='btn btn-default')
-            return DIV(XML(tabla), leyenda_cantidad, boton_csv)
+            # return CENTER(TABLE(boton_csv,XML(tabla)))
+            return DIV(boton_csv, leyenda_cantidad, XML(tabla))
 
 
 def test_list_dict_to_table_sortable1():
@@ -207,3 +263,21 @@ def csv_to_list_of_dict(pathfile):
 def test_csv_to_list_of_dict():
     csvfile = 'applications/tapa14/files/csv-base/db_tipos_cuenta.csv'
     return csv_to_list_of_dict(csvfile)
+
+
+def fecha_sp(datetime):
+    fecha = datetime.date()
+    return format_date(fecha, locale='es')
+
+
+def datetime_sp(datetime):
+    return format_datetime(datetime, locale='es')
+
+
+def time_sp(datetime):
+    time = datetime.time()
+    return format_time(time, locale='es')
+
+
+def s_horario(horario):
+    return f'{time_sp(horario[0])} a {time_sp(horario[1])}'

@@ -123,6 +123,13 @@ def index_todo():
                              'fa-upload'),
                 _id='mini_grid'),
             _id='indexdiv'),
+        DIV(I(' Administracion', _class='fa fa-calculator fa-2x',
+              _id='tit_minigrid'),
+            DIV(grand_button('Personal',
+                             URL('tapa14', 'personal', 'index'),
+                             'fa-users'),
+                _id='mini_grid'),
+            _id='indexdiv'),
         _id='panel_grid'))
     return dict(form=form)
 
@@ -1268,7 +1275,7 @@ def lista_despacho():
     log('acceso ' + str(request.function))
     registros = proceso_detalle_despacho()
     tabla = CENTER(H1('Resultado del analisis de facturas'),
-                   list_dict_to_table_sortable(registros))
+                   list_dict_to_table_sortable(registros, 'lista_despacho'))
     form = (tabla)
     return dict(form=form)
 

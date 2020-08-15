@@ -87,7 +87,7 @@ def mov_caja_sel_fecha():
         n_archivo = 'mov_caja'
         orden = ['fecha', 'persona', 'cuenta', 'caja', 'cbte', 'nro_cbte',
                  'egreso', 'ingreso', 'operador', 'obs']
-        divmensaje = list_dict_to_table_sortable(tabla, n_archivo, orden)
+        divmensaje = list_dict_to_table_sortable(tabla, n_archivo, orden=orden)
         session.mensaje = DIV(
             CENTER(divmensaje),
             PRE(f'Total Ingresos: {round(ingresos,2)}'),

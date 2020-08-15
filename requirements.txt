@@ -12,3 +12,4 @@ sqlalchemy
 pep8
 mypy
 pylint-web2py
+babel
