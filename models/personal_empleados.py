@@ -33,7 +33,7 @@ db.define_table(
     Field('salida', 'time'),
     Field('descanso', 'time'),
     auth.signature,
-    format='%(Nombre)s %(Apellido)',
+    format='%(nombre)s %(apellido)s',
 )
 db.empleado.dias.requires = IS_IN_SET(dias_semana, multiple=True)
 
