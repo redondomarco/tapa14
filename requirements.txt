@@ -13,3 +13,5 @@ pep8
 mypy
 pylint-web2py
 babel
+pandas
+xlrd

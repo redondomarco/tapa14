@@ -114,9 +114,8 @@ def index_todo():
                              URL('tapa14', 'default',
                                  'consulta_ingreso_stock'),
                              'fa-upload'),
-                grand_button('ConsultaNN',
-                             URL('tapa14', 'default', 'admin_tabla',
-                                 vars={'tabla': 'mat_primas'}),
+                grand_button('Banco',
+                             URL('tapa14', 'banco', 'menu_banco'),
                              'fa-university'),
                 grand_button('mov Caja',
                              URL('tapa14', 'contable', 'mov_caja_sel_fecha'),
@@ -851,10 +850,13 @@ def muestra_nv():
     # pdfexample=test_genera_nv()
     # mostrar=Expose('/home/marco/web2py/'+pdfexample)
     files = CENTER(
-        H6('Nota de venta: ' + str(session.nvurl)),
         # DIV(A('test_nv',_class="btn btn-primary", _href=URL('test_nv'))),
         # DIV(IFRAME(_src=session.nvurl, _width="630px", _height='891'))
-        DIV(IFRAME(_src=session.nvurl, _id='verpdf'))
+        DIV(IFRAME(_src=session.nvurl,
+                   _id='verpdf',
+                   # _style="width:630px; height:500px;",
+                   )),
+        H6('Nota de venta: ' + str(session.nvurl)),
     )
     return dict(files=files)
 

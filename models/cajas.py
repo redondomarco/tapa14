@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 if False:
+    import hashlib
     from db import db
     from log import log
     from util import str_to_date
@@ -106,3 +107,23 @@ def usuarios_sistema():
 
 def tipos_caja():
     return db(db.tipos_caja).select().as_dict()
+
+
+def id_cajas(fecha, concepto, importe):
+    string = (str(fecha.strftime("%d/%m/%Y")) +
+              str(concepto) +
+              str(importe))
+    return str(fecha) + '-' + hashlib.md5(string.encode('UTF-8')).hexdigest()
+
+
+# def completo_id_operaciones():
+    # # for key in k_procesos:
+    # #    db(db['cbte_' + registro[actual]].comprobante == str(key)).update(
+    # #            **t_procesos[actual][1][key])
+    # registros = db(db.caja).select().as_dict()
+    # for i in registros.keys():
+        # fecha = registros[i]['fecha']
+        # concepto =
+        # importe = registros[i]['monto']
+        # db(db['cbte_' + registro[actual]].comprobante == str(key)).update(
+    # #            **t_procesos[actual][1][key])

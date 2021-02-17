@@ -160,7 +160,11 @@ def elimino_pedido(pedidonum):
 
 def obtengo_cliente(clienteid):
     selector = (db.cliente.id == clienteid)
-    return db(selector).select(db.cliente.ALL).as_dict()[clienteid]
+    cliente = db(selector).select(db.cliente.ALL).as_dict()[clienteid]
+    sel_per = (db.personas.id == cliente['persona'])
+    persona = db(sel_per).select(db.personas.ALL).as_dict()[cliente['persona']]
+    cliente['persona'] = persona
+    return cliente
 
 
 # funciones pedido

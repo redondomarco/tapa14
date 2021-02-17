@@ -5,6 +5,7 @@ from fpdf import FPDF
 # for ide
 if False:
     from gluon import *
+    from funciones import obtengo_cliente, obtengo_pedido
     request = current.request
     response = current.response
     session = current.session
@@ -25,22 +26,22 @@ def busca_nv(pedidonum):
     return ['error', 'no existe']
 
 
-def gestiona_nv(pedidonum):
-    comprobante = 'nv_' + str(pedidonum)
-    # compruebo si existe el comprobante
-    aux = busca_nv(comprobante)
-    if aux[0] == 'ok':
-        return aux[1]
-    else:
-        # genero nv
-        hoy = datetime.today()
-        dir_fecha = str(hoy.year) + '/' + str(hoy.month) + '/' + str(hoy.day)
-        directorio = dir_pdf + dir_fecha + '/nv/'
-        try:
-            os.makedirs(directorio)
-        except Exception:
-            pass
-        genera_nv(fecha, comprobante, pedidonum, items, directorio)
+# def gestiona_nv(pedidonum):
+    # comprobante = 'nv_' + str(pedidonum)
+    # # compruebo si existe el comprobante
+    # aux = busca_nv(comprobante)
+    # if aux[0] == 'ok':
+        # return aux[1]
+    # else:
+        # # genero nv
+        # hoy = datetime.today()
+        # dir_fecha = str(hoy.year) + '/' + str(hoy.month) + '/' + str(hoy.day)
+        # directorio = dir_pdf + dir_fecha + '/nv/'
+        # try:
+            # os.makedirs(directorio)
+        # except Exception:
+            # pass
+        # genera_nv(fecha, comprobante, pedidonum, items, directorio)
 
 
 # nota de venta
@@ -136,12 +137,12 @@ def genera_nv(fecha, pedidonum, clienteid, items, directorio, nota):
         pdf.cell(ln=0, h=6.0, align='L', w=13.0, txt='Sr.(s):', border=0)
         pdf.set_xy(35.0, 59.0)
         pdf.cell(ln=0, h=6.0, align='L', w=140.0,
-                 txt=str(datos_cliente['razon_social']), border=0)
+                 txt=str(datos_cliente['persona']['razon_social']), border=0)
         pdf.set_xy(17.0, 64.0)
         pdf.cell(ln=0, h=6.0, align='L', w=18.0, txt='Domicilio:', border=0)
         pdf.set_xy(35.0, 64.0)
         pdf.cell(ln=0, h=6.0, align='L', w=125.0,
-                 txt=str(datos_cliente['domicilio']), border=0)
+                 txt=str(datos_cliente['persona']['domicilio']), border=0)
         pdf.set_xy(17.0, 69.0)
         pdf.cell(ln=0, h=6.0, align='L', w=18.0,
                  txt='Condicion de venta:', border=0)
@@ -152,8 +153,8 @@ def genera_nv(fecha, pedidonum, clienteid, items, directorio, nota):
         pdf.set_xy(80.0, 69.0)
         pdf.cell(ln=0, h=6.0, align='L', w=18.0, txt='Localidad:', border=0)
         pdf.set_xy(100.0, 69.0)
-        localidad = datos_cliente['localidad']
-        provincia = datos_cliente['provincia']
+        localidad = datos_cliente['persona']['localidad']
+        provincia = datos_cliente['persona']['provincia']
         pdf.cell(ln=0, h=6.0, align='L', w=42.0,
                  txt=str(localidad) + ', ' + str(provincia), border=0)
 

@@ -29,6 +29,10 @@ menutest = (T('test funciones'), False, None,
              URL(request.application, 'default', 'ingreso')),
             (T('ventaold'), False,
              URL(request.application, 'default', 'ventaold')),
+            (T('admin web2py'), False,
+             URL('admin', 'design', 'tapa14')),
+            (T('admin db web2py'), False,
+             URL('appadmin', 'index')),
              ]
             )
 menuvendedor = (T('Venta'), False, URL('default', 'venta'), [])
@@ -91,10 +95,7 @@ if auth.user:
             response.menu.append(menuconf)
             response.menu.append(menuadmin)
             response.menu.append(menufacturas)
-        if auth.user.email == 'redondomarco@gmail.com':
-            # response.menu.append(menuappadmin)
-            # response.menu.append(menutest)
-            pass
+
 # response.menu.append(menucalculadora)
 try:
     if auth.user.email == 'redondomarco@gmail.com':

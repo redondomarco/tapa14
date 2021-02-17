@@ -24,8 +24,9 @@ iva_percent = [21]
 estado_pedido = ['pendiente', 'anulado', 'finalizado']
 tipo_entrega = ['pendiente', 'entregado']
 tipo_pago = ['pendiente', 'parcial', 'pagado', 'cta cte']
+
 # dir_pdf = ('applications/' + str(configuration.get('datos.app_name')) +
-#           '/files/pdf')
+# '/files/pdf')
 
 db.define_table(
     'listas',
@@ -132,6 +133,7 @@ db.define_table(
     Field('geomap', length=600),
     Field('link', length=400),
     Field('provincia', length=255),
+    Field('localidad', length=255),
     Field('telefono'),
     auth.signature,
     format='%(nombre)s'
@@ -240,6 +242,7 @@ db.define_table('caja',
                 Field('comprobante', 'reference tipos_comprobante'),
                 Field('nro_cbte'),
                 Field('observacion'),
+                Field('operacionid'),
                 Field('monto', 'double'),
                 auth.signature)
 db.caja._after_insert.append(
@@ -594,14 +597,16 @@ def truncate_all_db(db_name, table_name):
 
 
 # es importante el orden
-tablas = ['auth_user', 'auth_group', 'auth_membership',
-          'tipos_cuenta',
+tablas = ['auth_user', 'auth_group', 'marcadas',
+          'auth_membership',
+          'listas', 'tipos_cod_cuenta', 'comprobante',
           'tipos_comprobante', 'tipos_caja',
-          'listas', 'personas',
-          'producto', 'comprobante',
-          'caja',
-          'proveedor', 'marcas', 'tipos_mat_primas',
-          'mat_primas']
+          'tipos_mat_primas', 'empleado', 'marcas', 'bancos',
+          'tipos_cuenta', 'personas', 'banco',
+          'producto', 'proveedor', 'caja',
+          'cliente', 'ingresos', 'mat_primas',
+          'pedidos', 'pedidos_hist', 'ctacte',
+          'hoja_de_ruta', 'ventas']
 
 base = 'db'
 
@@ -697,6 +702,8 @@ def restore(tabla):
                 valor = ''
             elif tabla == 'personas' and clave == 'comprobante':
                 valor = ''
+            elif tabla == 'cliente' and clave == 'productos':
+                valor = valor.split('|')
             filaproc[clave] = valor
         log(f'{base}.{tabla}.insert(**{filaproc})')
         eval(f'{base}.{tabla}.insert(**{filaproc})')

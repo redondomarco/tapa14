@@ -90,8 +90,8 @@ def marcadas_usuario_fechas(user_code, fdesde, fhasta):
 
 def test_marcadas_usuario_fechas():
     user_code = 1001
-    fdesde = '2020-02-17'
-    fhasta = '2020-02-19'
+    fdesde = '2020-08-1'
+    fhasta = '2020-08-31'
     return marcadas_usuario_fechas(user_code, fdesde, fhasta)
 
 
