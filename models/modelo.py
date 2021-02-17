@@ -598,7 +598,7 @@ def truncate_all_db(db_name, table_name):
 
 # es importante el orden
 tablas = ['auth_user', 'auth_group', 'marcadas',
-          'auth_membership',
+          'auth_membership', 'auth_event',
           'listas', 'tipos_cod_cuenta', 'comprobante',
           'tipos_comprobante', 'tipos_caja',
           'tipos_mat_primas', 'empleado', 'marcas', 'bancos',
