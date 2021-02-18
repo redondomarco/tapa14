@@ -734,7 +734,7 @@ def pedido_pendiente():
         create=False,
         sortable=True,
         details=False,
-        paginate=20,
+        paginate=30,
         csv=False,
         maxtextlength=30,)
     nrocomp = str(int(ultimo_comprobante('hoja_de_ruta'))).zfill(10)

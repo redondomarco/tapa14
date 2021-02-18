@@ -67,6 +67,13 @@ provincias = {0: 'CIUDAD AUTONOMA BUENOS AIRES',
               23: 'SANTA CRUZ',
               24: 'TIERRA DEL FUEGO'}
 
+db.define_table(
+    'localidad',
+    Field('codigo', unique=True, length=255),
+    Field('nombre', unique=True, length=30),
+    auth.signature,
+    format='%(nombre)s',
+)
 
 db.define_table(
     'tipos_caja',
@@ -133,7 +140,7 @@ db.define_table(
     Field('geomap', length=600),
     Field('link', length=400),
     Field('provincia', length=255),
-    Field('localidad', length=255),
+    Field('localidad', 'reference localidad', default=1, notnull=True),
     Field('telefono'),
     auth.signature,
     format='%(nombre)s'
@@ -590,6 +597,7 @@ def truncate_all_db(db_name, table_name):
     """borro todo el contenido de la tabla"""
     eval(db_name + '.' + table_name +
          """.truncate('RESTART IDENTITY CASCADE')""")
+    eval(db_name + '.commit()')
 
 # para regenerar tablas se puede borrar todo el contenido de la carpeta
 # databases:
@@ -598,7 +606,7 @@ def truncate_all_db(db_name, table_name):
 
 # es importante el orden
 tablas = ['auth_user', 'auth_group', 'marcadas',
-          'auth_membership', 'auth_event',
+          'auth_membership', 'auth_event', 'localidad',
           'listas', 'tipos_cod_cuenta', 'comprobante',
           'tipos_comprobante', 'tipos_caja',
           'tipos_mat_primas', 'empleado', 'marcas', 'bancos',
