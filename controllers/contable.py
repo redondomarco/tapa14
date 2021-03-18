@@ -7,7 +7,7 @@ if False:
     from gluon import SQLFORM
     from gluon import URL, redirect
     from gluon import DIV, FORM, CENTER, TABLE, TR, H4, TAG, BR, INPUT, PRE
-    from gluon import SELECT
+    from gluon import SELECT, HTTP, response
     from gluon.validators import IS_NOT_EMPTY
     from db import db
     from html_helper import opt_tabla
@@ -102,3 +102,20 @@ def mov_caja_sel_fecha():
     else:
         log(f'acceso {request.function}')
     return dict(form=form)
+
+
+@auth.requires_login()
+def descarga_csv():
+    if session.nombre_archivo:
+        log(session.nombre_archivo)
+        response.headers['Content-Type'] = 'text/csv'
+        attachment = 'attachment;filename=' + str(session.nombre_archivo)
+        response.headers['Content-Disposition'] = attachment
+        # content = session.lista_consulta
+        #
+        content = open(str(session.nombre_archivo), "r",
+                       encoding='utf8').read()
+        # log(content)
+        raise HTTP(200, str(content),
+                   **{'Content-Type': 'text/csv',
+                   'Content-Disposition': attachment + ';'})

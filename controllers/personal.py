@@ -7,16 +7,17 @@
 
 # for ide
 if False:
+    import datetime
     from db import db
     from gluon import response, request, auth, cache, redirect, session
     from gluon import CENTER, FORM, DIV, I, A, URL, H4, H5, BR, TAG, INPUT
-    from gluon import TABLE, TR, PRE
+    from gluon import TABLE, TR, PRE, HTTP
     from gluon import SELECT
     from gluon import SQLFORM
     from gluon.validators import IS_NOT_EMPTY
     from log import log
     from html_helper import grand_button, icon_title
-    from empleados import aplico_politica
+    from personal_empleados import actualizo_marcadas, aplico_politica
     from util import list_dict_to_table_sortable
 
 # ---- example index page ----
@@ -39,6 +40,9 @@ def index():
                 grand_button('informe mes empleado',
                              URL('tapa14', 'personal', 'informe_mes_empleado'),
                              'fa-truck'),
+                grand_button('actualizar marcadas',
+                             URL('tapa14', 'personal', 'descarga_marcadas'),
+                             'fa-cloud-download'),
                 _id='mini_grid'),
             _id='indexdiv'),
 
@@ -167,6 +171,7 @@ def informe_mes_empleado():
         nombre_archivo = f'''{session.empleado}
             -{session.fdesde}-{session.fhasta}'''
         session.table = list_dict_to_table_sortable(lista, nombre_archivo)
+        session.horas = sumo_horas(lista)
         redirect(URL('informe'))
     else:
         log(f'acceso {request.function}')
@@ -175,7 +180,29 @@ def informe_mes_empleado():
 
 def informe():
     form = CENTER(H5(session.empleado),
-                  PRE(f'Desde: {fecha_sp(session.tdesde)}'
+                  PRE(f'Desde: {fecha_sp(session.tdesde)} '
                       f'Hasta: {fecha_sp(session.thasta)}'),
+                  PRE(f'Total: {session.horas}'),
                   session.table)
     return dict(form=form)
+
+
+def descarga_marcadas():
+    log(f'acceso {request.function}')
+    session.mensaje = str(actualizo_marcadas())
+    redirect(URL('tapa14', 'default', 'mensajes'))
+
+
+@auth.requires_login()
+def descarga_csv():
+    if session.nombre_archivo:
+        response.headers['Content-Type'] = 'text/csv'
+        attachment = 'attachment;filename='+session.nombre_archivo
+        response.headers['Content-Disposition'] = attachment
+        # content = session.lista_consulta
+        #
+        content = open(dir_files + session.nombre_archivo, "r").read()
+        log(content)
+        raise HTTP(200, str(content),
+                   **{'Content-Type': 'text/csv',
+                      'Content-Disposition': attachment + ';'})

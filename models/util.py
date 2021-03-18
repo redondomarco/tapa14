@@ -7,6 +7,7 @@ import datetime
 import random
 import csv
 import os
+import paramiko
 
 # for ide
 if False:
@@ -42,15 +43,6 @@ def md5sum(filepath):
                 break
             md5.update(data)
 
-
-# def idtemp_generator(
-    # size=50,
-    # chars=(string.ascii_uppercase + string.digits +
-           # string.ascii_lowercase)):
-    # dia = (str(datetime.datetime.now().year) + '-' +
-           # str(datetime.datetime.now().month) + '-' +
-           # str(datetime.datetime.now().day) + '_')
-    # return dia + ''.join(random.choice(chars) for _ in range(size))
 
 def idtemp_generator(size=50, chars=valid_chars1):
     """genero id random con marca de tiempo"""
@@ -134,46 +126,6 @@ def test_list_of_dict_to_csv():
               'lote': ['33'],
               'producto': 'TDC123x18'}]
     return list_of_dict_to_csv('test', lista)
-
-
-# def list_dict_to_table_sortable(lista, nombre_archivo, claves):
-    # '''recibe una lista de diccionarios(clave-valor iguales) y
-     # devuelve una tabla html formato https://bootstrap-table.com/.
-     # claves determina el orden.
-     # https://bootstrap-table.com/ '''
-    # if type(lista) == list:
-        # if type(lista[0]) == dict:
-            # # cabecera tabla
-            # cabecera = ''
-            # for i in claves:
-                # cabecera += f'\
-# <th data-field="{i}" data-sortable="true">{i}</th>'
-            # # contenido tabla
-            # contenido = ''
-            # for i in lista:
-                # columna = ''
-                # for j in claves:
-                    # columna += f'<td>{i[j]}</td>'
-                # contenido += f'<tr> {columna} </tr>'
-            # tabla = f'\
-# <table data-toggle="table" data-search="true" data-show-columns="true"\
-# data-show-fullscreen="true" data-locale="es-AR"\
-# data-classes = "table table-bordered table-hover table-sm"\
-# > <thead> <tr> {cabecera} </tr> </thead> <tbody> {contenido} </tbody> </table>'
-            # # cantidad registros
-            # cantidad = len(lista)
-            # leyenda_cantidad = MARKMIN(
-                # f'Cantidad de registros: {str(cantidad)}')
-            # if nombre_archivo == 'mov_caja':
-                # directorio = f'{files_dir}mov_caja/'
-            # else:
-                # directorio = files_dir
-            # session.nombre_archivo = list_of_dict_to_csv(
-                # nombre_archivo, lista, dir=directorio)[1]
-            # boton_csv = A('Descarga tabla como CSV...',
-                          # _href=URL('tapa14', 'default', 'descarga_csv'),
-                          # _class='btn btn-default')
-            # return DIV(XML(tabla), leyenda_cantidad, boton_csv)
 
 
 def list_dict_to_table_sortable(lista, nombre_archivo, **kwargs):
@@ -281,3 +233,33 @@ def time_sp(datetime):
 
 def s_horario(horario):
     return f'{time_sp(horario[0])} a {time_sp(horario[1])}'
+
+
+def cred(server):
+    if server == 'pegasus':
+        return {
+            'host': configuration.get('datos.ssh_host'),
+            'user': configuration.get('datos.ssh_user'),
+            'pass': configuration.get('datos.ssh_pass')
+        }
+
+
+def ssh_command(server, command):
+    "ejecuta command en server y devuelve {'stdout':stdout, 'stderr':stderr}"
+    hostname = cred(server)['host']
+    username = cred(server)['user']
+    password = cred(server)['pass']
+    port = 22
+    try:
+        client = paramiko.SSHClient()
+        client.load_system_host_keys()
+        client.set_missing_host_key_policy(paramiko.WarningPolicy())
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        # client.set_missing_host_key_policy(paramiko.WarningPolicy)
+        client.connect(hostname, port=port,
+                       username=username, password=password)
+
+        stdin, stdout, stderr = client.exec_command(command)
+        return {'stdout': stdout.read(), 'stderr': stderr.read()}
+    finally:
+        client.close()

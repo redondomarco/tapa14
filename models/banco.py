@@ -36,6 +36,8 @@ def operaciones_ids():
 def insert_xls_coinag(archivo):
     registros = proceso_xls_coinag(archivo).to_dict(orient='index')
     idoperaciones = operaciones_ids()
+    duplicadas = []
+    insertado = 0
     for row in registros:
         f_leida = registros[row]['Fecha / Hora Mov.']
         fecha = datetime.datetime.strptime(f_leida, '%d/%m/%Y')
@@ -52,18 +54,23 @@ def insert_xls_coinag(archivo):
             operacion = 61
         # tipo caja 3 coinag
         tipocaja = 3
+        registro = {
+            'fecha': fecha,
+            'monto': abs(float(importe)),
+            'observacion': concepto,
+            'tipo': tipocaja,
+            'operacion': operacion,
+            'modified_by': 1,
+            'operacionid': id_registro}
         if id_registro not in idoperaciones:
-            registro = {
-                'fecha': fecha,
-                'monto': float(importe),
-                'observacion': concepto,
-                'tipo': tipocaja,
-                'operacion': operacion,
-                'modified_by': 1,
-                'operacionid': id_registro}
             db['caja'].insert(**registro)
+            insertado += 1
+        else:
+            log(f'duplicado {registro}')
+            duplicadas.append(registro)
     db.commit()
-    return registros
+    return [f'{insertado} registros insertados',
+            duplicadas]
 
 
 def test_insert_xls_coinag():

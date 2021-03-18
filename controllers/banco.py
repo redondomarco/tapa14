@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pandas as pd
+import json2html
 # for ide
 if False:
     import shutil
@@ -11,6 +12,7 @@ if False:
     from util import hoy_string
     from html_helper import grand_button
     from log import log
+    from banco import insert_xls_coinag, proceso_xls_coinag
     from gluon import auth
     from gluon import request, session
     from gluon import URL, redirect
@@ -93,9 +95,22 @@ def visualizacion_xls_coinag():
                               _value='Procesar',
                               _id='button14')))
     if paso2.accepts(request, session):
-        
-        redirect(URL('visualizacion_xls_coinag'))
+        resultado = []
+        for archivo in session.paso1:
+            insertados, duplicados = insert_xls_coinag(archivo)
+            bloque = [H4('Informe'),
+                      PRE('archivo' + archivo),
+                      H4(insertados),
+                      H4('Registros duplicados'),
+                      XML(json2html.json2html.convert(duplicados))]
+            resultado.extend(bloque)
+        session.resultado = resultado
+        redirect(URL('resultado_xls_coinag'))
     return dict(form=paso2)
+
+
+def resultado_xls_coinag():
+    return dict(form=FORM(session.resultado))
 
 
 def xls_coinag_1():

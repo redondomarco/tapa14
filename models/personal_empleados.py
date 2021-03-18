@@ -7,8 +7,9 @@ if False:
     from gluon import Field, auth
     from gluon.validators import IS_IN_SET
     from db import db
+    from log import log
     from personal_fuente_datos import marcadas_tunel_latix
-    from util import datetime_sp
+    from util import datetime_sp, ssh_command
 
 dias_semana = ['Lunes', 'Martes', 'Miercoles', 'Jueves',
                'Viernes', 'Sabado']
@@ -49,21 +50,35 @@ def huella(id_reg, user_code, datetime, bkp_type, type_code):
 
 # actualizo marcadas
 def actualizo_marcadas():
-    marcadas = marcadas_tunel_latix()
-    for registro in marcadas:
-        huellagen = huella(registro[0], registro[1], registro[2],
-                           registro[3], registro[4])
-        marcada = {'id_reg': registro[0],
-                   'user_code': registro[1],
-                   'datetime': registro[2],
-                   'bkp_type': registro[3],
-                   'type_code': registro[4],
-                   'huella': huellagen}
-        if db(db.marcadas.huella == huellagen).select().first():
-            pass
-        else:
-            db['marcadas'].insert(**marcada)
-    db.commit()
+    try:
+        log('activo reloj con ping')
+        ssh_command('pegasus',
+                    'ping -c 4 192.168.0.45')
+        log('descargo todas las marcadas en pegasus')
+        ssh_command('pegasus',
+                    'cd /root/anviz/anviz-sync && anviz-sync --all')
+        log('descarga finalizada')
+        marcadas = marcadas_tunel_latix()
+        if marcadas[0] == 'ok':
+            for registro in marcadas[1]:
+                huellagen = huella(registro[0], registro[1], registro[2],
+                                   registro[3], registro[4])
+                marcada = {'id_reg': registro[0],
+                           'user_code': registro[1],
+                           'datetime': registro[2],
+                           'bkp_type': registro[3],
+                           'type_code': registro[4],
+                           'huella': huellagen}
+                if db(db.marcadas.huella == huellagen).select().first():
+                    pass
+                else:
+                    db['marcadas'].insert(**marcada)
+            db.commit()
+            mensaje = ['ok', 'proceso exitoso']
+    except Exception as e:
+        mensaje = ['error', str(e)]
+    log(mensaje)
+    return mensaje
 
 
 def test_planilla():
@@ -81,7 +96,9 @@ def test_planilla():
 
 def marcadas_usuario_fechas(user_code, fdesde, fhasta):
     tdesde = datetime.datetime.strptime(fdesde, '%Y-%m-%d')
-    thasta = datetime.datetime.strptime(fhasta, '%Y-%m-%d')
+    # fhasta es hasta las 23:59 del dia
+    thasta = (datetime.datetime.strptime(fhasta, '%Y-%m-%d') +
+              datetime.timedelta(seconds=86340))
     marcadas = db((db.marcadas.datetime >= tdesde) &
                   (db.marcadas.datetime <= thasta) &
                   (db.marcadas.user_code == user_code)).select()
@@ -89,9 +106,9 @@ def marcadas_usuario_fechas(user_code, fdesde, fhasta):
 
 
 def test_marcadas_usuario_fechas():
-    user_code = 1001
-    fdesde = '2020-08-1'
-    fhasta = '2020-08-31'
+    user_code = 1018
+    fdesde = '2021-02-22'
+    fhasta = '2021-02-23'
     return marcadas_usuario_fechas(user_code, fdesde, fhasta)
 
 
@@ -136,10 +153,28 @@ def aplico_politica(user_code, fdesde, fhasta):
         # days = td.days
         hours, remainder = divmod(td.seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
+        minutos = str(minutes).zfill(2)
         tabla.append({'dia': dia,
                       'horario': show_horario,
-                      'horas': f'{hours}:{minutes:02}'})
+                      'horas': f'{hours}:{minutos}'})
     return tabla
+
+
+def sumo_horas(tabla):
+    suma = datetime.timedelta(seconds=0)
+    for fila in tabla:
+        log(f'valor fila: {fila}')
+        tiempo = fila['horas'].split(':')
+        log(tiempo)
+        suma = suma + datetime.timedelta(
+            hours=int(tiempo[0]),
+            minutes=int(tiempo[1]))
+    secs = suma.total_seconds()
+    hours = int(secs / 3600)
+    secs = secs - (hours * 3600)
+    minutes = int(secs / 60)
+    log(f'calculo suma: {hours} horas {minutes} minutos')
+    return (f'{hours} horas y {minutes} minutos')
 
 
 def test_aplico_politica():
