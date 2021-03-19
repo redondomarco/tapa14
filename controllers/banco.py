@@ -95,11 +95,10 @@ def visualizacion_xls_coinag():
                               _value='Procesar',
                               _id='button14')))
     if paso2.accepts(request, session):
-        resultado = []
+        resultado = [H4('Informe')]
         for archivo in session.paso1:
             insertados, duplicados = insert_xls_coinag(archivo)
-            bloque = [H4('Informe'),
-                      PRE('archivo' + archivo),
+            bloque = [PRE('archivo' + archivo),
                       H4(insertados),
                       H4('Registros duplicados'),
                       XML(json2html.json2html.convert(duplicados))]
