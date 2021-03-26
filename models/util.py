@@ -240,7 +240,8 @@ def cred(server):
         return {
             'host': configuration.get('datos.ssh_host'),
             'user': configuration.get('datos.ssh_user'),
-            'pass': configuration.get('datos.ssh_pass')
+            'pass': configuration.get('datos.ssh_pass'),
+            'port': configuration.get('datos.ssh_port')
         }
 
 
@@ -249,7 +250,7 @@ def ssh_command(server, command):
     hostname = cred(server)['host']
     username = cred(server)['user']
     password = cred(server)['pass']
-    port = 22
+    port = cred(server)['port']
     try:
         client = paramiko.SSHClient()
         client.load_system_host_keys()
