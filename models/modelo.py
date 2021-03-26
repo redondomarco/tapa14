@@ -113,7 +113,7 @@ db.define_table(
 db.define_table(
     'tipos_cuenta',
     Field('nombre', unique=True, length=30),
-    Field('codigo', 'reference tipos_cod_cuenta'),
+    Field('codigo', unique=True, length=30),
     Field('tipo'),
     auth.signature,
     format='%(nombre)s',
