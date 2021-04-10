@@ -17,7 +17,7 @@ if False:
     # from util import *
 
 
-tipo_producto = ['propio', 'terceros', 'tercerosLM']
+tipo_producto = ['propio', 'terceros', 'tercerosLM', 'tercerosVD']
 tipo_iva = ['RI', 'monotributo', 'consumidor final', 'nc']
 tipo_cta = ['contado', 'cta cte']
 iva_percent = [21]
@@ -113,7 +113,7 @@ db.define_table(
 db.define_table(
     'tipos_cuenta',
     Field('nombre', unique=True, length=30),
-    Field('codigo', unique=True, length=30),
+    Field('codigo', length=30),
     Field('tipo'),
     auth.signature,
     format='%(nombre)s',
@@ -250,7 +250,7 @@ db.define_table('caja',
                 Field('nro_cbte'),
                 Field('observacion'),
                 Field('operacionid'),
-                Field('monto', 'double'),
+                Field('monto', 'double', notnull=True),
                 auth.signature)
 db.caja._after_insert.append(
     lambda f, i: log('insert ' + str(f) + ' ' + str(i)))

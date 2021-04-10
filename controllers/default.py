@@ -13,7 +13,7 @@ if False:
     from html_helper import grand_button, opt_tabla
     from funciones import ultimo_comprobante, datos_cliente, datos_productos
     from funciones import get_producto, incremento_comprobante, add_stock
-    from funciones import add_reserva, arbol_pedidos
+    from funciones import add_reserva, arbol_pedidos, get_listas
     from modelo import fecha_vto
     from log import log
     from util import files_dir
@@ -465,6 +465,7 @@ def pedido():
     # creo tabla con productos habilitados para el cliente
     idsform = []
     precios = []
+    listaflags = []
     d_cliente = datos_cliente(session.cliente)
     d_productos = datos_productos()
 
@@ -503,10 +504,15 @@ def pedido():
         codigo = d_productos[item]['codigo']
         detalle = d_productos[item]['detalle']
         nombre_corto = d_productos[item]['nombre_corto']
-        v_producto = round(d_productos[item]['valor'] *
-                           d_productos[item]['lista_valor'] *
-                           d_cliente['lista_valor'] *
-                           (1 + int(d_cliente['iva_percent']) / 100), 3)
+        iva_mult = (1 + int(d_cliente['iva_percent']) / 100)
+        if d_productos[item]['nombre_lista'] == 'lista':
+            v_producto = round(d_productos[item]['valor'], 2)
+            listaflags.append(1)
+        else:
+            v_producto = round(round(d_productos[item]['valor'] *
+                                     d_cliente['lista_valor'], 2) *
+                               iva_mult, 2)
+            listaflags.append(0)
         session.productos.append([codigo, detalle, v_producto])
         idcant = 'c' + codigo
         idvalor = 'v' + codigo
@@ -647,9 +653,10 @@ def pedido():
         log('acceso')
     # log(str(idsform))
     return dict(form=form, ids_json=json.dumps(idsform),
-                listas_json=json.dumps(listasp()),
+                listas_json=json.dumps(get_listas()),
                 iva_percent=int(d_cliente['iva_percent']),
-                precios_json=json.dumps(precios))
+                precios_json=json.dumps(precios),
+                listaflags_json=json.dumps(listaflags))
 
 
 @auth.requires_membership('vendedor')

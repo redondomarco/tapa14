@@ -261,6 +261,8 @@ def ssh_command(server, command):
                        username=username, password=password)
 
         stdin, stdout, stderr = client.exec_command(command)
-        return {'stdout': stdout.read(), 'stderr': stderr.read()}
+        salida = {'stdout': stdout.read(), 'stderr': stderr.read()}
+        client.close()
+        return salida
     finally:
         client.close()

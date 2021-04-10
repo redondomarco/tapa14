@@ -169,9 +169,10 @@ def obtengo_cliente(clienteid):
 
 # funciones pedido
 
-def listasp():
-    '''devuelvo listas de precios'''
-    return db(db.listas).select(db.listas.ALL).as_dict()
+def get_listas():
+    '''devuelvo listas de precios activas'''
+    return db(db.listas.is_active is True).select(
+        db.listas.id, db.listas.lista, db.listas.valor).as_dict()
 
 
 def ultimo_comprobante(tipo):
@@ -199,9 +200,12 @@ def datos_cliente(cliente):
 
 def datos_productos():
     datos = db(db.producto).select().as_dict()
+    listas = get_listas()
     for i in datos:
-        s_lista = (db.listas.id == datos[i]['lista'])
+        id_lista = datos[i]['lista']
+        s_lista = (db.listas.id == id_lista)
         datos[i]['lista_valor'] = db(s_lista).select().first()['valor']
+        datos[i]['nombre_lista'] = listas[id_lista]['lista']
     return datos
 
 

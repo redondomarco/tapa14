@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import psycopg2
+import time
 from sshtunnel import SSHTunnelForwarder
 
 # for ide
@@ -42,6 +43,10 @@ def marcadas_tunel_latix():
         conn.close()
         # Stop the tunnel
         tunnel.stop()
+        if tunnel.is_alive:
+            time.sleep(1)
+            log('reintentando cerrar tunnel')
+            tunnel.close()
         log(f'actualizo marcadas: ok')
         mensaje = ['ok', result]
     except Exception as e:
