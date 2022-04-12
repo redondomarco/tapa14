@@ -12,14 +12,20 @@ WORKDIR $WEB2PY_ROOT
 ENV DEBIAN_FRONTEND=noninteractive
 
 # dependencias so
-RUN apt-get update && apt-get install -y \
-ssh vim curl wget git \
-tar zip unzip \
-bash-completion telnet net-tools dnsutils \
-htop lnav procps bwm-ng \
-swig libssl-dev pkg-config \
-build-essential libpoppler-cpp-dev \
-libpq-dev 2to3 postgresql-server-dev-all \
+
+RUN apt-get update
+
+RUN apt-get install -y git unzip
+
+RUN apt-get install -y bash-completion telnet net-tools
+
+RUN apt-get install -y dnsutils ssh vim curl wget tar zip
+
+RUN apt-get install -y htop lnav procps bwm-ng swig libssl-dev pkg-config
+
+RUN apt-get install -y build-essential libpoppler-cpp-dev
+
+RUN apt-get install -y libpq-dev 2to3 postgresql-server-dev-all \
 python3-dev python3-pip ipython3 python3-paramiko \
 python3-psycopg2
 

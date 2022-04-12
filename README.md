@@ -1,6 +1,13 @@
 ##Instalacion
-1- configurar .env (TODO traer ejemplo)
-2- crear certificados locales
+#### configurar .env (TODO traer ejemplo)
+```
+cp conf/env.ejemplo .env
+```
+####
+```
+cp conf/appconfig.ini.ejemplo keys/appconfig.ini
+```
+#### Crear certificados locales
 ```
 make genero-certs 
 ```
