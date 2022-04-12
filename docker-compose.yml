@@ -1,0 +1,44 @@
+version: '3'
+services:
+    web2py:
+        container_name: tapa14
+        image: w2p-docker:0.1
+        environment:
+            - WEB2PY_PASSWORD=$WEB2PY_PASSWORD
+            - WEB2PY_VERSION=$WEB2PY_VERSION
+        ports:
+            - 8080:$PORT_NGINX
+        volumes:
+            - ./src:/web2py/applications/$WEB2PY_APPNAME
+            - ./keys:/web2py/applications/$WEB2PY_APPNAME/private
+            - ./logs/databases:/web2py/applications/$WEB2PY_APPNAME/databases
+            - ./logs/errors:/web2py/applications/$WEB2PY_APPNAME/errors
+            - ./logs/web2py:/web2py/logs
+            - ./data/home:/home/web2py
+            - ./conf/routes.py:/web2py/routes.py
+            - ./conf/logging.conf:/web2py/logging.conf
+            - /etc/localtime:/etc/localtime:ro
+            - $SSL_CERT:/certs/web2py.crt
+            - $SSL_KEY:/certs/web2py.key
+        depends_on:
+            - db
+
+    redis:
+        image: "redis:alpine"
+        ports:
+            - 6379:6379
+
+    db:
+        container_name: db
+        image: postgres
+        restart: always
+        ports:
+            - ${HOST_PORT}:5432
+        volumes:
+            - ./data/postgres:${PGDATA}
+            - ${HOST_DB_INIT_SCRIPTS}:/docker-entrypoint-initdb.d:ro
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+            PGDATA: ${PGDATA}

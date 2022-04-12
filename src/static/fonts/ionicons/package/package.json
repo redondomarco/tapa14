@@ -1,0 +1,63 @@
+{
+  "name": "ionicons",
+  "version": "4.0.0-6",
+  "description": "Premium icons for Ionic.",
+  "files": [
+    "dist/"
+  ],
+  "browser": "dist/ionicons.js",
+  "main": "dist/collection/index.js",
+  "types": "dist/collection/index.d.ts",
+  "collection": "dist/collection/collection-manifest.json",
+  "scripts": {
+    "build": "npm run build.icon && python scripts/generate.py && npm run svg-to-js && npm run png",
+    "build.icon": "stencil build",
+    "build.docs": "stencil build --prerender --config src/docs/stencil.config.js",
+    "dev.docs": "sd concurrent \"stencil build --dev --config src/docs/stencil.config.js --watch\" \"httpster -d docs/\" ",
+    "svg-to-js": "node scripts/svg-to-js.js",
+    "png": "node scripts/png.js",
+    "deploy": "np --any-branch",
+    "prepublishOnly": "npm run build",
+    "serve": "stencil-dev-server",
+    "start": "npm run dev"
+  },
+  "devDependencies": {
+    "@ionic/jpml": "0.0.4",
+    "@stencil/core": "next",
+    "@stencil/utils": "latest",
+    "fs-extra": "^4.0.2",
+    "httpster": "^1.0.3",
+    "np": "2.16.0",
+    "svg2png": "^4.1.1"
+  },
+  "keywords": [
+    "ionicons",
+    "ionic",
+    "icon",
+    "svg",
+    "font",
+    "mobile",
+    "web component",
+    "component",
+    "custom element"
+  ],
+  "homepage": "http://ionicons.com/",
+  "author": {
+    "name": "Ben Sperry",
+    "web": "https://twitter.com/bensperry"
+  },
+  "contributors": [
+    {
+      "name": "Adam Bradley",
+      "web": "http://twitter.com/adamdbradley"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/driftyco/ionicons.git"
+  },
+  "bugs": {
+    "url": "https://github.com/driftyco/ionicons/issues"
+  },
+  "license": "MIT"
+}
