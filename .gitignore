@@ -1,15 +1,18 @@
 #web2py
-cache/*
-private/*
-uploads/*
-databases/*
-sessions/*
-errors/*
-files*
-logs/*
+.env
+#old/
+logs/
+keys/
+data/
+src/cache/*
+src/private/*
+src/uploads/*
+src/databases/*
+src/sessions/*
+src/errors/*
+src/files*
+src/logs/*
 .pythonhistory
-.hg/
-.hgignore
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

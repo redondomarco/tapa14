@@ -1,7 +1,7 @@
 ; App configuration
 [app]
 name        = tapa14
-author      = Marco Redondod <redondomarco[_at_]gmail.com>
+author      = Marco Redondo <redondomarco[_at_]gmail.com>
 description = a cool new app
 keywords    = web2py, python, framework
 generator   = Web2py Web Framework
@@ -14,15 +14,16 @@ names = localhost:*, 127.0.0.1:*, *:*, *
 
 ; db configuration
 [db]
-uri       = sqlite://storage.sqlite
-migrate   = True
+;uri       = sqlite://storage.sqlite
+uri       = postgres://utapa:passtapa@db:5432/tapadb
+migrate   = true
 pool_size = 10  
 
 ; smtp address and credentials
 [smtp]
-server = smtp.gmail.com:587
-sender = A@B.com
-login  = A@B.com:PASS
+server = ****************
+sender = ****************
+login  = ****************
 tls    = true
 ssl    = true
 
@@ -32,3 +33,12 @@ heartbeat = 1
 
 [google]
 analytics_id =
+
+[datos]
+ssh_host = ****
+ssh_port = ****
+ssh_user = ****
+ssh_pass = ****
+db_name = ****
+db_user = ****
+db_pass = ****
