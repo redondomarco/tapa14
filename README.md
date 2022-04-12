@@ -1,10 +1,14 @@
-##Instalacion
-1- configurar .env (TODO traer ejemplo)
-2- crear certificados locales
+## Instalacion
+
+### Copiar y configurar .env
+```
+cp conf/env.ejemplo .env
+```
+### Crear certificados locales
 ```
 make genero-certs 
 ```
-3- creo/instalo imagenes
+### Creo/instalo imagenes
 ```
 make install
 ```
