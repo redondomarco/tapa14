@@ -36,13 +36,11 @@ workspace:
         else git clone --recursive https://github.com/web2py/web2py.git web2py && cd web2py && git checkout $(WEB2PY_VERSION); \
         fi
 	virtualenv --python=python3 .venv
-make-init-files:
-	mkdir -p keys data logs
-	touch .env
-install:        make-init-files genero-certs build-w2p set-perms
+
+install:        build-w2p set-perms
 
 genero-certs:
 	openssl genrsa -passout pass:$CERT_PASS 2048 > web2py.key && \
-        openssl req -new -x509 -nodes -sha1 -days 1780 -subj "/C=AR/ST=Santa Fe/L=Rosario/O=MR/CN=$CERT_DOMAIN" -key web2py.key > web2py.crt && \
+        openssl req -new -x509 -nodes -sha1 -days 1780 -subj "/C=AR/ST=Santa Fe/L=Rosario/O=latix.com.ar/CN=$CERT_DOMAIN" -key web2py.key > web2py.crt && \
         openssl x509 -noout -fingerprint -text < web2py.crt > web2py.inf
 	mv web2py.key web2py.crt web2py.inf ./keys/
