@@ -4,6 +4,7 @@
 logs/
 keys/
 data/
+files/
 src/cache/*
 src/private/*
 src/uploads/*
