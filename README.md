@@ -21,3 +21,9 @@ make genero-certs
 ```
 make install
 ```
+
+clonar repo de datos
+
+```
+git clone https://github.com/redondomarco/***data*** data/files
+```

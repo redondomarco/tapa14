@@ -15,6 +15,7 @@ services:
             - ./logs/errors:/web2py/applications/$WEB2PY_APPNAME/errors
             - ./logs/web2py:/web2py/logs
             - ./data/home:/home/web2py
+            - ./data/files:/web2py/applications/$WEB2PY_APPNAME/files
             - ./conf/routes.py:/web2py/routes.py
             - ./conf/logging.conf:/web2py/logging.conf
             - /etc/localtime:/etc/localtime:ro
