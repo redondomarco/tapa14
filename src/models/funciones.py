@@ -5,7 +5,7 @@
 """
 
 # for ide
-if False:
+if 1 == 2:
     from db import db
     from log import log
     from util import tree

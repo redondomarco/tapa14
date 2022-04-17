@@ -40,11 +40,13 @@ RUN mkdir /certs
 
 WORKDIR /certs
 RUN openssl genrsa -passout pass:$CERT_PASS 2048 > web2py.key && \
-    openssl req -new -x509 -nodes -sha1 -days 1780 -subj "/C=AR/ST=Santa Fe/L=Rosario/O=MR/CN=$CERT_DOMAIN" -key web2py.key > web2py.crt && \
+    openssl req -new -x509 -nodes -sha1 -days 1780 -subj "/C=AR/ST=Santa Fe/L=Rosario/O=MR/CN="$CERT_DOMAIN -key web2py.key > web2py.crt && \
     openssl x509 -noout -fingerprint -text < web2py.crt > web2py.inf
 WORKDIR $WEB2PY_ROOT
 
-RUN pip3 install uwsgi redis unihandecode cryptocode pydal yatl tornado fpdf pdftotext gitpython pyexcel_ods3 psycopg2 sshtunnel sqlalchemy pep8 mypy pylint-web2py babel pandas xlrd paramiko json2html
+COPY requirements.txt .
+
+RUN pip install -r requirements.txt
 
 #permisos
 RUN cp $WEB2PY_ROOT/handlers/wsgihandler.py $WEB2PY_ROOT \

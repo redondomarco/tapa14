@@ -10,7 +10,7 @@ import os
 import paramiko
 
 # for ide
-if False:
+if 1 == 2:
     import subprocess
     from gluon import TABLE, TR, TD, MARKMIN, A, URL, DIV, XML
     from gluon import session

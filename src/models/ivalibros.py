@@ -2,17 +2,14 @@
 #
 import hashlib
 # for ide
-if False:
-    from gluon import *
-    request = current.request
-    response = current.response
-    session = current.session
-    cache = current.cache
-    T = current.T
-    from db import *
-    from util import *
-    # from util_afip import *  # funciones de pyafipws
-    # from info_afip import *  # datos de pyafipws
+if 1 == 2:
+    from gluon import Field
+    from db import db, configuration
+    import datetime
+    from log import log
+    from info_afip import TIPOS_REGISTROS
+    from util_afip import leer
+    from util import todos_los_archivos, files_dir
 
 
 # "Fecha","Tipo","Punto de Venta","Número Desde","Número Hasta",
@@ -48,7 +45,7 @@ def detalle_id(lista, cyd):
 
 
 def test_detalle_id():
-    a = id_detalle([0, 1, 2], 'detalle')
+    a = detalle_id([0, 1, 2], 'detalle')
     if a == '0000000100000000000000000002f019564bfcfa0a562d25341e83ca087b':
         return True
 

@@ -6,13 +6,10 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 # for ide
-if False:
-    from gluon import *
-    request = current.request
-    response = current.response
-    session = current.session
-    cache = current.cache
-    T = current.T
+if 1 == 2:
+    from gluon import response, request, auth
+    from gluon import T, URL, I
+    from db import db
 
 response.menu = [
     (T('Home'), False, URL('default', 'index'), [])

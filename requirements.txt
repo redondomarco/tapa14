@@ -1,8 +1,11 @@
+uwsgi
+redis
+unihandecode
+cryptocode
 pydal
 yatl
 tornado
 fpdf
-sets
 pdftotext
 gitpython
 pyexcel_ods3
@@ -17,3 +20,4 @@ pandas
 xlrd
 paramiko
 json2html
+virtualenv

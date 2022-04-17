@@ -8,7 +8,7 @@ from pyexcel_ods3 import get_data
 
 
 # for ide
-if False:
+if 1 == 2:
     # from gluon import
     from db import log, db
     from util import files_dir

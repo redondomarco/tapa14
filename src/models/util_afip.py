@@ -2,14 +2,10 @@
 from decimal import Decimal
 
 # for ide
-if False:
-    from gluon import *
-    request = current.request
-    response = current.response
-    session = current.session
-    cache = current.cache
-    T = current.T
-    from info_afip import *
+if 1 == 2:
+    from log import log
+    import datetime
+    from info_afip import tipodato
 
 
 # de utils.py https://github.com/reingart/pyafipws

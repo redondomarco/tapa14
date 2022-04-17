@@ -3,11 +3,12 @@
 import pdftotext
 import os
 import shutil
-# from os import walk
 
 # for ide
-if False:
-    from util import *
+if 1 == 2:
+    from db import configuration
+    from log import log
+    from util import md5sum, list_of_dict_to_csv
 
 
 def analizo_fa(path_factura, **kwargs):
@@ -337,12 +338,12 @@ def tostring(argumento):
         for i in argumento:
             str_result = str_result + i.encode('utf8') + ' '
         return str_result[0:-1]
-    elif type(argumento) == unicode:
+    elif isinstance(argumento, unicode):
         return argumento.encode('utf8')
 
 
 def test_leo():
-    dir, subdirs, archivos = next(walk('applications/dev/files/facturas/'))
+    dir, subdirs, archivos = next(os.walk('applications/dev/files/facturas/'))
     resultado = []
     for factura in archivos:
         # log('analizo: '+dir+factura)
@@ -382,7 +383,7 @@ def proceso_fa():
     #  * intento mover a la biblioteca (creo carpetas)
     # si se agregaron archivos genero csv del contenido del directorio
     dir_origen = '/facturas/'
-    dir, subdirs, archivos = next(walk(base_dir + dir_origen))
+    dir, subdirs, archivos = next(os.walk(base_dir + dir_origen))
     resultado = []
     for factura in archivos:
         # log('analizo: '+dir+factura)
@@ -407,7 +408,7 @@ def proceso_fa():
             pass
         # intento abrir csv si existe
         try:
-            lista = open(directorio + '/archivos.csv', 'r').read().split()
+            lista = open(base_dir + '/archivos.csv', 'r').read().split()
         except Exception:
             lista = []
         if i['md5'] in str(lista):
@@ -425,7 +426,7 @@ def proceso_fa():
 
 
 def genero_csv_dir(dir):
-    dir, subdirs, archivos = next(walk(dir))
+    dir, subdirs, archivos = next(os.walk(dir))
     resultado = []
     # proceso solo pdfs
     for i in archivos:

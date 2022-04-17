@@ -1,0 +1,12 @@
+{
+    "python.autoComplete.extraPaths": [
+        "./src/models",
+        "./data/home/web2py/",
+        "./data/home/tapa14env/lib/python3.9/site-packages/"
+    ],
+    "python.analysis.extraPaths": [
+        "./src/models/",
+        "./data/home/web2py/",
+        "./data/home/tapa14env/lib/python3.9/site-packages/"
+    ]
+}

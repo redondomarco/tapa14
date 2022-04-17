@@ -4,7 +4,7 @@ import os
 from fpdf import FPDF
 
 # for ide
-if False:
+if 1 == 2:
     import datetime
     from db import log, configuration
 

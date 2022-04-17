@@ -3,9 +3,8 @@
 import logging
 
 # for ide
-if False:
-    from gluon import request
-    from gluon import auth
+if 1 == 2:
+    from gluon import request, auth
 
 # logs
 logger = logging.getLogger("w2p.tapa14")

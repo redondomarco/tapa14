@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 # for ide
-if False:
+if 1 == 2:
     import datetime
     from log import log
     from cajas import id_cajas

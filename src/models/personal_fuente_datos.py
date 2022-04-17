@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 
+import imp
 import psycopg2
 import time
 from sshtunnel import SSHTunnelForwarder
 
 # for ide
-if False:
+if 1 == 2:
     from db import configuration
     from log import log
+    from info_afip import tipodato
 
 
 # For interactive work (on ipython) it's easier to work with explicit objects

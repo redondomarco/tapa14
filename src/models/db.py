@@ -8,7 +8,7 @@ from gluon.contrib.appconfig import AppConfig
 from gluon.tools import Auth
 
 # for ide
-if False:
+if 1 == 2:
     from gluon import request, response, session, HTTP, T
     from gluon import DAL, URL, A, IMG
 

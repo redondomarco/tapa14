@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # for ide
-if False:
+if 1 == 2:
     from gluon import I, DIV, SPAN, BR, A
     from gluon import TABLE
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-if False:
+if 1 == 2:
     import hashlib
     from db import db
     from log import log

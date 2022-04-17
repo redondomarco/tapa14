@@ -3,16 +3,10 @@ import os
 from fpdf import FPDF
 
 # for ide
-if False:
-    from gluon import *
+if 1 == 2:
     from funciones import obtengo_cliente, obtengo_pedido
-    request = current.request
-    response = current.response
-    session = current.session
-    cache = current.cache
-    T = current.T
-    from db import *
-    from util import *
+    from log import log
+    from util import files_dir
 
 
 def busca_nv(pedidonum):

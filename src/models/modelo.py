@@ -7,13 +7,13 @@ import datetime
 from collections import OrderedDict
 
 # for ide
-if False:
+if 1 == 2:
     from gluon import Field, T, request
     from gluon.validators import IS_IN_SET
     from db import auth, db
     from log import log
     from util import files_dir, csv_to_list_of_dict
-    from util import os, csv
+    from util import os, csv, idtemp_generator
     # from util import *
 
 
@@ -140,7 +140,7 @@ db.define_table(
     Field('geomap', length=600),
     Field('link', length=400),
     Field('provincia', length=255),
-    Field('localidad', 'reference localidad', default=1, notnull=True),
+    Field('localidad', 'reference localidad', default=1),
     Field('telefono'),
     auth.signature,
     format='%(nombre)s'

@@ -3,13 +3,13 @@
 import datetime
 from collections import defaultdict
 # for ide
-if False:
+if 1 == 2:
     from gluon import Field, auth
     from gluon.validators import IS_IN_SET
     from db import db
     from log import log
     from personal_fuente_datos import marcadas_tunel_latix
-    from util import datetime_sp, ssh_command
+    from util import datetime_sp, ssh_command, s_horario
 
 dias_semana = ['Lunes', 'Martes', 'Miercoles', 'Jueves',
                'Viernes', 'Sabado']
