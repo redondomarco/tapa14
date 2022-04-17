@@ -3,20 +3,35 @@
 # This is a sample controller
 # this file is released under public domain and you can use without limitations
 # -------------------------------------------------------------------------
+import imp
 import subprocess
 import shutil
 import json
 from gluon.tools import Expose
 # for ide
-if False:
-    from gluon import *
-    from html_helper import grand_button, opt_tabla
+if 1 == 2:
+    import datetime
+    import os
+    from gluon import auth
+    from gluon import redirect, request, response, session
+    from gluon import URL, FORM, CENTER, DIV, I, TAG, A, BR, IFRAME
+    from gluon import INPUT, SQLFORM, SELECT, H1, H3, H4, H5, H6, HTTP
+    from gluon import TABLE, TH, TR, TD, THEAD, TFOOT
+    from gluon.validators import IS_NOT_EMPTY, IS_LENGTH
+    from db import db, configuration
+    from html_helper import grand_button, opt_tabla, select_search
     from funciones import ultimo_comprobante, datos_cliente, datos_productos
     from funciones import get_producto, incremento_comprobante, add_stock
     from funciones import add_reserva, arbol_pedidos, get_listas
     from modelo import fecha_vto
+    from funciones import blank_data, restore_backup, agrego_pedido_hdr
+    from despacho import proceso_detalle_despacho
     from log import log
-    from util import files_dir
+    from util import files_dir, hoy_string, idtemp_generator, dict_to_table
+    from util import list_dict_to_table_sortable
+    from notadeventa import busca_nv, genera_nv, obtengo_pedido
+    from notadeventa import test_genera_nv
+    from ivalibros import subo_cbtes
 
 
 @auth.requires_login()
@@ -290,12 +305,12 @@ def ingreso_produccion():
             if request.vars['ingresofecha'] != '':
                 log(request.vars['ingresofecha'])
                 ingresofecha = datetime.datetime.strptime(request.vars['ingresofecha'].replace('/', '-') + ' 12:00:00', '%d-%m-%Y %H:%M:%S')
-                debug(type(ingresofecha))
+                #log(type(ingresofecha))
             else:
                 ingresofecha = ''
             ingresolote = request.vars['ingresolote']
             fechavto = fecha_vto(ingresolote)
-            debug(type(fecha_vto(ingresolote)))
+            #log(type(fecha_vto(ingresolote)))
             cantidad = request.vars[cant]
             if cantidad == '' or cantidad is None:
                 cantidad = int(0)
@@ -437,8 +452,8 @@ def ventaold():
     return dict(form_venta=form_venta, ids_json=json(session.idsform),
                 clientes_json=json(clientes), listas_json=json(listas))
 
-
-def selec_cliente_pedido():
+@auth.requires_login()
+def selec_cliente_pedido1():
     clientes = db(db.cliente.is_active is True).select(db.cliente.ALL)
     form = FORM(CENTER(
         H4('Pedido'),
@@ -453,6 +468,27 @@ def selec_cliente_pedido():
     ))
     if form.accepts(request, session):
         session.cliente = request.vars['cliente']
+        log('seleccionado ' + str(session.cliente))
+        redirect(URL('pedido'))
+    else:
+        log('acceso')
+    return dict(form=form)
+
+
+@auth.requires_login()
+def selec_cliente_pedido():
+    clientes = db(db.cliente.is_active is True).select(
+        db.cliente.nombre).column('nombre')
+    form = FORM(CENTER(
+        H4('Seleccione cliente'),
+        select_search(clientes, 'nombre'),
+        BR(),
+        BR(),
+        INPUT(_type="submit", _class="btn btn-primary btn-medium",
+              _value='Continuar')
+    ))
+    if form.accepts(request, session):
+        session.cliente = request.vars['seleccion']
         log('seleccionado ' + str(session.cliente))
         redirect(URL('pedido'))
     else:
@@ -1328,7 +1364,7 @@ def user():
 # ---- action to server uploaded static content (required) ---
 
 
-@cache.action()
+#@cache.action()
 def download():
     """
     allows downloading of uploaded files

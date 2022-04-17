@@ -2,7 +2,7 @@
 
 # for ide
 if 1 == 2:
-    from gluon import I, DIV, SPAN, BR, A
+    from gluon import I, DIV, SPAN, BR, A, XML
     from gluon import TABLE
 
 
@@ -40,3 +40,12 @@ def opt_tabla(tabla):
     else:
         fields = 'None'
     return {'fields': fields}
+
+
+def select_search(lista, titulo):
+    items = ''
+    for item in lista:
+        items += '<option data-tokens="{}"> {} </option>'.format(item, item)
+    return XML("""<select name="seleccion" class="selectpicker"\
+        data-live-search="true" title="{}"> {}\
+        </select>""".format(titulo, items))
