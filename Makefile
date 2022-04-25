@@ -1,5 +1,8 @@
 include .env
 RUN = docker compose run --no-deps --rm -u root web2py
+
+RUN_WEB2PY = docker compose run --no-deps --rm -u web2py web2py
+
 build-w2p:
 	docker build -t w2p-docker:0.1 .
 rebuild: stop build-w2p start set-perms pyconsola
@@ -28,8 +31,14 @@ set-perms:
 	${RUN} mkdir -p /home/web2py
 	${RUN} chown -R web2py:web2py /web2py
 	${RUN} chown -R web2py:web2py /home/web2py
-blank-db:
+
+first_run:
+	${RUN_WEB2PY} python3 web2py.py -M -S tapa14 -R applications/tapa14/models/log.py
+
+db-blank:
+	mkdir -p logs/databases data/postgres
 	sudo rm -r logs/databases data/postgres
+
 workspace:
 	if test -d web2py; \
         then cd web2py && git pull && git checkout $(WEB2PY_VERSION); \
@@ -37,7 +46,9 @@ workspace:
         fi
 	virtualenv --python=python3 .venv
 
-install:        build-w2p set-perms
+install: build-w2p set-perms 
+
+db_restore: stop db-blank set-perms start
 
 genero-certs:
 	openssl genrsa -passout pass:$CERT_PASS 2048 > web2py.key && \

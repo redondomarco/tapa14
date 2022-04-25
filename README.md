@@ -22,11 +22,15 @@ make genero-certs
 make install
 ```
 
+
+## Import de datos
 clonar repo de datos
 
 ```
-git clone https://github.com/redondomarco/***data*** data/files
+git clone git@github.com:redondomarco/tapa14-files.git data/files
 ```
+
+copiar ultimos csv a
 
 ### Generar venv configurado en .vscode/settings.json
 Entramos en bash del contenedor
@@ -46,5 +50,15 @@ Salimos del virtualenv y dentro de la carpeta ./data/home/
 clonamos el framework web2py para la ruta
 ```
 cd data/home
-git clone git clone --recursive https://github.com/web2py/web2py.git
+git clone --recursive https://github.com/web2py/web2py.git
 ```
+
+## Actualizacion web2py/gluon/yatl
+
+### Revisar versiones
+* https://github.com/web2py/web2py/tags
+* https://github.com/web2py/pydal
+* https://github.com/web2py/yatl
+Cambiar la version en .env
+
+hacer pull en ./data/home/ para venv
