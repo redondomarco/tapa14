@@ -43,3 +43,13 @@ services:
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
             POSTGRES_DB: ${POSTGRES_DB}
             PGDATA: ${PGDATA}
+    
+    frontail:
+        container_name: frontail
+        image: mthenw/frontail
+        ports:
+            - 9001:9001
+        volumes:
+            - ./logs/web2py:/var/log
+        command: >
+            /frontail/docker-entrypoint.sh -t dark -U admin -P $WEB2PY_PASSWORD --ui-highlight --disable-usage-stats /var/log/web2py.log

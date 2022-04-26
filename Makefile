@@ -6,27 +6,38 @@ RUN_WEB2PY = docker compose run --no-deps --rm -u web2py web2py
 build-w2p:
 	docker build -t w2p-docker:0.1 .
 rebuild: stop build-w2p start set-perms pyconsola
+
 start:
 	@docker compose up -d
 	@echo 'web2py inicializado en https://localhost:8080'
-debug: 
+	@echo 'logs en http://localhost:9001/'
+
+#debug: 
+
 stop:
 	@docker compose down
+
 restart: stop start
+
 restart-w2p:
 	@docker compose stop web2py
 	@docker compose start web2py
 	./conf/consola.sh
 ps:
 	@docker compose ps
+
 consola:
 	./conf/shell-localhost.sh
+
 pyconsola:
 	./conf/consola.sh
+
 logs:
 	@docker compose logs
-logs-w2p:
+
+w2p-log:
 	tail -f ./logs/web2py/web2py.log
+
 set-perms:
 	${RUN} mkdir -p /home/web2py
 	${RUN} chown -R web2py:web2py /web2py

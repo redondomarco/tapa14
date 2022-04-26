@@ -712,6 +712,8 @@ def restore(tabla):
                 valor = ''
             elif tabla == 'cliente' and clave == 'productos':
                 valor = valor.split('|')
+            elif tabla == 'hoja_de_ruta' and clave == 'lista_pedidos':
+                valor = valor.split('|')                
             filaproc[clave] = valor
         log(f'{base}.{tabla}.insert(**{filaproc})')
         eval(f'{base}.{tabla}.insert(**{filaproc})')
