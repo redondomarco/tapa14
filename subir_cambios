@@ -38,47 +38,7 @@ else
   exit 1;
 fi
 
-read -p "Subir en gitlab?(y/n)?" CONT
-  if [ "$CONT" = "y" ]; then
-  echo "git push gitlab"
-  git push gitlab
-  echo "hecho"
-  echo;
-else
-  echo "salgo"
-  exit 1;
-fi
-
-
 #git add .
 #git commit -m 'consulta actividad correo'
 #git push
 #git push mr
-
-read -p "Subir bkp en propastas? (y/n)?" CONT
-if [ "$CONT" = "y" ]; then
-  FECHA=`date +%F`
-  TARFILE=/home/marco/tapa14-$FECHA.tar.gz
-  echo "comprimo $TARFILE .."
-  tar -zcf $TARFILE /home/marco/web2py
-  echo "envio.."
-  rsync -avz $TARFILE bkp@propastas.com.ar: --progress
-else
-  echo "salgo"
-  exit 1;
-fi
-
-
-read -p "Subir files-data en github?(y/n)?" CONT
-  if [ "$CONT" = "y" ]; then
-  cd files
-  git add .
-  git commit -m "$COMENTARIO"
-  git push
-  echo "hecho"
-  echo;
-else
-  echo "salgo"
-  exit 1;
-fi
-
