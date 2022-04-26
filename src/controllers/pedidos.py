@@ -433,6 +433,8 @@ def muestra_nv():
                    _id='verpdf',
                    # _style="width:630px; height:500px;",
                    )),
-        H6('Nota de venta: ' + str(session.nvurl)),
+        TABLE(TR(
+            TD(A('Volver', _href=request.env.http_referer, _class='btn btn-primary btn-medium')),
+            TD(H6('Nota de venta: ' + str(session.nvurl))))),
     )
     return dict(files=files)
