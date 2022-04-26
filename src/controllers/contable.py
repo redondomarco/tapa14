@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # for ide
-if False:
+if 1==2:
     from gluon import auth
     from gluon import request, session
     from gluon import SQLFORM

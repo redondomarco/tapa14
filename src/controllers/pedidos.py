@@ -42,7 +42,11 @@ def selec_cliente_pedido():
         BR(),
         BR(),
         INPUT(_type="submit", _class="btn btn-primary btn-medium",
-              _value='Continuar')
+              _value='Continuar'),
+        BR(),
+        BR(),
+        H5('Utimos pedidos'),
+        bloque_utimos_pedidos()
     ))
     if form.accepts(request, session):
         session.cliente = request.vars['seleccion']
@@ -121,22 +125,7 @@ def pedido_pendiente():
     grilla = CENTER(DIV(conjunto_fichas, _class="grid"))
     # auxnum.append(pedidonum)
     # pedidonum=set(auxnum)
-    ult_pedidos = SQLFORM.grid(
-        db.pedidos,
-        fields=[db.pedidos.fecha, db.pedidos.pedidonum, db.pedidos.vendedor,
-                db.pedidos.cliente, db.pedidos.cantidad, db.pedidos.producto,
-                db.pedidos.total],
-        headers={db.pedidos.pedidonum: 'n'},
-        orderby=[~db.pedidos.fecha],
-        searchable=False,
-        editable=False,
-        deletable=False,
-        create=False,
-        sortable=True,
-        details=False,
-        paginate=30,
-        csv=False,
-        maxtextlength=30,)
+
     nrocomp = str(int(ultimo_comprobante('hoja_de_ruta'))).zfill(10)
     form = FORM(CENTER(
         grilla,
@@ -149,8 +138,8 @@ def pedido_pendiente():
                      _value='Generar', _id='button14'))),
               _id='formventa'),
         BR(), BR(),
-        TAG('Ultimos Pedidos'),
-        ult_pedidos))
+        H6('Utimos pedidos'),
+        bloque_utimos_pedidos()))
     if form.accepts(request, session):
         log('form aceptado')
         # log('request: ' + str(request.vars))
@@ -438,3 +427,22 @@ def muestra_nv():
             TD(H6('Nota de venta: ' + str(session.nvurl))))),
     )
     return dict(files=files)
+
+def bloque_utimos_pedidos():
+    ult_pedidos = SQLFORM.grid(
+        db.pedidos,
+        fields=[db.pedidos.fecha, db.pedidos.pedidonum, db.pedidos.vendedor,
+                db.pedidos.cliente, db.pedidos.cantidad, db.pedidos.producto,
+                db.pedidos.total],
+        headers={db.pedidos.pedidonum: 'n'},
+        orderby=[~db.pedidos.fecha],
+        searchable=False,
+        editable=False,
+        deletable=False,
+        create=False,
+        sortable=True,
+        details=False,
+        paginate=30,
+        csv=False,
+        maxtextlength=30,)
+    return(ult_pedidos)
