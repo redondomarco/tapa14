@@ -5,6 +5,9 @@ RUN_WEB2PY = docker compose run --no-deps --rm -u web2py web2py
 
 build-w2p:
 	docker build -t w2p-docker:0.1 .
+
+#rebuild requiere proxy squid
+# ej https://github.com/redondomarco/scripts/tree/master/docker/squid-cache
 rebuild: stop build-w2p start set-perms pyconsola
 
 start:

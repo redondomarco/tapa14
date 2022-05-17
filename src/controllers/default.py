@@ -934,8 +934,13 @@ def load_backup():
 def lista_despacho():
     log('acceso ' + str(request.function))
     registros = proceso_detalle_despacho()
+    orden = ['producto', 'fecha', 'cantidad', 'fa_n', 'cliente', 'lote',
+    'responsable', 'vehiculo']
     tabla = CENTER(H1('Resultado del analisis de facturas'),
-                   list_dict_to_table_sortable(registros, 'lista_despacho'))
+                   list_dict_to_table_sortable(
+                       registros,
+                       'lista_despacho',
+                       orden=orden))
     form = (tabla)
     return dict(form=form)
 

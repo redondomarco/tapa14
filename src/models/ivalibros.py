@@ -45,7 +45,7 @@ def detalle_id(lista, cyd):
 
 
 def test_detalle_id():
-    a = detalle_id([0, 1, 2], 'detalle')
+    a = id_detalle([0, 1, 2], 'detalle')
     if a == '0000000100000000000000000002f019564bfcfa0a562d25341e83ca087b':
         return True
 
@@ -75,7 +75,7 @@ db.define_table(
     Field('cbt_numero', 'integer'),
     Field('cbte_nro_reg', 'integer'),
     Field('tipo_doc', 'integer'),
-    Field('nro_doc', 'integer'),
+    Field('nro_doc', 'string'),
     Field('nombre', 'string'),
     Field('imp_total', formato_decimal),
     Field('imp_tot_conc', formato_decimal),
@@ -109,7 +109,7 @@ db.define_table(
     Field('cbte_nro_reg', 'integer'),
     Field('cant_hojas', 'integer'),
     Field('tipo_doc', 'integer'),
-    Field('nro_doc', 'integer'),
+    Field('nro_doc', 'string'),
     Field('nombre', 'string'),
     Field('imp_total', formato_decimal),
     Field('imp_tot_conc', formato_decimal),
@@ -127,7 +127,7 @@ db.define_table(
     Field('imp_moneda_ctz', formato_decimal),
     Field('alicuotas_iva', 'integer'),
     Field('codigo_operacion', 'string'),
-    Field('cae', 'integer'),
+    Field('cae', 'string'),
     Field('fecha_vto', 'datetime'),
     Field('fecha_anulacion', 'datetime'),
     Field('fecha_carga', 'datetime'),
@@ -217,6 +217,7 @@ def subo_cbtes(ARCHIVO):
             k_procesos = t_procesos[1].keys()
             for key in k_procesos:
                 selector = 'db.' + nombre_cbte + '.comprobante'
+                # log('key: ' + str(key) + ' selector' + str(selector))
                 if db(eval(selector) == str(key)).select().first():
                     t_procesos[1][key]['fecha_mod'] = hoy
                     db(db[nombre_cbte].comprobante == str(key)).update(
@@ -226,8 +227,13 @@ def subo_cbtes(ARCHIVO):
                     t_procesos[1][key]['comprobante'] = str(key)
                     t_procesos[1][key]['fecha_carga'] = hoy
                     t_procesos[1][key]['fecha_mod'] = hoy
-                    db[nombre_cbte].insert(**t_procesos[1][key])
-                    reg_inserts.append(key)
+                    log(str(t_procesos[1][key]))
+                    try:
+                        db[nombre_cbte].insert(**t_procesos[1][key])
+                        reg_inserts.append(key)
+                    except Exception as e:
+                        log('problema con: ' + str(t_procesos[1][key]) +
+                            ' e: ' + str(e))
             db.commit()
             mensaje = (str(len(reg_updates)) + ' registros actualizados: ' +
                        str(len(reg_inserts)) + ' registros agregados')
@@ -242,8 +248,21 @@ def subo_cbtes(ARCHIVO):
 
 
 def test_subo_cbtes():
-    ARCHIVO = 'applications/tapa14/files/DETALLE.txt'
-    return subo_cbtes(ARCHIVO)
+    archivos = [
+        'applications/tapa14/files/VENTAS.txt',
+        'applications/tapa14/files/VENTAS1.txt',
+        'applications/tapa14/files/ALICUOTAS.txt',
+        'applications/tapa14/files/ALICUOTAS1.txt',
+        'applications/tapa14/files/DETALLE.txt',
+        'applications/tapa14/files/DETALLE1.txt',
+        'applications/tapa14/files/CABECERA.txt',
+        'applications/tapa14/files/CABECERA1.txt',
+    ]
+    resultados = []
+    for archivo in archivos:
+        log('intento subir cbte: ' + str(archivo))
+        resultados.append(subo_cbtes(archivo))
+    return resultados
 
 
 def identifico_registro(ARCHIVO):

@@ -9,4 +9,11 @@ server {
     listen 80;
     ssl_certificate     /certs/web2py.crt;
     ssl_certificate_key /certs/web2py.key;
+    
+    proxy_connect_timeout 300;
+    proxy_read_timeout    300;
+
+    client_body_timeout   300;
+    client_header_timeout 300;
+    keepalive_timeout     300;
 }

@@ -2,7 +2,7 @@
 
 # users can overwrite UWSGI_OPTIONS
 if [ "$UWSGI_OPTIONS" == '' ]; then
-  UWSGI_OPTIONS='--master --thunder-lock --enable-threads'
+  UWSGI_OPTIONS='--master --thunder-lock --enable-threads --http-timeout=300'
 fi
 
 selectVersion() {

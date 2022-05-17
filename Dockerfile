@@ -34,15 +34,7 @@ python3-psycopg2
 RUN git clone --recursive https://github.com/web2py/web2py.git $WEB2PY_ROOT
 RUN cd $WEB2PY_ROOT && git pull
 
-COPY conf/entrypoint.sh /usr/local/bin/
-
 RUN mkdir /certs
-
-WORKDIR /certs
-RUN openssl genrsa -passout pass:$CERT_PASS 2048 > web2py.key && \
-    openssl req -new -x509 -nodes -sha1 -days 1780 -subj "/C=AR/ST=Santa Fe/L=Rosario/O=MR/CN="$CERT_DOMAIN -key web2py.key > web2py.crt && \
-    openssl x509 -noout -fingerprint -text < web2py.crt > web2py.inf
-WORKDIR $WEB2PY_ROOT
 
 COPY requirements.txt .
 
@@ -56,6 +48,15 @@ RUN cp $WEB2PY_ROOT/handlers/wsgihandler.py $WEB2PY_ROOT \
     && mkdir -p /home/web2py \
     && chown -R web2py:web2py /home/web2py \
     && chmod 770 /home/web2py
+
+
+WORKDIR /certs
+RUN openssl genrsa -passout pass:$CERT_PASS 2048 > web2py.key && \
+    openssl req -new -x509 -nodes -sha1 -days 1780 -subj "/C=AR/ST=Santa Fe/L=Rosario/O=MR/CN="$CERT_DOMAIN -key web2py.key > web2py.crt && \
+    openssl x509 -noout -fingerprint -text < web2py.crt > web2py.inf
+WORKDIR $WEB2PY_ROOT
+
+COPY conf/entrypoint.sh /usr/local/bin/
 
 ENTRYPOINT [ "entrypoint.sh" ]
 CMD [ "https" ]

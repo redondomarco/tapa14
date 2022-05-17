@@ -3,6 +3,7 @@
 Funciones referidas al despacho
 
 """
+import random
 import datetime
 from pyexcel_ods3 import get_data
 
@@ -56,6 +57,11 @@ def mapeo_prod(producto):
               '16' in minus]):
         return [producto, 'TPC300x16']
     # variante pc
+    elif all(['pascualina' in minus,
+              'criolla' in minus,
+              '300' in minus]):
+        return [producto, 'TPC300x16']
+    # variante pc 1
     elif all(['pc' in minus,
               '300' in minus]):
         return [producto, 'TPC300x16']
@@ -82,6 +88,12 @@ def mapeo_prod(producto):
               'criollo' in minus,
               '135' in minus]):
         return [producto, 'TRC135xDOC']
+    # rc135 cat
+    elif all(['rotisero' in minus,
+              'criollo' in minus,
+              'xc' in minus,
+              '160' in minus]):
+        return [producto, 'TRC160xDOC']
     # rh147 cat
     elif all(['super' in minus,
               'rotisero' in minus,
@@ -168,7 +180,9 @@ def busca_lote(fechaf, producto):
     # fechafa = datetime.strptime(fechaf, '%d/%m/%Y')
     fechafa = fechaf
     # un_csv = '/csv/elaboracion/elab_1-04-208_al_7-11-2018.csv'
-    un_csv = '/csv/elaboracion/elab_1-6-2019_al_30-11-2019.csv'
+    # un_csv = '/csv/elaboracion/elab_1-6-2019_al_30-11-2019.csv'
+    # un_csv = '/csv/elaboracion/elab_1-11-2021_al_16-05-2022.csv'
+    un_csv = '/csv/elaboracion/todos.csv'
     csvleido = open(base_dir + un_csv, 'r').read().split()
     lista = []
     # formateo csv
@@ -252,12 +266,13 @@ def leo_para_despacho():
 def proceso_detalle_despacho():
     # busco registros detalle de facturacion
     # entre fechas
-    fecha_inicio = datetime.datetime(2019, 6, 1, 0, 0)
-    fecha_fin = datetime.datetime(2019, 11, 30, 0, 0)
+    fecha_inicio = datetime.datetime(2021, 11, 1, 0, 0)
+    fecha_fin = datetime.datetime(2022, 5, 16, 0, 0)
     cons = db((db.cbte_DETALLE.fecha_cbte >= fecha_inicio) and
               (db.cbte_DETALLE.fecha_cbte <= fecha_fin)).select()
     registros = cons.as_dict()
     # return registros
+    clienteold = ''
     resultado = []
     for i in registros.keys():
         cyd = registros[i]['cyd']
@@ -265,18 +280,33 @@ def proceso_detalle_despacho():
             producto = mapeo_prod(cyd)[1]
             comprobante = registros[i]['comprobante'][0:28]
             # log(comprobante)
-            cons1 = db(db.cbte_CABECERA.comprobante == comprobante).select()
-            cliente = cons1.first().as_dict()['nombre']
-            fecha = registros[i]['fecha_cbte']
-            aux = {
-                'producto': str(producto),
-                'cantidad': str(registros[i]['cantidad']),
-                'fa_n': 'fa-' + str(comprobante),
-                'fecha': fecha.date(),
-                'cliente': str(cliente),
-                'lote': str(busca_lote(fecha, producto))
-            }
-            resultado.append(aux)
+            try:
+                selec_cbte = (db.cbte_CABECERA.comprobante == comprobante)
+                cons1 = db(selec_cbte).select()
+                cliente = cons1.first().as_dict()['nombre']
+                # logica para mismo cliente mismo vehiculo
+                if clienteold != cliente:
+                    # hace random el nuevo vehiculo
+                    vehiculo = random.choice(['Lifan_1', 'Shineray_1', 'Shineray_2'])
+                else:
+                    # queda el mismo vehiculo
+                    pass
+                clienteold = cliente
+                fecha = registros[i]['fecha_cbte']
+                aux = {
+                    'producto': str(producto),
+                    'cantidad': str(registros[i]['cantidad']),
+                    'fa_n': 'fa-' + str(comprobante),
+                    'fecha': fecha.date(),
+                    'cliente': str(cliente),
+                    'lote': str(busca_lote(fecha, producto)),
+                    'responsable': 'RAMON',
+                    'vehiculo': vehiculo
+                }
+                resultado.append(aux)
+            except Exception as e:
+                log(comprobante)
+                log(e)
         else:
             pass
             # log('descartado ' + str(producto))
@@ -294,6 +324,18 @@ def descarto_productos_despacho(producto):
     if any(['mth220' in minus,
             'mini_tarta' in minus,
             'empresarial' in minus,
+            'devolucion' in minus,
+            'diferencia' in minus,
+            'logistica' in minus,
+            'logística' in minus,
+            'correcci' in minus,
+            'cheque' in minus,
+            'bancario' in minus,
+            'oquis' in minus,
+            'ravioles' in minus,
+            'tallarine' in minus,
+            'fideo' in minus,
+            'cajas de discos' in minus,
             'mezcladora' in minus]):
         return False
     else:
