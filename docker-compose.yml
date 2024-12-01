@@ -1,4 +1,3 @@
-version: '3'
 services:
     web2py:
         container_name: tapa14
